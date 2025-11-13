@@ -1,13 +1,13 @@
 import React from "react";
 import { Box, Typography, Button, Stack, Avatar } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import profilepicture from "../assets/profilepicture.jpg";
-import springboot from "../assets/tech stack logo/spring-boot.webp";
-import reactIcon from "../assets/tech stack logo/react-icon.png";
-import postgres from "../assets/tech stack logo/Postgresql.png";
-import oracledb from "../assets/tech stack logo/oracledb.png";
-import supabase from "../assets/tech stack logo/supabase.png";
-import nodejs from "../assets/tech stack logo/nodejs.svg"
+// import profilepicture from "../assets/profilepicture.jpg";
+// import springboot from "../assets/tech stack logo/spring-boot.webp";
+// import reactIcon from "../assets/tech stack logo/react-icon.png";
+// import postgres from "../assets/tech stack logo/Postgresql.png";
+// import oracledb from "../assets/tech stack logo/oracledb.png";
+// import supabase from "../assets/tech stack logo/supabase.png";
+// import nodejs from "../assets/tech stack logo/nodejs.svg"
 
 export default function HeroSection() {
   const scrollToProjects = () => {
@@ -19,12 +19,12 @@ export default function HeroSection() {
   };
 
   const techStack = [
-    { name: "Spring Boot", logo: springboot },
-    { name: "React", logo: reactIcon },
-    { name: "PostgreSQL", logo: postgres },
-    { name: "OracleDB", logo: oracledb },
-    { name: "Supabase", logo: supabase },
-    { name: "Node.js", logo: nodejs },
+    { name: "Spring Boot", logo: "/tech stack logo/spring-boot.webp" },
+    { name: "React", logo: "/tech stack logo/React-icon.png" },
+    { name: "PostgreSQL", logo:  "/tech stack logo/Postgresql.png"},
+    { name: "OracleDB", logo: "/tech stack logo/oracledb.png" },
+    { name: "Supabase", logo: "/tech stack logo/supabase.png" },
+    { name: "Node.js", logo: "/tech stack logo/nodejs.svg" },
   ];
 
   return (
@@ -45,7 +45,7 @@ export default function HeroSection() {
       {/* Profile Picture */}
       <Avatar
         alt="Jeremiah William Sebastian"
-        src={profilepicture}
+        src="/profilepicture.jpg"
         sx={{
           width: 150,
           height: 150,

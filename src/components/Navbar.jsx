@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Typography, Box } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import cvpdf from "../assets/CV JEREMIAH WILLIAM SEBASTIAN.docx.pdf"
+import cvpdf from "../../public/CV JEREMIAH WILLIAM SEBASTIAN.docx.pdf"
 
 const sections = ["Introduction", "Experience", "Projects", "Education", "Contact"];
 
@@ -32,7 +32,7 @@ export default function Navbar() {
           <Button
             variant="outlined"
             sx={{ color: "white", borderColor: "white" }}
-            href={cvpdf}
+            href="/CV JEREMIAH WILLIAM SEBASTIAN.docx.pdf"
             target="_blank"
           >
             Download CV
@@ -51,7 +51,7 @@ export default function Navbar() {
               </MenuItem>
             ))}
             <MenuItem>
-              <Button href="/cv.pdf" target="_blank" fullWidth>
+              <Button href="/CV JEREMIAH WILLIAM SEBASTIAN.docx.pdf" target="_blank" fullWidth>
                 Download CV
               </Button>
             </MenuItem>

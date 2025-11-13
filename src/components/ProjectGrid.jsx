@@ -10,9 +10,9 @@ import {
   Box,
 } from "@mui/material";
 
-import wisely from "../assets/projects/wisely.png";
-import dev4you from "../assets/projects/Dev4You.png";
-import cs2skin from "../assets/projects/CesTwoSkin.png";
+// import wisely from "../assets/projects/wisely.png";
+// import dev4you from "../assets/projects/Dev4You.png";
+// import cs2skin from "../assets/projects/CesTwoSkin.png";
 
 export default function ProjectGrid() {
   const projects = [
@@ -20,7 +20,7 @@ export default function ProjectGrid() {
       title: "Wisely",
       description:
         "A warehouse and sales tracking app that helps small businesses manage products, track expiration dates, and optimize restocks.",
-      image: wisely,
+      image: "/projects/wisely.png",
       liveLink: "https://www.wisely.id",
       github: "https://github.com/nervouswilliam/WISE/tree/master/frontend",
     },
@@ -28,14 +28,14 @@ export default function ProjectGrid() {
       title: "Dev4You",
       description:
         "A platform connecting nonprofit organizations with developers to build websites and apps at minimal cost and allow developers gain experience.",
-      image: dev4you,
+      image: "/projects/Dev4You.png",
       github: "https://github.com/nervouswilliam/skripsi",
     },
     {
       title: "CesTwoSkin",
       description:
         "A mobile application that enables gamers to buy, sell, and trade Counter-Strike 2 weapon skins securely and effortlessly.",
-      image: cs2skin,
+      image: "/projects/CesTwoSkin.png",
       github: "https://github.com/nervouswilliam/cestwo_skin",
     },
   ];
