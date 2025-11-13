@@ -1,13 +1,13 @@
 import React from "react";
 import { Box, Typography, Button, Stack, Avatar } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import profilepicture from "../../public/profilepicture.jpg";
-import springboot from "../../public/tech stack logo/spring-boot.webp";
-import reactIcon from "../../public/tech stack logo/react-icon.png";
-import postgres from "../../public/tech stack logo/Postgresql.png";
-import oracledb from "../../public/tech stack logo/oracledb.png";
-import supabase from "../../public/tech stack logo/supabase.png";
-import nodejs from "../../public/tech stack logo/nodejs.svg"
+import profilepicture from "../assets/profilepicture.jpg";
+import springboot from "../assets/tech stack logo/spring-boot.webp";
+import reactIcon from "../assets/tech stack logo/react-icon.png";
+import postgres from "../assets/tech stack logo/Postgresql.png";
+import oracledb from "../assets/tech stack logo/oracledb.png";
+import supabase from "../assets/tech stack logo/supabase.png";
+import nodejs from "../assets/tech stack logo/nodejs.svg"
 
 export default function HeroSection() {
   const scrollToProjects = () => {

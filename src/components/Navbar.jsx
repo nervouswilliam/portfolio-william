@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Typography, Box } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import cvpdf from "../../public/CV JEREMIAH WILLIAM SEBASTIAN.docx.pdf"
+import cvpdf from "../assets/CV JEREMIAH WILLIAM SEBASTIAN.docx.pdf"
 
 const sections = ["Introduction", "Experience", "Projects", "Education", "Contact"];
 

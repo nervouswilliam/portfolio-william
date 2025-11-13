@@ -10,9 +10,9 @@ import {
   Box,
 } from "@mui/material";
 
-import wisely from "../../public/projects/wisely.png";
-import dev4you from "../../public/projects/Dev4You.png";
-import cs2skin from "../../public/projects/CesTwoSkin.png";
+import wisely from "../assets/projects/wisely.png";
+import dev4you from "../assets/projects/Dev4You.png";
+import cs2skin from "../assets/projects/CesTwoSkin.png";
 
 export default function ProjectGrid() {
   const projects = [
