@@ -25,6 +25,7 @@ import { DiJava } from "react-icons/di";
 import wisely from "/projects/wisely.png";
 import dev4you from "/projects/Dev4You.png";
 import cs2skin from "/projects/CesTwoSkin.png";
+import needworkapp from "/projects/needworkapp.png"
 
 export default function ProjectGrid() {
   const techIcons = {
@@ -55,6 +56,15 @@ export default function ProjectGrid() {
       image: dev4you,
       github: "https://github.com/nervouswilliam/skripsi",
       tech: ["react", "mui", "nodejs", "postgres"],
+    },
+    {
+      title: "Need Work",
+      description:
+        "A search engine platform that helps people search for jobs from different job sites and allowing the to apply effortlessly.",
+      image: needworkapp,
+      liveLink:"https://www.needworkapp.com",
+      github: "https://github.com/nervouswilliam/needworkapp.com",
+      tech: ["react", "mui"],
     },
     {
       title: "CesTwoSkin",
