@@ -8,35 +8,61 @@ import {
   Typography,
   Button,
   Box,
+  Tooltip,
 } from "@mui/material";
 
-// import wisely from "../assets/projects/wisely.png";
-// import dev4you from "../assets/projects/Dev4You.png";
-// import cs2skin from "../assets/projects/CesTwoSkin.png";
+import {
+  SiReact,
+  SiMui,
+  SiSupabase,
+  SiNodedotjs,
+  SiPostgresql,
+  SiAndroid,
+  SiSqlite,
+} from "react-icons/si";
+import { DiJava } from "react-icons/di";
+
+import wisely from "/projects/wisely.png";
+import dev4you from "/projects/Dev4You.png";
+import cs2skin from "/projects/CesTwoSkin.png";
 
 export default function ProjectGrid() {
+  const techIcons = {
+    react: { icon: <SiReact size={22} />, label: "React" },
+    mui: { icon: <SiMui size={22} />, label: "Material UI" },
+    supabase: { icon: <SiSupabase size={22} />, label: "Supabase" },
+    nodejs: { icon: <SiNodedotjs size={22} />, label: "Node.js" },
+    postgres: { icon: <SiPostgresql size={22} />, label: "PostgreSQL" },
+    android: { icon: <SiAndroid size={22} />, label: "Android" },
+    java: { icon: <DiJava size={24} />, label: "Java" },
+    sqlite: { icon: <SiSqlite size={22} />, label: "SQLite" },
+  };
+
   const projects = [
     {
       title: "Wisely",
       description:
         "A warehouse and sales tracking app that helps small businesses manage products, track expiration dates, and optimize restocks.",
-      image: "/projects/wisely.png",
+      image: wisely,
       liveLink: "https://www.wisely.id",
       github: "https://github.com/nervouswilliam/WISE/tree/master/frontend",
+      tech: ["react", "mui", "supabase"],
     },
     {
       title: "Dev4You",
       description:
-        "A platform connecting nonprofit organizations with developers to build websites and apps at minimal cost and allow developers gain experience.",
-      image: "/projects/Dev4You.png",
+        "A platform connecting nonprofits with developers to build websites and apps at minimal cost while helping developers gain real-world experience.",
+      image: dev4you,
       github: "https://github.com/nervouswilliam/skripsi",
+      tech: ["react", "mui", "nodejs", "postgres"],
     },
     {
       title: "CesTwoSkin",
       description:
         "A mobile application that enables gamers to buy, sell, and trade Counter-Strike 2 weapon skins securely and effortlessly.",
-      image: "/projects/CesTwoSkin.png",
+      image: cs2skin,
       github: "https://github.com/nervouswilliam/cestwo_skin",
+      tech: ["android", "java", "sqlite"],
     },
   ];
 
@@ -73,18 +99,34 @@ export default function ProjectGrid() {
                 <Typography
                   gutterBottom
                   variant="h6"
-                  component="div"
                   sx={{ fontWeight: "bold" }}
                 >
                   {project.title}
                 </Typography>
+
                 <Typography variant="body2" color="text.secondary">
                   {project.description}
                 </Typography>
+
+                {/* Tech Icons Row */}
+                <Box sx={{ display: "flex", gap: 1.5, mt: 2 }}>
+                  {project.tech.map((tech, i) => (
+                    <Tooltip key={i} title={techIcons[tech].label} arrow>
+                      <Box
+                        sx={{
+                          color: "grey", // Icon color
+                          "&:hover": { color: "#64ffda", cursor: "pointer" }, // Optional hover effect
+                          transition: "0.2s ease",
+                        }}
+                      >
+                        {techIcons[tech].icon}
+                      </Box>
+                    </Tooltip>
+                  ))}
+                </Box>
               </CardContent>
 
               <CardActions>
-                {/* ✅ Only render Live Demo button if liveLink exists */}
                 {project.liveLink && (
                   <Button
                     size="small"
