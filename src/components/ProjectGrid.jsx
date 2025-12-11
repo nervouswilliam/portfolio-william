@@ -26,6 +26,7 @@ import wisely from "/projects/wisely.png";
 import dev4you from "/projects/Dev4You.png";
 import cs2skin from "/projects/CesTwoSkin.png";
 import needworkapp from "/projects/needworkapp.png"
+import tictactoe from "/projects/tictactoe.png"
 
 export default function ProjectGrid() {
   const techIcons = {
@@ -73,6 +74,15 @@ export default function ProjectGrid() {
       image: cs2skin,
       github: "https://github.com/nervouswilliam/cestwo_skin",
       tech: ["android", "java", "sqlite"],
+    },
+    {
+      title: "Tic Tac Shift",
+      description:
+        "A web Application version of Tic Tac Toe with a twist, featuring a shifting board mechanic to enhance gameplay and strategy.",
+      image: tictactoe,
+      liveLink: "https://www.tictacshift.com",
+      github: "https://github.com/nervouswilliam/TicTacToe",
+      tech: ["react"],
     },
   ];
 
