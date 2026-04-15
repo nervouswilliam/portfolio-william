@@ -1,4 +1,181 @@
-import React from "react";
+// import React from "react";
+// import {
+//   Grid,
+//   Card,
+//   CardMedia,
+//   CardContent,
+//   CardActions,
+//   Typography,
+//   Button,
+//   Box,
+//   Tooltip,
+// } from "@mui/material";
+
+// import {
+//   SiReact,
+//   SiMui,
+//   SiSupabase,
+//   SiNodedotjs,
+//   SiPostgresql,
+//   SiAndroid,
+//   SiSqlite,
+// } from "react-icons/si";
+// import { DiJava } from "react-icons/di";
+
+// import wisely from "/projects/wisely.png";
+// import dev4you from "/projects/Dev4You.png";
+// import cs2skin from "/projects/CesTwoSkin.png";
+// import needworkapp from "/projects/needworkapp.png"
+// import tictactoe from "/projects/tictactoe.png"
+
+// export default function ProjectGrid() {
+//   const techIcons = {
+//     react: { icon: <SiReact size={22} />, label: "React" },
+//     mui: { icon: <SiMui size={22} />, label: "Material UI" },
+//     supabase: { icon: <SiSupabase size={22} />, label: "Supabase" },
+//     nodejs: { icon: <SiNodedotjs size={22} />, label: "Node.js" },
+//     postgres: { icon: <SiPostgresql size={22} />, label: "PostgreSQL" },
+//     android: { icon: <SiAndroid size={22} />, label: "Android" },
+//     java: { icon: <DiJava size={24} />, label: "Java" },
+//     sqlite: { icon: <SiSqlite size={22} />, label: "SQLite" },
+//   };
+
+//   const projects = [
+//     {
+//       title: "Wisely",
+//       description:
+//         "A warehouse and sales tracking app that helps small businesses manage products, track expiration dates, and optimize restocks.",
+//       image: wisely,
+//       liveLink: "https://www.wisely.id",
+//       github: "https://github.com/nervouswilliam/WISE/tree/master/frontend",
+//       tech: ["react", "mui", "supabase"],
+//     },
+//     {
+//       title: "Dev4You",
+//       description:
+//         "A platform connecting nonprofits with developers to build websites and apps at minimal cost while helping developers gain real-world experience.",
+//       image: dev4you,
+//       github: "https://github.com/nervouswilliam/skripsi",
+//       tech: ["react", "mui", "nodejs", "postgres"],
+//     },
+//     {
+//       title: "Need Work",
+//       description:
+//         "A search engine platform that helps people search for jobs from different job sites and allowing the to apply effortlessly.",
+//       image: needworkapp,
+//       liveLink:"https://www.needworkapp.com",
+//       github: "https://github.com/nervouswilliam/needworkapp.com",
+//       tech: ["react", "mui"],
+//     },
+//     {
+//       title: "CesTwoSkin",
+//       description:
+//         "A mobile application that enables gamers to buy, sell, and trade Counter-Strike 2 weapon skins securely and effortlessly.",
+//       image: cs2skin,
+//       github: "https://github.com/nervouswilliam/cestwo_skin",
+//       tech: ["android", "java", "sqlite"],
+//     },
+//     {
+//       title: "Tic Tac Shift",
+//       description:
+//         "A web Application version of Tic Tac Toe with a twist, featuring a shifting board mechanic to enhance gameplay and strategy.",
+//       image: tictactoe,
+//       liveLink: "https://www.tictacshift.com",
+//       github: "https://github.com/nervouswilliam/TicTacToe",
+//       tech: ["react"],
+//     },
+//   ];
+
+//   return (
+//     <Box>
+//       <Typography
+//         variant="h4"
+//         sx={{ textAlign: "center", mb: 5, fontWeight: "bold" }}
+//       >
+//         Projects
+//       </Typography>
+
+//       <Grid container spacing={4} justifyContent="center">
+//         {projects.map((project, index) => (
+//           <Grid item xs={12} sm={6} md={4} key={index}>
+//             <Card
+//               sx={{
+//                 maxWidth: 400,
+//                 mx: "auto",
+//                 borderRadius: 3,
+//                 boxShadow: 4,
+//                 transition: "transform 0.3s ease",
+//                 "&:hover": { transform: "translateY(-6px)" },
+//               }}
+//             >
+//               <CardMedia
+//                 component="img"
+//                 height="200"
+//                 image={project.image}
+//                 alt={project.title}
+//               />
+
+//               <CardContent>
+//                 <Typography
+//                   gutterBottom
+//                   variant="h6"
+//                   sx={{ fontWeight: "bold" }}
+//                 >
+//                   {project.title}
+//                 </Typography>
+
+//                 <Typography variant="body2" color="text.secondary">
+//                   {project.description}
+//                 </Typography>
+
+//                 {/* Tech Icons Row */}
+//                 <Box sx={{ display: "flex", gap: 1.5, mt: 2 }}>
+//                   {project.tech.map((tech, i) => (
+//                     <Tooltip key={i} title={techIcons[tech].label} arrow>
+//                       <Box
+//                         sx={{
+//                           color: "grey", // Icon color
+//                           "&:hover": { color: "#64ffda", cursor: "pointer" }, // Optional hover effect
+//                           transition: "0.2s ease",
+//                         }}
+//                       >
+//                         {techIcons[tech].icon}
+//                       </Box>
+//                     </Tooltip>
+//                   ))}
+//                 </Box>
+//               </CardContent>
+
+//               <CardActions>
+//                 {project.liveLink && (
+//                   <Button
+//                     size="small"
+//                     href={project.liveLink}
+//                     target="_blank"
+//                     rel="noopener noreferrer"
+//                   >
+//                     Live Demo
+//                   </Button>
+//                 )}
+
+//                 <Button
+//                   size="small"
+//                   href={project.github}
+//                   target="_blank"
+//                   rel="noopener noreferrer"
+//                 >
+//                   GitHub
+//                 </Button>
+//               </CardActions>
+//             </Card>
+//           </Grid>
+//         ))}
+//       </Grid>
+//     </Box>
+//   );
+// }
+
+import React, { useState } from "react";
 import {
   Grid,
   Card,
@@ -19,16 +196,27 @@ import {
   SiPostgresql,
   SiAndroid,
   SiSqlite,
+  SiPython,
+  SiPandas,
+  SiPlotly,
 } from "react-icons/si";
 import { DiJava } from "react-icons/di";
 
 import wisely from "/projects/wisely.png";
 import dev4you from "/projects/Dev4You.png";
 import cs2skin from "/projects/CesTwoSkin.png";
-import needworkapp from "/projects/needworkapp.png"
-import tictactoe from "/projects/tictactoe.png"
+import needworkapp from "/projects/needworkapp.png";
+import tictactoe from "/projects/tictactoe.png";
+import hdb from "/projects/hdb.jpg";
+
+import ProjectDetail from "./ProjectDetail.jsx";
+
+import {useNavigate} from "react-router-dom";
 
 export default function ProjectGrid() {
+  const [selectedProject, setSelectedProject] = useState(null);
+  const navigate = useNavigate();
+
   const techIcons = {
     react: { icon: <SiReact size={22} />, label: "React" },
     mui: { icon: <SiMui size={22} />, label: "Material UI" },
@@ -38,10 +226,14 @@ export default function ProjectGrid() {
     android: { icon: <SiAndroid size={22} />, label: "Android" },
     java: { icon: <DiJava size={24} />, label: "Java" },
     sqlite: { icon: <SiSqlite size={22} />, label: "SQLite" },
+    python: { icon: <SiPython size={22} />, label: "Python" },
+    pandas: { icon: <SiPandas size={22} />, label: "Pandas" },
+    matplotlib: { icon: <SiPlotly size={22} />, label: "Matplotlib" },
   };
 
   const projects = [
     {
+      id: "wisely",
       title: "Wisely",
       description:
         "A warehouse and sales tracking app that helps small businesses manage products, track expiration dates, and optimize restocks.",
@@ -51,6 +243,7 @@ export default function ProjectGrid() {
       tech: ["react", "mui", "supabase"],
     },
     {
+      id: "dev4you",
       title: "Dev4You",
       description:
         "A platform connecting nonprofits with developers to build websites and apps at minimal cost while helping developers gain real-world experience.",
@@ -59,15 +252,17 @@ export default function ProjectGrid() {
       tech: ["react", "mui", "nodejs", "postgres"],
     },
     {
+      id: "needwork",
       title: "Need Work",
       description:
-        "A search engine platform that helps people search for jobs from different job sites and allowing the to apply effortlessly.",
+        "A search engine platform that helps people search for jobs from different job sites and allowing them to apply effortlessly.",
       image: needworkapp,
-      liveLink:"https://www.needworkapp.com",
+      liveLink: "https://www.needworkapp.com",
       github: "https://github.com/nervouswilliam/needworkapp.com",
       tech: ["react", "mui"],
     },
     {
+      id: "cestwosin",
       title: "CesTwoSkin",
       description:
         "A mobile application that enables gamers to buy, sell, and trade Counter-Strike 2 weapon skins securely and effortlessly.",
@@ -76,6 +271,7 @@ export default function ProjectGrid() {
       tech: ["android", "java", "sqlite"],
     },
     {
+      id: "tictactoe",
       title: "Tic Tac Shift",
       description:
         "A web Application version of Tic Tac Toe with a twist, featuring a shifting board mechanic to enhance gameplay and strategy.",
@@ -84,7 +280,26 @@ export default function ProjectGrid() {
       github: "https://github.com/nervouswilliam/TicTacToe",
       tech: ["react"],
     },
+    {
+      id: "HDB resale Value Drivers",
+      title: "HDB Resale Value Drivers",
+      description:
+        "A statistical analysis of factors influencing HDB resale flat prices in Singapore's West region.",
+      image: hdb,
+      details: "hdb_project",
+      tech: ["python", "pandas", "matplotlib"],
+    },
   ];
+
+  // If a project is selected, show the detail page
+  if (selectedProject) {
+    return (
+      <ProjectDetail
+        projectTitle={selectedProject.title}
+        onBack={() => setSelectedProject(null)}
+      />
+    );
+  }
 
   return (
     <Box>
@@ -106,6 +321,9 @@ export default function ProjectGrid() {
                 boxShadow: 4,
                 transition: "transform 0.3s ease",
                 "&:hover": { transform: "translateY(-6px)" },
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
               }}
             >
               <CardMedia
@@ -115,7 +333,7 @@ export default function ProjectGrid() {
                 alt={project.title}
               />
 
-              <CardContent>
+              <CardContent sx={{ flexGrow: 1 }}>
                 <Typography
                   gutterBottom
                   variant="h6"
@@ -134,8 +352,8 @@ export default function ProjectGrid() {
                     <Tooltip key={i} title={techIcons[tech].label} arrow>
                       <Box
                         sx={{
-                          color: "grey", // Icon color
-                          "&:hover": { color: "#64ffda", cursor: "pointer" }, // Optional hover effect
+                          color: "grey",
+                          "&:hover": { color: "#64ffda", cursor: "pointer" },
                           transition: "0.2s ease",
                         }}
                       >
@@ -147,6 +365,15 @@ export default function ProjectGrid() {
               </CardContent>
 
               <CardActions>
+                {project.details && (
+                  <Button
+                    size="small"
+                    onClick={() => navigate(`/${project.details}`)}
+                  >
+                    Details
+                  </Button>
+                )}
+
                 {project.liveLink && (
                   <Button
                     size="small"
@@ -158,14 +385,25 @@ export default function ProjectGrid() {
                   </Button>
                 )}
 
-                <Button
+                {project.github && (
+                  <Button
+                    size="small"
+                    href={project.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    GitHub
+                  </Button>
+                )}
+
+                {/* <Button
                   size="small"
                   href={project.github}
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   GitHub
-                </Button>
+                </Button> */}
               </CardActions>
             </Card>
           </Grid>
