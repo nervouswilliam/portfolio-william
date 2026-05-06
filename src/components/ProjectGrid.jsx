@@ -199,6 +199,7 @@ import {
   SiPython,
   SiPandas,
   SiPlotly,
+  SiKnime,
 } from "react-icons/si";
 import { DiJava } from "react-icons/di";
 
@@ -208,6 +209,7 @@ import cs2skin from "/projects/CesTwoSkin.png";
 import needworkapp from "/projects/needworkapp.png";
 import tictactoe from "/projects/tictactoe.png";
 import hdb from "/projects/hdb.jpg";
+import fraud from "/projects/fraud_detection.jpg";
 
 import ProjectDetail from "./ProjectDetail.jsx";
 
@@ -229,6 +231,7 @@ export default function ProjectGrid() {
     python: { icon: <SiPython size={22} />, label: "Python" },
     pandas: { icon: <SiPandas size={22} />, label: "Pandas" },
     matplotlib: { icon: <SiPlotly size={22} />, label: "Matplotlib" },
+    knime: { icon: <SiKnime size={22} />, label: "knime" }, 
   };
 
   const projects = [
@@ -289,6 +292,15 @@ export default function ProjectGrid() {
       details: "hdb_project",
       tech: ["python", "pandas", "matplotlib"],
     },
+    {
+      id: "fraud-detection",
+      title: "Study on Fraud Detection Prediction",
+      description: "Classification-based predictive modelling for UK fashion retail...",
+      image: fraud,
+      github: "https://github.com/...",
+      tech: ["knime"],
+      details: "fraud_detection_project",
+    }
   ];
 
   // If a project is selected, show the detail page

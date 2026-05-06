@@ -6,7 +6,7 @@ const educationData = [
         degree: "Master of IT in Business",
         school: "Singapore Management University (SMU)",
         period: "2026-2027",
-        gpa: "- / 4.00",
+        gpa: "3.58 / 4.00",
         description: [
         "Focused on Data Science and Analytics",
         "Bridging Technology and Business Strategy",
