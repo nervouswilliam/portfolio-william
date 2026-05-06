@@ -200,6 +200,7 @@ import {
   SiPandas,
   SiPlotly,
   SiKnime,
+  SiMysql,
 } from "react-icons/si";
 import { DiJava } from "react-icons/di";
 
@@ -210,6 +211,7 @@ import needworkapp from "/projects/needworkapp.png";
 import tictactoe from "/projects/tictactoe.png";
 import hdb from "/projects/hdb.jpg";
 import fraud from "/projects/fraud_detection.jpg";
+import queryProcessingImage from "/projects/query_processing.jpg";
 
 import ProjectDetail from "./ProjectDetail.jsx";
 
@@ -231,7 +233,8 @@ export default function ProjectGrid() {
     python: { icon: <SiPython size={22} />, label: "Python" },
     pandas: { icon: <SiPandas size={22} />, label: "Pandas" },
     matplotlib: { icon: <SiPlotly size={22} />, label: "Matplotlib" },
-    knime: { icon: <SiKnime size={22} />, label: "knime" }, 
+    knime: { icon: <SiKnime size={22} />, label: "knime" },
+    mysql: { icon: <SiMysql size={22} />, label: "MySQL" },
   };
 
   const projects = [
@@ -297,9 +300,16 @@ export default function ProjectGrid() {
       title: "Study on Fraud Detection Prediction",
       description: "Classification-based predictive modelling for UK fashion retail...",
       image: fraud,
-      github: "https://github.com/...",
       tech: ["knime"],
       details: "fraud_detection_project",
+    },
+    {
+      id: "query-optimization",
+      title: "Query Processing and Optimization",
+      description: "SARGABLE query optimization using MySQL generated columns",
+      image: queryProcessingImage,
+      tech: ["mysql"],
+      details: "query_optimization_project",
     }
   ];
 

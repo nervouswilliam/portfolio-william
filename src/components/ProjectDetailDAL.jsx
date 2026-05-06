@@ -223,7 +223,7 @@ const ProjectDetailDAL = ({ projectTitle = "Fraud Detection", onBack }) => {
                     <ListItem>
                       <ListItemText
                         primary="Course"
-                        secondary="ISSS602 - Study on Fraud Detection"
+                        secondary="ISSS602 - Data Analytics Lab"
                         secondaryTypographyProps={{ variant: "caption" }}
                       />
                     </ListItem>
