@@ -201,8 +201,10 @@ import {
   SiPlotly,
   SiKnime,
   SiMysql,
+  SiScikitlearn
 } from "react-icons/si";
 import { DiJava } from "react-icons/di";
+import { RiFileExcel2Fill } from "react-icons/ri";
 
 import wisely from "/projects/wisely.png";
 import dev4you from "/projects/Dev4You.png";
@@ -212,6 +214,9 @@ import tictactoe from "/projects/tictactoe.png";
 import hdb from "/projects/hdb.jpg";
 import fraud from "/projects/fraud_detection.jpg";
 import queryProcessingImage from "/projects/query_processing.jpg";
+import evInfrastructure from "/projects/ev_infrastructure.jpg";
+import machineLearning from "/projects/machine_learning.jpg";
+import socialNetwork from "/projects/social_network.png";
 
 
 import {useNavigate} from "react-router-dom";
@@ -234,6 +239,8 @@ export default function ProjectGrid() {
     matplotlib: { icon: <SiPlotly size={22} />, label: "Matplotlib" },
     knime: { icon: <SiKnime size={22} />, label: "knime" },
     mysql: { icon: <SiMysql size={22} />, label: "MySQL" },
+    excel: { icon: <RiFileExcel2Fill size={22} />, label: "Excel" },
+    scikit: { icon: <SiScikitlearn size={22} />, label: "Scikit-learn" },
   };
 
   const projects = [
@@ -309,7 +316,31 @@ export default function ProjectGrid() {
       image: queryProcessingImage,
       tech: ["mysql"],
       details: "query_optimization_project",
-    }
+    },
+    {
+      id: "ev-infrastructure",
+      title: "EV Infrastructure Planning",
+      description: "Analysis and planning for electric vehicle charging infrastructure in urban areas",
+      image: evInfrastructure,
+      tech: ["excel"],
+      details: "ev_infrastructure_project",
+    },
+    {
+      id: "machine-learning",
+      title: "Machine Learning Applications",
+      description: "Exploring various machine learning techniques and their applications in real-world scenarios",
+      image: machineLearning,
+      tech: ["python", "scikit"],
+      details: "machine_learning_project",
+    },
+    {
+      id: "social-network-analysis",
+      title: "Social Network Analysis",
+      description: "Analyzing social network structures and dynamics using graph theory and machine learning",
+      image: socialNetwork,
+      tech: ["python"],
+      details: "social_network_analysis_project",
+    },
   ];
 
   return (

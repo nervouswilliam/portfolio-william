@@ -1,0 +1,209 @@
+{
+  "id": "ev_infrastructure",
+  "meta": {
+    "title": "Singapore's Infrastructure Readiness For EV",
+    "subtitle": "Will Singapore's power grid and public charging infrastructure support a 100% EV future by 2035?",
+    "tabs": ["Overview", "Modelling & Methodology", "Key Findings", "Team"]
+  },
+  "techStack": [
+    { "label": "Excel" },
+    { "label": "Scenario Manager" },
+    { "label": "Monte Carlo Simulation" },
+    { "label": "Sensitivity Analysis" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Course Information",
+      "items": [
+        { "primary": "Course", "secondary": "IS602 - Spreadsheet Modelling for Decision Making" },
+        { "primary": "Institution", "secondary": "Singapore Management University" },
+        { "primary": "Group", "secondary": "G1 - Group 5" },
+        { "primary": "Focus", "secondary": "EV Grid & Charging Infrastructure" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Study Scope",
+      "chip": { "label": "2026 - 2035 Projection", "color": "primary" },
+      "captions": ["Public charging only", "Excludes home/workplace charging"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Project Overview",
+        "paragraphs": [
+          {
+            "text": "This study assesses whether Singapore's power grid and public charging infrastructure can support a complete transition to a full electric vehicle society by 2035. As of end-2024, electric cars account for approximately 7.5% of Singapore's total car population, up from under 2% just two years prior, with EVs representing about one-third of all new car registrations in 2024."
+          },
+          {
+            "text": "Hypothesis: Singapore's power grid and public charging infrastructure will be sufficient to support a complete transition to a full electric vehicle society by 2035.",
+            "italic": true
+          },
+          {
+            "text": "The model uses BYD's Singapore model lineup (Atto 3, Seal, Dolphin, Sealion) as a representative sample to derive a defensible kWh/km electricity consumption figure, replacing generic industry assumptions with a brand-specific, publicly verifiable figure."
+          }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Research Questions",
+        "items": [
+          { "primary": "Will Singapore's electricity grid maintain sufficient reserve margin to absorb peak EV charging load by 2035?" },
+          { "primary": "Is the projected national public charging infrastructure (60,000 charger target by 2030) adequate for the growing EV fleet?" },
+          { "primary": "Is public charging resources equitably distributed across Singapore's 55 URA planning areas?" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Data Sources",
+        "description": "Key datasets used to build and calibrate the model:",
+        "items": [
+          { "primary": "LTA - Motor Vehicle Population by Type & Fuel Type", "secondary": "EV adoption baseline; penetration rate (~7.5%)" },
+          { "primary": "EMA Grid Capacity & Generation Data", "secondary": "Grid capacity headroom; sufficiency ratio" },
+          { "primary": "MOT EV Roadmap / LTA EV Targets", "secondary": "60,000 charging points by 2030; 100% EV by 2040" },
+          { "primary": "LTA EV Incentives (EEAI, VES)", "secondary": "Policy levers; trade-off analysis inputs" },
+          { "primary": "HDB / URA - Carpark Locations", "secondary": "Spatial distribution modelling (Module 4)" },
+          { "primary": "SingStat - Population Density", "secondary": "Demand distribution; spatial equity model" },
+          { "primary": "BYD Singapore - Model Specifications", "secondary": "Battery capacity & range for Module 1 demand calc" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Model Architecture",
+        "sections": [
+          {
+            "heading": "Overall Black Box Model",
+            "body": "Variables are arranged into three layers: controllable inputs (government incentives, COE supply policy, charger deployment rate, TOU pricing, infra budget allocation), uncontrollable parameters (battery efficiency, EV price trends, average annual km, simultaneous charging rate, population density), and outputs (Grid Sufficiency Ratio, Grid Overload Risk Score, EV-to-Charger Ratio, Spatial Equity Score)."
+          },
+          {
+            "heading": "Four Interdependent Modules",
+            "body": "Module 1 (EV Adoption & Electricity Demand) is the sole point of dependency for all other modules - its outputs cascade into Module 2 (Peak Load Impact on Grid), Module 3 (Charging Infrastructure Sufficiency), and Module 4 (Spatial Distribution). Any change to adoption assumptions propagates through all four performance metrics."
+          },
+          {
+            "heading": "Scenario Modelling",
+            "body": "Three scenarios - Conservative, Base, and Accelerated - are controlled via Excel Scenario Manager on Module 1 parameters, using a logistic (S-curve) adoption function, and propagate automatically to all downstream modules and the Dashboard."
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Scenario Parameters",
+        "headers": [
+          { "label": "Scenario" },
+          { "label": "L (Saturation Cap)", "align": "center" },
+          { "label": "k (Growth Steepness)", "align": "center" },
+          { "label": "t\u2080 (Inflection Year)", "align": "center" },
+          { "label": "Interpretation" }
+        ],
+        "rows": [
+          ["Conservative", "0.75", "0.35", "2032", "Slower policy pull-through; incentives partially effective; adoption peaks late in decade"],
+          ["Base", "0.90", "0.50", "2030", "Aligned with government targets; sustained EEAI incentives; steady charger rollout"],
+          ["Accelerated", "0.97", "0.70", "2028", "Strong policy push; high incentive uptake; early fleet saturation - maximum stress case"]
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "Key Modelling Assumptions",
+        "items": [
+          { "title": "Total Car Fleet", "caption": "659,889 vehicles (fixed) - EVs replace retiring ICE as COE expires; fleet does not grow" },
+          { "title": "Annual km / kWh per Vehicle", "caption": "17,000 km/yr \u00d7 0.2001 kWh/km = 3,402 kWh/yr (BYD WLTP 0.174 \u00d7 1.15 real-world uplift)" },
+          { "title": "Peak Charging Window & Fraction", "caption": "7:00-11:00 pm weekdays; 60% of fleet charging simultaneously" },
+          { "title": "Charger Mix & Weighted Power", "caption": "20% fast DC (50 kW) / 80% slow AC (7.4 kW) \u2192 15.92 kW average" },
+          { "title": "EMA Reserve Margin Threshold", "caption": "\u2265 15% reserve margin = Risk Score \u2264 0.870" },
+          { "title": "Study Scope", "caption": "Public charging only (HDB/URA carparks, petrol stations); private home/workplace charging excluded" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Module 1: EV Adoption on Track",
+            "color": "success",
+            "content": [
+              { "type": "paragraph", "text": "By 2035 there will be 512,874 EVs (77.7% fleet share), annual demand of 1,744.6 GWh, with a peak load of 4,899 MW. The EV energy share of 1.95% appears low but does not indicate grid safety during peak demand." }
+            ]
+          },
+          {
+            "title": "Module 2: Grid Reserve Margin Breached",
+            "color": "error",
+            "content": [
+              { "type": "paragraph", "text": "EMA's 15% reserve margin will be breached in 2033, when it drops to 9.4%. By 2035, reserve margin will hit -6.2% and the Grid Overload Risk Score reaches 1.062 (\u22651.000 indicates grid saturation), with peak demand of 16,746 MW against 15,761 MW capacity." }
+            ]
+          },
+          {
+            "title": "Module 3: National Charging Sufficient",
+            "color": "success",
+            "content": [
+              { "type": "paragraph", "text": "The EV-to-Charger Ratio (threshold of 10) is never breached across the full 2026 to 2035 window across all scenarios, reaching only 5.818 by 2035. Singapore's public charging infrastructure will be sufficient to support a complete EV transition by 2035, based on the LTA target of 60,000 chargers by 2030 and 8% annual growth thereafter." }
+            ]
+          },
+          {
+            "title": "Module 4: Spatial Equity Uneven",
+            "color": "warning",
+            "content": [
+              { "type": "paragraph", "text": "16 of the 55 planning areas exceeded the ECR threshold of 10 by 2035, with 5 more on a WATCH list. The worst-performing area is Sengkang, with an ECR of 27.64, highlighting a structural gap between national-level sufficiency and local-level access." }
+            ]
+          },
+          {
+            "title": "Trade-off Analysis: Incentive Design",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "Infrastructure subsidies have no meaningful impact on EV adoption, whereas an EEAI rebate of $10,000 per EV maximizes adoption at the lowest fiscal cost per EV, with $0 infrastructure subsidy per charger recommended as the most cost-effective policy lever." }
+            ]
+          },
+          {
+            "title": "Trade-off Analysis: Cost vs. Equity",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "Centralized Charging Hubs cover up to 1.45 EVs per $1,000 of government expenditure versus 0.32 EVs per $1,000 for fully Distributed Carpark Grants - a 353% improvement in cost efficiency - but centralization fails to achieve spatial equity, so the optimal mix depends on whether the government prioritizes cost efficiency or driver convenience." }
+            ]
+          },
+          {
+            "title": "Sensitivity Analysis: Grid is the Binding Constraint",
+            "color": "error",
+            "content": [
+              { "type": "paragraph", "text": "15 out of 25 modelled scenarios show a risk score above the 1.00 threshold. The grid risk profile is significantly more sensitive to capacity variations than to peak demand fluctuations, confirming infrastructure expansion as the primary binding constraint for long-term viability." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Conclusion Summary",
+        "headers": [
+          { "label": "Dimension" },
+          { "label": "2035 Result (Base | Accelerated)", "align": "center" },
+          { "label": "Threshold", "align": "center" },
+          { "label": "Verdict", "align": "center" }
+        ],
+        "rows": [
+          ["EV Adoption", "512,874 EVs (77.7%) | 659,889 EVs (100%)", "\u2014", "On track under all scenarios"],
+          ["Power Grid", "Reserve Margin: -6.2% (Base) | -15.2% (Accelerated)", "\u2265 15% (EMA)", "INSUFFICIENT"],
+          ["National Charging", "ECR: 5.82 (Base) | 7.49 (Accelerated)", "\u2264 10 EVs/charger", "SUFFICIENT"],
+          ["Spatial Equity", "16 of 55 areas breach ECR threshold; Sengkang ECR = 27.64", "\u2264 10 per area", "UNEVEN"]
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Research Team",
+        "members": [
+          { "name": "Albert Chia Song Tuck", "subtitle": "albert.chia.2025@mitb.smu.edu.sg" },
+          { "name": "Amanda Dea Gotama", "subtitle": "ad.gotama.2025@mitb.smu.edu.sg" },
+          { "name": "Chua Wee Tian", "subtitle": "wt.chua.2025@mitb.smu.edu.sg" },
+          { "name": "Jeremiah William Sebastian", "subtitle": "j.sebastian.2025@mitb.smu.edu.sg" },
+          { "name": "Heidi Chong Jia Min", "subtitle": "heidi.chong.2025@mitb.smu.edu.sg" }
+        ]
+      }
+    ]
+  ]
+}

@@ -27,6 +27,9 @@ import ProjectDetailComponent from "./components/ProjectDetailComponent";
 import fraud_detection_json from "./JSON/fraud_detection.json";
 import HDB_json from "./JSON/HDB.json";
 import query_json from "./JSON/query.json";
+import EV_Infrastructure_json from "./JSON/EV_Infrastructure.json";
+import social_network_json from "./JSON/social_network.json"; // Import the new JSON file
+
 
 
 export default function App() {
@@ -44,6 +47,8 @@ export default function App() {
         <Route path="/hdb_project" element={<ProjectDetailComponent data={HDB_json} />} />
         <Route path="/fraud_detection_project" element={<ProjectDetailComponent data={fraud_detection_json} />} />
         <Route path="/query_optimization_project" element={<ProjectDetailComponent data={query_json} />} />
+        <Route path="/ev_infrastructure_project" element={<ProjectDetailComponent data={EV_Infrastructure_json} />} />
+        <Route path="/social_network_analysis_project" element={<ProjectDetailComponent data={social_network_json} />} />
       </Routes>
     </BrowserRouter>
   );  

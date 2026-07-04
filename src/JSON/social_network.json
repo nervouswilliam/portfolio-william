@@ -1,0 +1,380 @@
+{
+  "id": "smm_social_networks",
+  "meta": {
+    "title": "Social Communities and Influence Patterns in Super Mario Maker Player Networks",
+    "subtitle": "Using Network Science to Detect Player Communities, Identify Influencers, and Power Course Recommendations",
+    "tabs": ["Overview", "Methodology", "Community Analysis", "Influence & Recommendations", "Team"]
+  },
+  "techStack": [
+    { "label": "Louvain Community Detection" },
+    { "label": "Label Propagation" },
+    { "label": "PageRank & Betweenness Centrality" },
+    { "label": "Chi-square / Kruskal-Wallis Testing" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Course Information",
+      "items": [
+        { "primary": "Course", "secondary": "ISSS606 - Applied Data Science for Social Networks" },
+        { "primary": "Institution", "secondary": "Singapore Management University" },
+        { "primary": "Group", "secondary": "SuperKambros" },
+        { "primary": "Dataset", "secondary": "SMMNet - Super Mario Maker Social Network" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Network Scale",
+      "chip": { "label": "6,091 Players", "color": "primary" },
+      "captions": ["285,796 weighted edges", "Louvain modularity: 0.3681", "4 core communities (≥100 players)"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "listCard",
+        "title": "Research Questions",
+        "items": [
+          { "primary": "Do players form meaningful communities based on their gaming behavior?" },
+          { "primary": "Who are the core players, bridge players, and creators that shape the network structure?" },
+          { "primary": "Can network structure be used to support course recommendation and player discovery?" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Five Core Entities",
+        "description": "The SMMNet dataset is modelled around five interacting entities:",
+        "items": [
+          { "primary": "Player", "secondary": "The individual user" },
+          { "primary": "Courses", "secondary": "Player-created levels" },
+          { "primary": "Play", "secondary": "Baseline interaction between a player and a course" },
+          { "primary": "Likes", "secondary": "Weight 2 - strong positive engagement" },
+          { "primary": "Clears", "secondary": "Weight 3 - maximum engagement" }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Constructing the Network",
+        "sections": [
+          { "heading": "Filtering Criteria", "body": "The bipartite player-course network is built using interactions with weight ≥ 3, restricted to the top 8,000 players and top 4,000 courses by activity." },
+          { "heading": "Projection Threshold", "body": "The bipartite graph is projected into a single-mode player-player network, keeping only edges where two players share ≥ 2 courses in common." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Data Reduction and Filtering",
+        "items": [
+          { "primary": "Clean and standardized heterogeneous player_id and course ID across tables" },
+          { "primary": "Sampling only active players and highly popular levels", "secondary": "To ensure computational feasibility and eliminate network noise" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Community Detection Approach",
+        "sections": [
+          { "heading": "Louvain vs Label Propagation", "body": "An extended robustness check was run on the weighted player projection, comparing the Louvain algorithm against Label Propagation (LPA)." }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Louvain vs Label Propagation Comparison",
+        "headers": [
+          { "label": "Metric" },
+          { "label": "Louvain", "align": "center" },
+          { "label": "Label Propagation", "align": "center" }
+        ],
+        "rows": [
+          ["Modularity", "0.3686", "0.325"],
+          ["Runtime", "~6.0 seconds", "~2.3 seconds"]
+        ],
+        "goodColumns": [1]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Louvain",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Higher modularity (0.3686) and a more useful community-size profile." }]
+          },
+          {
+            "title": "Label Propagation",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "About 2.5x faster, but outcomes vary more across random seeds." }]
+          },
+          {
+            "title": "Decision",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Use Louvain for the main community profiles; retain Label Propagation as the scalability benchmark." }]
+          }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Statistical Validation of Community Profiles",
+        "sections": [
+          { "heading": "Categorical Profile Validation", "body": "Chi-square tests check whether community membership is associated with categorical course preferences. Difficulty mix: Cramer's V = 0.323 (chi2 = 30,230.1, p<0.001). Game style mix: Cramer's V = 0.127 (chi2 = 4,671.5, p<0.001). Difficulty is the stronger categorical separator; game style is still significant but weaker." },
+          { "heading": "Numerical Profile Validation", "body": "Kruskal-Wallis tests compare skewed numeric variables across the four core communities. Clear rate: Eta-squared(H) = 0.242 (H=23,381.7, p<0.001). Attempts: Eta-squared(H) = 0.181 (H=17,461.6, p<0.001). Stars received: Eta-squared(H) = 0.055 (H=5,315.8, p<0.001). All three numerical dimensions differ significantly; clear rate and attempts carry larger effects than stars." }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "dataTable",
+        "title": "Community Size and Density",
+        "headers": [
+          { "label": "Community" },
+          { "label": "Players", "align": "center" },
+          { "label": "Density", "align": "center" }
+        ],
+        "rows": [
+          ["Casual Community", "2,753", "0.0138"],
+          ["Casual Community 2", "2,036", "0.0231"],
+          ["Hardcore Elite", "1,188", "0.1081"],
+          ["Beginner", "114", "0.4423"]
+        ],
+        "note": "Smaller groups are much denser - density captures cohesion, not popularity."
+      },
+      {
+        "type": "dataTable",
+        "title": "Community Behavioral Profiles",
+        "description": "Labels are assigned after Louvain detection using dominant difficulty, game style, clear rate, average attempts, and average stars received by their courses.",
+        "headers": [
+          { "label": "Community" },
+          { "label": "Players", "align": "center" },
+          { "label": "Difficulty" },
+          { "label": "Game Style" },
+          { "label": "Clear Rate", "align": "center" }
+        ],
+        "rows": [
+          ["Casual Community", "2,753", "Normal", "Mario Bros U", "26.01%"],
+          ["Casual Community 2", "2,036", "Normal", "Mario Bros", "16.38%"],
+          ["Hardcore Elite", "1,188", "Super Expert", "Mario World", "9.04%"],
+          ["Beginner", "114", "Easy", "Mario Bros U", "51.98%"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Cross-Community Connection Strength",
+        "description": "Rows show the source community; columns show where its connections go.",
+        "headers": [
+          { "label": "Source \\ Target" },
+          { "label": "Casual Community", "align": "center" },
+          { "label": "Casual Community 2", "align": "center" },
+          { "label": "Hardcore Elite", "align": "center" },
+          { "label": "Beginner", "align": "center" }
+        ],
+        "rows": [
+          ["Casual Community", "45.66%", "33.91%", "18.72%", "1.71%"],
+          ["Casual Community 2", "29.86%", "36.75%", "32.56%", "0.82%"],
+          ["Hardcore Elite", "15.25%", "30.11%", "54.14%", "0.51%"],
+          ["Beginner", "29.76%", "16.23%", "10.85%", "43.17%"]
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Strong Internal Cohesion",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Diagonal shares range from 36.75% to 54.14%, so community membership is behaviorally meaningful." }]
+          },
+          {
+            "title": "Casual Groups Overlap Most",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "The two casual communities exchange roughly 30% to 34% of their links." }]
+          },
+          {
+            "title": "Niche Boundary is Sharp",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Hardcore-to-Beginner links account for only 0.51%, indicating limited direct mixing. This implies recommendations can preserve relevance while deliberately adding a small amount of cross-community discovery." }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Influence Roles: Who Shapes the Network",
+        "sections": [
+          { "heading": "Creators", "body": "Build new courses in Super Mario Maker and upload content to the entire social community." },
+          { "heading": "Core Players", "body": "Play and master courses, set trends, and develop new strategies and playthroughs." },
+          { "heading": "Bridge Players", "body": "Share content across communities and spread trends created by core players." },
+          { "heading": "Normal Players", "body": "Consume content, follow set trends, and engage socially." }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Top Creator Players",
+        "headers": [
+          { "label": "Player ID" },
+          { "label": "Community" },
+          { "label": "Page Rank", "align": "center" },
+          { "label": "Weighted Degree", "align": "center" },
+          { "label": "Composite Score", "align": "center" }
+        ],
+        "rows": [
+          ["Conducteur59220", "Casual Community", "0.010121", "13856", "0.986052"],
+          ["Plusbellelavie5", "Casual Community", "0.008448", "14461", "0.790773"],
+          ["Feuxdelamoule", "Casual Community", "0.006536", "11361", "0.632406"],
+          ["cowboye123", "Casual Community", "0.006339", "10775", "0.568169"],
+          ["indien1966", "Casual Community", "0.005392", "10419", "0.512084"],
+          ["tc.coeur", "Casual Community", "0.005178", "10269", "0.460973"],
+          ["quentintheret", "Casual Community", "0.004499", "8900", "0.412866"],
+          ["coeur2017", "Casual Community", "0.004316", "8128", "0.380629"],
+          ["sioux4", "Casual Community", "0.004421", "8770", "0.378535"],
+          ["Tchad7", "Casual Community", "0.003876", "8305", "0.356597"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Top Core Players",
+        "headers": [
+          { "label": "Player ID" },
+          { "label": "Community" },
+          { "label": "Page Rank", "align": "center" },
+          { "label": "Weighted Degree", "align": "center" },
+          { "label": "Core Gameplay Score", "align": "center" }
+        ],
+        "rows": [
+          ["Thomasb35", "Hardcore Elite Community", "0.004185", "10126", "0.556103"],
+          ["billyspencer", "Casual Community", "0.003321", "7163", "0.410833"],
+          ["iLudovichiVanno", "Casual Community 2", "0.003020", "6593", "0.376258"],
+          ["CAPTAIN.LEVl", "Casual Community", "0.002628", "5312", "0.312545"],
+          ["kimnbud", "Casual Community", "0.002455", "5518", "0.311086"],
+          ["YvetteMack", "Casual Community", "0.002562", "5282", "0.308210"],
+          ["oosetsumo", "Casual Community", "0.002448", "5327", "0.304105"],
+          ["mogumoguerisan", "Casual Community 2", "0.002459", "5290", "0.303415"],
+          ["Myhtra2", "Casual Community", "0.002402", "5362", "0.303065"],
+          ["SpeedrunRobban", "Casual Community", "0.002348", "4794", "0.280751"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Top Bridge Players",
+        "headers": [
+          { "label": "Player ID" },
+          { "label": "Community" },
+          { "label": "Betweenness", "align": "center" },
+          { "label": "Weighted Degree", "align": "center" },
+          { "label": "Composite Score", "align": "center" }
+        ],
+        "rows": [
+          ["Mario1UPkoopa", "Casual Community", "0.021614", "12246", "0.584810"],
+          ["shimidos32", "Casual Community 2", "0.013081", "3571", "0.211416"],
+          ["RURI333HRIRU777H", "Casual Community", "0.012885", "9713", "0.446103"],
+          ["pedritopin2015", "Casual Community", "0.012791", "8865", "0.413617"],
+          ["Timridge", "Casual Community 2", "0.012289", "4471", "0.249186"],
+          ["mario-tomoya", "Casual Community", "0.011921", "8340", "0.391808"],
+          ["Kodrak123", "Casual Community 2", "0.011832", "3290", "0.192161"],
+          ["NEWT82", "Casual Community", "0.010384", "4675", "0.241096"],
+          ["catmarioheidi", "Casual Community", "0.009421", "8283", "0.368829"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Bridge vs Core vs Normal Players",
+        "headers": [
+          { "label": "Player Type" },
+          { "label": "Count", "align": "center" },
+          { "label": "Avg Degree", "align": "center" },
+          { "label": "Avg PageRank", "align": "center" },
+          { "label": "Avg Betweenness", "align": "center" },
+          { "label": "Avg Composite Score", "align": "center" }
+        ],
+        "rows": [
+          ["Bridge Player", "9", "7050.4444", "0.0037", "0.0129", "0.3443"],
+          ["Core Player", "503", "1752.1213", "0.0007", "0.0012", "0.0693"],
+          ["Creator", "962", "483.5676", "0.0002", "0.0005", "0.0210"],
+          ["Normal Player", "4,614", "124.7939", "0.0001", "0.0001", "0.0049"]
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Multi-Role Overlaps",
+        "sections": [
+          { "heading": "Creators ∩ Bridge Players (n=11)", "body": "Basilika, Conducteur59220, Feuxdelamoule, GTRP_Easy, Plusbellelavie5, WIIMoustique, coeur2017, cowboye123, indien1966, quentintheret, tc.coeur." },
+          { "heading": "Bridge Players ∩ Core Players (n=9)", "body": "Kodrak123, Mario1UPkoopa, NEWT82, RURI333HRIRU777H, Timridge, catmarioheidi, mario-tomoya, pedritopin2015, shimidos32." },
+          { "heading": "Creators ∩ Core Players (n=0)", "body": "No players occupy both the Creator and Core Player roles simultaneously - these two influence types are structurally distinct." }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "From Similarity to Recommendation",
+        "sections": [
+          { "heading": "Player Similarity from Shared Course Behavior", "body": "IDF weighting gives more credit to rare shared courses than globally popular ones. Most ties are weak (most player pairs share only a small amount of distinctive behavior), but a strong tail exists where a small set of pairs share many courses and receive high similarity weights. Strong neighbors become evidence for unseen courses, not automatic friends." },
+          { "heading": "Recommendation as a Network Path", "body": "A recommendation is explained as: target player → similar players → unseen courses. The path is auditable - each recommended course can be traced back to the neighbors who supported it." },
+          { "heading": "Scoring Formula", "body": "score(target, course) = sum(similarity x interaction weight x novelty). More support often helps, but strong neighbors and rare courses can outweigh raw count." }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Similarity-Based Recommendations Win the Offline Comparison",
+            "color": "success",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "Hit rate", "value": "33.9% (similarity) vs 13.5% (community)" },
+                  { "label": "Catalog coverage", "value": "60.9% (similarity) vs 5.8% (community)" },
+                  { "label": "Cross-community discovery", "value": "21.2% (similarity) vs 3.5% (community)" }
+                ]
+              },
+              { "type": "paragraph", "text": "Evaluated on 3,654 players for a Top-10 recommendation task. Similarity improves relevance while exposing a much broader and more diverse course catalog." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Top-N Sampling Approach",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Restricting the analysis to top players and courses may not fully represent the entire player base." }]
+          },
+          {
+            "title": "Network is Static",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "The network represents a snapshot in time and does not capture how communities and influence evolve." }]
+          },
+          {
+            "title": "Offline Evaluation Only",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Recommendation performance was assessed offline; results have not been validated through live A/B testing with real players." }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Research Team - SuperKambros",
+        "members": [
+          { "name": "Jeremiah William Sebastian" },
+          { "name": "Chong Jia Min Heidi" },
+          { "name": "Lu Zhao Chen" },
+          { "name": "Zachary Kondas" },
+          { "name": "Zhai Tingting" },
+          { "name": "Hu Yixuan" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "References",
+        "items": [
+          { "primary": "Barabási, A.-L. (2016). Network Science. Cambridge University Press." },
+          { "primary": "Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E. (2008). Fast unfolding of communities in large networks. Journal of Statistical Mechanics: Theory and Experiment." },
+          { "primary": "Moraes, L. M. P., & Cordeiro, R. L. F. (2019). SMMnet: A Social Network of Games Dataset. Brazilian Symposium on Databases, Dataset Showcase Workshop." },
+          { "primary": "Moraes, L. M. P., & Cordeiro, R. L. F. (2025). Modeling and analyzing Social Networks of Games. Expert Systems with Applications." },
+          { "primary": "SMMnet dataset repository", "secondary": "SMMnet - Super Mario Maker" }
+        ]
+      }
+    ]
+  ]
+}
