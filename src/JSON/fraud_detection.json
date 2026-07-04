@@ -1,0 +1,170 @@
+{
+  "id": "fraud_detection",
+  "meta": {
+    "title": "Study on Fraud Detection Prediction",
+    "subtitle": "Classification-Based Predictive Modelling for UK Fashion Retail Digital Payments",
+    "tabs": ["Overview", "Methodology", "Results & Analysis", "Team"]
+  },
+  "techStack": [
+    { "label": "KNIME Analytics" },
+    { "label": "Logistic Regression" },
+    { "label": "Decision Tree" },
+    { "label": "Random Forest" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Course Information",
+      "items": [
+        { "primary": "Course", "secondary": "ISSS602 - Data Analytics Lab" },
+        { "primary": "Institution", "secondary": "Singapore Management University" },
+        { "primary": "Term", "secondary": "AY 2026-27 (January)" },
+        { "primary": "Focus", "secondary": "UK Fashion Retail" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Dataset Stats",
+      "chip": { "label": "1,000 Transactions", "color": "primary" },
+      "captions": ["Fraud Rate: ~4.4%", "44 Fraud Cases / 956 Non-Fraud"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Project Overview",
+        "paragraphs": [
+          { "text": "This research conducts a classification-based predictive modelling framework to better help identify fraudulent transactions in the retail sector with the growth of digital payment systems. With outdated fraud detection systems failing to detect new and evolving fraud patterns, customer confidence is shaken, potentially hindering digital economy growth." },
+          { "text": "This study provides retailers with the means and tools for better fraud management and prevention by comparing three classification models: Logistic Regression, Decision Tree, and Random Forest. The analysis employs KNIME Analytics Platform to develop and evaluate models on 1,000 transaction records from the UK fashion digital payments sector." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Research Objectives",
+        "items": [
+          { "primary": "Analyse transaction characteristics and behavioural indicators associated with fraudulent payments." },
+          { "primary": "Develop predictive models that classify transactions as fraudulent or legitimate." },
+          { "primary": "Compare the performance of different classification models." },
+          { "primary": "Provide insights on how analytics can support fraud detection in online retail operations." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Dataset Details",
+        "description": "The UK Fashion Digital Payments Fraud dataset contains 1,000 transaction-level records with the following characteristics:",
+        "items": [
+          { "primary": "Transaction characteristics", "secondary": "Amount, items count, discount %, payment type, channel" },
+          { "primary": "Behavioural indicators", "secondary": "Failed login attempts, device changes, transaction velocity" },
+          { "primary": "Risk indicators", "secondary": "IP risk score, billing/shipping distance, address indicators, returns, chargebacks" },
+          { "primary": "Final Variables", "secondary": "36 variables (24 original + 12 derived/engineered)" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Data Preparation",
+        "sections": [
+          { "heading": "Data Transformation", "body": "The is_fraud variable was converted from integer to string format for compatibility with machine learning learners. Categorical variables were transformed using one-to-many encoding, converting them into binary numerical format for model interpretation." },
+          { "heading": "Feature Engineering", "body": "Four engineered features were created to provide explicit indicators for fraudulent behavior: behavior_risk_score, risk_intensity, avg_item_value, and velocity_ratio." },
+          { "heading": "Multicollinearity Check", "body": "Correlation analysis was performed using a correlation matrix. Variables with correlation scores above 0.7 were excluded using column filter nodes to prevent variance inflation in coefficient estimates." },
+          { "heading": "Data Balancing", "body": "SMOTE (Synthetic Minority Over-sampling Technique) was deployed to address dataset imbalance by generating synthetic records for the minority fraud class. Dataset split: 70% training, 30% testing." }
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "Classification Models",
+        "items": [
+          { "title": "Logistic Regression", "caption": "Binary classification with Stochastic Average Gradient optimization and Max Youden's Index for optimal threshold selection" },
+          { "title": "Decision Tree", "caption": "Gini index quality measure with Minimum Description Length (MDL) to balance complexity and predictive power" },
+          { "title": "Random Forest", "caption": "Ensemble learning with 250 decision trees using information gain as split criterion" },
+          { "title": "Data Normalization", "caption": "Applied only to Logistic Regression (sensitive to data scale); not applied to tree-based models" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Logistic Regression (Selected Model)",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Recall", "value": "92.3%", "description": "Successfully identified 12 out of 13 fraudulent transactions, demonstrating strong capability in capturing anomalies." },
+                  { "label": "Precision", "value": "7.27%", "description": "High false-positive rate, but trade-off is acceptable as it minimizes fraud leakage." },
+                  { "label": "Accuracy", "value": "48.5%", "description": "with AUC: 0.723 - Selected as preferred model due to superior recall performance." }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Random Forest",
+            "color": "info",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Recall", "value": "76.92%", "description": "Correctly identified 10 out of 13 fraud cases, showing improved performance over Decision Tree." },
+                  { "label": "Precision", "value": "6.06%", "description": "Still maintains high false positives." },
+                  { "label": "Accuracy", "value": "47.33%", "description": "Reflects aggressive approach prioritizing fraud detection over overall accuracy." }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Decision Tree",
+            "color": "warning",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Recall", "value": "61.54%", "description": "Correctly identified 8 out of 13 fraud cases, with moderate fraud detection capability." },
+                  { "label": "Precision", "value": "5.67%", "description": "133 non-fraud transactions misclassified as fraud." },
+                  { "label": "Accuracy", "value": "54.00%", "description": "Moderate performance with limited effectiveness in balancing detection." }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Key Findings from EDA",
+            "color": "info",
+            "content": [
+              {
+                "type": "bullets",
+                "items": [
+                  { "label": "Class Imbalance Challenge:", "text": "Only 4.4% fraud rate (44 fraud vs 956 non-fraud) presents significant classification challenge." },
+                  { "label": "Fraudster Patterns:", "text": "Most fraud occurs in newer accounts (0-500 days) with lower transaction amounts (<100 GBP)." },
+                  { "label": "Risk Indicators:", "text": "Failed login attempts and higher risk intensity are key fraud indicators." },
+                  { "label": "Multi-dimensional Anomalies:", "text": "Fraudsters minimize detection by using overlapping patterns across email domain risk scores, channels, and account age." }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Model Selection Justification",
+            "color": "error",
+            "content": [
+              { "type": "paragraph", "text": "Logistic Regression was selected despite lower precision because missing fraudulent cases (false negatives) result in significant financial losses. The 92.3% recall ensures maximum fraud detection, while high false positives can be managed through manual verification by human agents before action is taken on suspicious transactions." }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Research Team",
+        "members": [
+          { "name": "Chan Guang Hua", "subtitle": "SMU" },
+          { "name": "Chong Jia Min Heidi", "subtitle": "SMU" },
+          { "name": "Jeremiah William Sebastian", "subtitle": "SMU" }
+        ]
+      }
+    ]
+  ]
+}

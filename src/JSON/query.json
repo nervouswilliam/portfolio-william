@@ -1,0 +1,232 @@
+{
+  "id": "query_optimization",
+  "meta": {
+    "title": "Query Processing and Optimization",
+    "subtitle": "Making Generated Columns for SARGABLE Query Optimization",
+    "tabs": ["Overview", "Problem & Solution", "Results & Comparison", "Team"]
+  },
+  "techStack": [
+    { "label": "MySQL" },
+    { "label": "Generated Columns" },
+    { "label": "Query Optimization" },
+    { "label": "SARGABLE Predicates" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Course Information",
+      "items": [
+        { "primary": "Course", "secondary": "ISSS625 - Query Processing and Optimisation" },
+        { "primary": "Institution", "secondary": "Singapore Management University" },
+        { "primary": "Focus", "secondary": "Database Performance Optimization" }
+      ]
+    },
+    {
+      "type": "chipStack",
+      "title": "Project Highlights",
+      "chips": [
+        { "label": "15x Fewer Logical Reads", "color": "success" },
+        { "label": "1.4 Seconds Faster", "color": "success" },
+        { "label": "O(log n) Complexity", "color": "primary" }
+      ]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Project Overview",
+        "paragraphs": [
+          { "text": "This project demonstrates query optimization techniques using generated columns in MySQL to create SARGABLE (Search ARGument ABLE) queries. The study uses a realistic scenario of a jewelry store conducting a birthday-month promotion campaign, showing how to efficiently identify customers born in a specific month." },
+          { "text": "By implementing generated columns and optimizing query predicates, we achieve significant performance improvements while maintaining data accuracy and consistency through automation. The project compares traditional unoptimized queries against SARGABLE optimized queries." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Business Scenario",
+        "items": [
+          { "primary": "Context", "secondary": "Jewelry store owner wants to run a birthday-month promotion campaign" },
+          { "primary": "Challenge", "secondary": "How to verify customer information and identify customers born in a specific month" },
+          { "primary": "Goal", "secondary": "Send targeted promotional offers to customers with birthdays in the selected month" },
+          { "primary": "Solution", "secondary": "Implement generated columns for efficient query processing" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Dataset Overview",
+        "description": "Synthetic customer dataset created for demonstration purposes, loaded into MySQL using bulk data loading.",
+        "note": "Note: birth_month is a generated column extracted from date_of_birth for query optimization",
+        "headers": [
+          { "label": "Column Name" },
+          { "label": "Data Type" },
+          { "label": "Purpose" }
+        ],
+        "rows": [
+          ["customer_id", "INT (PK)", "Unique customer ID"],
+          ["first_name", "VARCHAR(50)", "Customer's first name"],
+          ["last_name", "VARCHAR(50)", "Customer's last name"],
+          ["email", "VARCHAR(120)", "Contact information"],
+          ["date_of_birth", "DATE", "Original birthday field"],
+          ["birth_month", "TINYINT", "Generated from date_of_birth"]
+        ],
+        "highlightRowIndexes": [5]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Understanding Generated Columns",
+        "sections": [
+          {
+            "heading": "What Are Generated Columns?",
+            "body": "Generated columns are calculated from other columns in the same row. They automatically compute values based on expressions applied to other columns, eliminating the need for manual calculations and reducing errors."
+          },
+          {
+            "heading": "Two Types of Generated Columns",
+            "definitions": [
+              { "term": "Virtual Columns:", "description": "Computed when queried, not stored in the table. Saves storage space but requires computation on each query." },
+              { "term": "Stored Columns:", "description": "Computed once and saved in the table. Uses more storage but improves query performance and enables indexing." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Without Optimization (Query 1)",
+            "color": "warning",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "Approach", "value": "Extract birth month on-the-fly using MONTH() function on date_of_birth" },
+                  { "label": "Complexity", "value": "O(n) - Must scan ALL rows and compute MONTH() for each" },
+                  { "label": "Cost", "value": "208,580 (full table scan) | Speed: 5.337 seconds" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "With Optimization (Query 2)",
+            "color": "success",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "Approach", "value": "Use SARGABLE generated column (birth_month) with indexed lookup" },
+                  { "label": "Complexity", "value": "O(log n + k) - Index lookup plus fetch matching rows" },
+                  { "label": "Cost", "value": "62,686 (index range scan) | Speed: 3.920 seconds" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "What Makes It SARGABLE?",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "SARGABLE (Search ARGument ABLE) predicates enable the query optimizer to use indexes efficiently. By moving the calculation into a generated column and indexing it, the database can use index range scans instead of full table scans." }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "dataTable",
+        "title": "Performance Comparison",
+        "headers": [
+          { "label": "Metric" },
+          { "label": "Without Optimization", "align": "center" },
+          { "label": "With Generated Column", "align": "center" },
+          { "label": "Improvement", "align": "center" }
+        ],
+        "rows": [
+          ["Complexity", "O(n)", "O(log n + k)", "Polynomial"],
+          ["Cost", "208,580", "62,686", "~15x Better"],
+          ["Speed", "5.337 sec", "3.920 sec", "-1.417 sec (26.6%)"]
+        ],
+        "goodColumns": [2, 3],
+        "stripe": true
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Scan Type Comparison",
+            "color": "info",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "Without Optimization", "value": "Full Table Scan - examines every single row to calculate the birth month" },
+                  { "label": "With Optimization", "value": "Index Range Scan - uses the index on birth_month to locate only matching rows" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "✓ Significant Performance Improvement",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Reduces logical reads by approximately 15x. While 1.4 seconds may seem small with current dataset size, the improvement scales dramatically as data grows to millions of rows." }]
+          },
+          {
+            "title": "✓ Business Reliability Through Automation",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Every customer added to the database automatically gets the birth month calculated. The database engine ensures 100% data accuracy without manual intervention." }]
+          },
+          {
+            "title": "✓ Simpler Application Code",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Application code can simply query the birth_month column directly instead of performing complex date calculations. This reduces code complexity and maintenance overhead." }]
+          },
+          {
+            "title": "✓ Convenience & Consistency",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Generated columns ensure consistent calculations across all queries and applications accessing the same table. No risk of calculation discrepancies." }]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "⚠ Increased Storage Usage",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Creating additional columns and indexes consumes more disk space. However, the performance gain typically outweighs this cost." }]
+          },
+          {
+            "title": "⚠ Schema Rigidity",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Once defined, changing the generation expression requires schema alterations. This can be complex in production environments with continuous data flow." }]
+          },
+          {
+            "title": "⚠ Performance Trade-offs",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "While queries become faster, INSERT and UPDATE operations might be slightly slower due to the computation of generated values. This is a worthwhile trade-off for read-heavy applications." }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Research Team - Query Slaves",
+        "members": [
+          { "name": "Anabelle Eveleen Tandra", "subtitle": "ae.tandra.2025@mitb.smu.edu.sg" },
+          { "name": "Chong Jia Min Heidi", "subtitle": "heidi.chong.2025@mitb.smu.edu.sg" },
+          { "name": "Jeremiah William Sebastian", "subtitle": "j.sebastian.2025@mitb.smu.edu.sg" },
+          { "name": "Kelvin Andikko", "subtitle": "k.andikko.2025@mitb.smu.edu.sg" },
+          { "name": "Zachary Artemus Kondas", "subtitle": "Za.kondas.2025@mitb.smu.edu.sg" }
+        ],
+        "footerNote": "Team Name: \"Query Slaves\" - Dedicated to optimizing database queries and performance"
+      }
+    ]
+  ]
+}

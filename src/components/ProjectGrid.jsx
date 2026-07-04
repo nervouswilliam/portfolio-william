@@ -213,7 +213,6 @@ import hdb from "/projects/hdb.jpg";
 import fraud from "/projects/fraud_detection.jpg";
 import queryProcessingImage from "/projects/query_processing.jpg";
 
-import ProjectDetail from "./ProjectDetail.jsx";
 
 import {useNavigate} from "react-router-dom";
 
@@ -312,16 +311,6 @@ export default function ProjectGrid() {
       details: "query_optimization_project",
     }
   ];
-
-  // If a project is selected, show the detail page
-  if (selectedProject) {
-    return (
-      <ProjectDetail
-        projectTitle={selectedProject.title}
-        onBack={() => setSelectedProject(null)}
-      />
-    );
-  }
 
   return (
     <Box>

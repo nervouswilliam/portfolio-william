@@ -22,10 +22,12 @@ import { BrowserRouter, Routes, Route } from "react-router-dom"; // 1. Import th
 import { CssBaseline } from "@mui/material";
 import Navbar from "./components/Navbar";
 import Home from "./pages/home";
-import ProjectDetail from "./components/ProjectDetail"; // 2. Import your details page
 import ScrollToTop from "./components/ScrollToTop"; // 3. Import ScrollToTop component
-import ProjectDetailDAL from "./components/ProjectDetailDAL";
-import ProjectDetailQuery from "./components/ProjectDetailQuery";
+import ProjectDetailComponent from "./components/ProjectDetailComponent";
+import fraud_detection_json from "./JSON/fraud_detection.json";
+import HDB_json from "./JSON/HDB.json";
+import query_json from "./JSON/query.json";
+
 
 export default function App() {
   return (
@@ -36,9 +38,12 @@ export default function App() {
 
       <Routes> {/* 4. Define your paths here */}
         <Route path="/" element={<Home />} />
-        <Route path="/hdb_project" element={<ProjectDetail />} />
+        {/* <Route path="/hdb_project" element={<ProjectDetail />} />
         <Route path="/fraud_detection_project" element={<ProjectDetailDAL />} />
-        <Route path="/query_optimization_project" element={<ProjectDetailQuery />} />
+        <Route path="/query_optimization_project" element={<ProjectDetailQuery />} /> */}
+        <Route path="/hdb_project" element={<ProjectDetailComponent data={HDB_json} />} />
+        <Route path="/fraud_detection_project" element={<ProjectDetailComponent data={fraud_detection_json} />} />
+        <Route path="/query_optimization_project" element={<ProjectDetailComponent data={query_json} />} />
       </Routes>
     </BrowserRouter>
   );  

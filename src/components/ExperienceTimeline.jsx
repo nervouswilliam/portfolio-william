@@ -13,6 +13,15 @@ import WorkIcon from "@mui/icons-material/Work";
 
 const experiences = [
   {
+    title: "Regional Business Planning and Analyst Intern, South East Asia and Korea",
+    company: "Essilor Luxottica",
+    period: "July 2026 - December 2026",
+    description: [
+      "Developed Forecasting Model for South East Asia and Korea Region using Excel",
+      "Created Dashboard for Business Planning and Analysis using Power BI",
+    ],
+  },
+  {
     title: "Software Engineer",
     company: "Wisely",
     period: "February 2025 - November 2025",

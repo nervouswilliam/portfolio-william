@@ -1,0 +1,159 @@
+{
+  "id": "hdb",
+  "meta": {
+    "title": "Repricing the HDB Market",
+    "subtitle": "A Statistical Reassessment of Value Drivers in Post-COVID Singapore",
+    "tabs": ["Overview", "Methodology", "Key Findings", "Team"]
+  },
+  "techStack": [
+    { "key": "react", "label": "React" },
+    { "key": "mui", "label": "Material UI" },
+    { "key": "python", "label": "Python" },
+    { "key": "postgresql", "label": "PostgreSQL" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Course Information",
+      "items": [
+        { "primary": "Course", "secondary": "IS630 - Statistical Thinking for Data Science" },
+        { "primary": "Institution", "secondary": "Singapore Management University" },
+        { "primary": "Term", "secondary": "January Term, AY 2025/26" },
+        { "primary": "Focus Region", "secondary": "West Singapore" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Data Range",
+      "chip": { "label": "2015-2024 (10 years)", "color": "primary" },
+      "captions": ["Pre-COVID: 2015-2019", "Post-COVID: 2020-2024"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Project Overview",
+        "paragraphs": [
+          {
+            "text": "This project conducted an in-depth statistical analysis to examine the causal relationships and impacts of various factors on HDB Resale Flat prices in Singapore's West region. The study analyzes transactions from 2015-2024, providing a comprehensive 10-year analysis comparing pre-COVID and post-COVID periods."
+          },
+          {
+            "text": "Rather than focusing solely on prediction accuracy, this research emphasizes pure statistical reasoning in data to understand true value drivers in the HDB resale market.",
+            "variant": "body2",
+            "italic": true
+          }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Research Objectives",
+        "items": [
+          { "primary": "How has the influence of different factors on HDB resale flat prices changed before and after COVID-19?" },
+          { "primary": "To what extent does the remaining lease affect the price per square meter (PSM) of HDB resale flats?" },
+          { "primary": "How do income and macroeconomic factors influence HDB resale flat prices in the West region before & after COVID?" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Data Sources",
+        "description": "All datasets were obtained from Singapore Government's official open-data portals:",
+        "items": [
+          { "primary": "HDB Resale Flat Transactions (Jan 2015 – Jan 2026)", "secondary": "from HDB (data.gov.sg)" },
+          { "primary": "MRT & Bus Station Data", "secondary": "from OneMap (onemap.gov.sg)" },
+          { "primary": "Economic Indicators (Unemployment, GDP Growth, Interest Rates)", "secondary": "from SingStat and MAS" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Analytical Approaches",
+        "sections": [
+          {
+            "heading": "Exploratory Data Analysis (EDA)",
+            "body": "Initial data visualization and statistical summaries including box plots, heatmaps, and correlation analyses to identify patterns and relationships in the data."
+          },
+          {
+            "heading": "Inferential Statistics",
+            "body": "Hypothesis testing using ANOVA, Mann-Whitney U tests, and Kruskal-Wallis tests to validate observed trends and determine statistical significance."
+          },
+          {
+            "heading": "Regression Modelling",
+            "body": "Multi-linear regression and OLS regression models to quantify the independent contribution of each variable to resale prices, controlling for housing characteristics and location effects."
+          }
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "Statistical Tests Performed",
+        "items": [
+          { "title": "Spearman's Correlation", "caption": "To check for multicollinearity between variables" },
+          { "title": "Two-way ANOVA", "caption": "To analyze impact of convenience and time factors" },
+          { "title": "Tukey HSD Test", "caption": "To quantify differences between factor groups" },
+          { "title": "Kruskal-Wallis Test", "caption": "For non-parametric distribution comparisons" },
+          { "title": "Mann-Whitney U Test", "caption": "To compare pre and post-COVID periods" },
+          { "title": "OLS Regression", "caption": "To quantify macroeconomic variable contributions" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Post-COVID Market Shift",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "The HDB market experienced a structural price increase after 2020, with prices rising from $250K-$400K pre-COVID to over $500K post-COVID. This represents a $183.9K mean increase in sale prices." }]
+          },
+          {
+            "title": "Convenience Premium",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "High convenience locations (scores 80-100) command a $33.9K premium over medium convenience areas. Post-COVID, buyers are willing to pay exponentially more for accessibility and proximity to transit." }]
+          },
+          {
+            "title": "Floor Level Importance",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Floor level has emerged as a critical post-COVID driver, with clear premiums for units above the 25th floor. Room type remains the primary factor but is no longer the sole determinant." }]
+          },
+          {
+            "title": "Declining Affordability",
+            "color": "error",
+            "content": [{ "type": "paragraph", "text": "Price-to-Income Ratio (PIR) shows severe deterioration post-COVID, indicating worsening affordability. Pre-COVID saw gradual decline in PIR (improving affordability), but 2020 onwards shows sharp spikes indicating structural affordability crisis." }]
+          },
+          {
+            "title": "Remaining Lease Impact",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Non-linear positive association between remaining lease and PSM. Price drops sharply for leases under 70 years, then stabilizes. Post-COVID, buyers are increasingly purchasing older flats, possibly due to affordability constraints." }]
+          },
+          {
+            "title": "Income as Key Driver",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Household income is the strongest macroeconomic driver. A S$1,000 increase in median household income is associated with ~6.7% increase in resale prices, reflecting purchasing power effects." }]
+          },
+          {
+            "title": "Location Remains Critical",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Clementi consistently commands the highest prices due to proximity to universities and amenities. Post-COVID, Bukit Batok has also risen significantly. Location remains a key determinant of resale value." }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Research Team",
+        "members": [
+          { "name": "Kelvin Andikko", "subtitle": "Matric: 01533318" },
+          { "name": "Jeremiah William Sebestian", "subtitle": "Matric: 01549441" },
+          { "name": "Heidi Chong Jia Min", "subtitle": "Matric: 01464078" },
+          { "name": "Lim Eng Soon", "subtitle": "Matric: 01550636" },
+          { "name": "Atharva Dipak Bhavsar", "subtitle": "Matric: 01548558" },
+          { "name": "Prajapati Parth Jignesh", "subtitle": "Matric: 01548275" },
+          { "name": "Varun Kumar Konjeti", "subtitle": "Matric: 01550808" }
+        ]
+      }
+    ]
+  ]
+}
