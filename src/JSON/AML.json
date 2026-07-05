@@ -1,0 +1,297 @@
+{
+  "id": "customer_churn_ml",
+  "meta": {
+    "title": "Predicting Customer Churn Using Machine Learning Models",
+    "subtitle": "Applying Supervised and Unsupervised Learning to Understand and Predict E-Commerce Customer Churn",
+    "tabs": ["Overview", "Methodology", "Model Results", "Insights & Recommendations", "Team"]
+  },
+  "techStack": [
+    { "key": "python", "label": "Python" },
+    { "label": "Logistic Regression" },
+    { "label": "Decision Tree" },
+    { "label": "XGBoost" },
+    { "label": "K-Means Clustering" },
+    { "key": "scikit", "label": "Scikit-learn" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Course Information",
+      "items": [
+        { "primary": "Course", "secondary": "CS610 - Applied Machine Learning" },
+        { "primary": "Institution", "secondary": "Singapore Management University" },
+        { "primary": "Term", "secondary": "April Term, AY 2025/26" },
+        { "primary": "Group", "secondary": "Group 19" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Dataset",
+      "chip": { "label": "Ecommerce Customer Behaviour & Sales 2020-2026", "color": "primary" },
+      "captions": ["25,000 order-level records", "7,663 unique customers", "Churn rate: 8.9%"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Background & Business Problem",
+        "paragraphs": [
+          { "text": "Customer churn is a critical challenge in e-commerce because customers can easily switch between platforms and disengage silently, without any explicit cancellation event as in subscription-based services. This makes churn difficult to detect early using traditional monitoring methods." },
+          { "text": "The core business challenge is not only to predict whether a customer will churn, but to understand the behavioural patterns behind it - converting historical customer data into actionable retention insights rather than relying on broad, reactive campaigns that waste resources on low-risk customers." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Project Objectives",
+        "items": [
+          { "primary": "Formulate customer churn as a binary classification problem using historical customer, transaction, engagement, and behavioural data." },
+          { "primary": "Compare multiple ML approaches for churn prediction and insight generation: Logistic Regression (baseline), Decision Tree (interpretability), XGBoost (predictive strength), and K-Means (segmentation)." },
+          { "primary": "Identify key churn drivers relevant to e-commerce retention strategy, such as recency, frequency, spending, return rate, and engagement." },
+          { "primary": "Translate model outputs into actionable business recommendations to support proactive retention." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Data Understanding",
+        "description": "Dataset: Ecommerce Customer Behaviour & Sales 2020-2026 (Kaggle), containing four tables:",
+        "items": [
+          { "primary": "customers.csv", "secondary": "Used - demographic and account-level attributes; source for loyalty tier and tenure_days" },
+          { "primary": "orders.csv", "secondary": "Used - core transactional table for order-level features and customer-level aggregates" },
+          { "primary": "product_summary.csv", "secondary": "Excluded - product-level aggregates over the entire dataset would cause data leakage" },
+          { "primary": "monthly_revenue.csv", "secondary": "Excluded - used only for exploratory analysis, not customer-level prediction" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Dataset Summary",
+        "headers": [
+          { "label": "Item" },
+          { "label": "Value" }
+        ],
+        "rows": [
+          ["Final supervised dataset size", "25,000 order-level records"],
+          ["Customer-level K-Means dataset size", "7,663 unique customers"],
+          ["Target variable", "churned (1 = churn, 0 = not churn)"],
+          ["Churn distribution", "8.9% (main supervised dataset)"],
+          ["XGBoost dataset", "Repeat-customer subset, 53.94% churn (365-day inactivity threshold)"],
+          ["Prediction task", "Binary classification"],
+          ["Segmentation task", "Unsupervised customer clustering"]
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Data Preprocessing & Feature Engineering",
+        "sections": [
+          { "heading": "Data Cleaning", "body": "Redundant columns were removed from the customers dataset, including total_orders and returns_made (consolidated into return_rate), year/month/day_of_week/quarter (retained as order_date), and subtotal_usd/total_amount_usd/discount_pct/tax_pct (redundant with unit_price_usd and quantity). order_status was dropped as it duplicated the returned boolean field." },
+          { "heading": "Missing Value Treatment", "body": "customer_rating contained substantial missing data and was imputed using median values. No further imputation was needed elsewhere." },
+          { "heading": "Encoding of Categorical Variables", "body": "Binary variables (e.g. gender) were mapped to 0/1. Ordinal variables with natural rank order (membership_tier: Free, Silver, Gold, Platinum) were ordinally encoded. Nominal variables (country, acquisition_channel, device_used, payment_method, category) were one-hot encoded, dropping the first category to avoid the dummy variable trap. product_name, due to high cardinality, was frequency-encoded instead." },
+          { "heading": "Feature Engineering", "body": "Two features were engineered to capture behavioural signals: tenure_days (difference between a customer's registration date and the most recent registration date in the dataset) and return_rate (returns made divided by total orders)." }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Modelling Approach",
+        "sections": [
+          { "heading": "Logistic Regression (Baseline)", "body": "Trained on behavioural features spanning purchase behaviour, engagement, price sensitivity, satisfaction, and shopping diversity. Preprocessing included median imputation, StandardScaler standardisation, and an 80/20 stratified split. Configured with max_iter=3000, random_state=42; evaluated via accuracy, precision, recall, F1, ROC-AUC, PR-AUC, and confusion matrix." },
+          { "heading": "Decision Tree", "body": "ID/date columns dropped as non-predictive. Regularised with max_depth=5, min_samples_split=20, min_samples_leaf=10 to prevent overfitting. A class_weight of {0: 1, 1: 5} was applied since false negatives (missed churners) are more costly to the business than false positives." },
+          { "heading": "XGBoost", "body": "Features engineered at the customer level (total_orders, monetary_value, total_discount, total_shipping, total_items, avg_delivery_days, avg_product_popularity). Churn was defined via a 365-day inactivity threshold on a repeat-customer subset. Trained with 200 estimators, learning rate 0.02, max depth 4, and scale_pos_weight to counter class imbalance. Because it uses a different churn definition and customer subset, its metrics are not directly comparable to the other supervised models." },
+          { "heading": "K-Means Clustering", "body": "Order-level data was aggregated to customer level (7,663 customers) using recency, frequency, monetary value, engagement, satisfaction, return behaviour, price sensitivity, and behavioural diversity. Skewed variables were log-transformed before standardisation. Multiple values of K were evaluated using Silhouette Score, Davies-Bouldin Index, and business interpretability (segment size and churn-rate spread); the churn label itself was not used during clustering." }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "K-Means: Choosing K",
+        "description": "K = 4 was selected as the practical compromise between statistical separation and business interpretability (segment size, churn-rate spread of 0.0449).",
+        "headers": [
+          { "label": "K" },
+          { "label": "Silhouette Score", "align": "center" },
+          { "label": "Davies-Bouldin Index", "align": "center" },
+          { "label": "Churn Rate Spread", "align": "center" }
+        ],
+        "rows": [
+          ["2", "0.1171", "2.740", "0.0026"],
+          ["3", "0.0862", "2.480", "0.0439"],
+          ["4", "0.0800", "2.441", "0.0449"],
+          ["5", "0.0744", "2.466", "0.0686"],
+          ["6", "0.0850", "2.471", "0.0455"]
+        ],
+        "highlightRowIndexes": [2]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Logistic Regression: High Accuracy, Poor Churn Detection",
+            "color": "error",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Accuracy", "value": "91.12%", "description": "" },
+                  { "label": "Precision", "value": "55.56%", "description": "" },
+                  { "label": "Recall", "value": "1.12%", "description": "only 5 of 445 churners correctly identified" },
+                  { "label": "ROC-AUC", "value": "0.660", "description": "" },
+                  { "label": "PR-AUC", "value": "0.212", "description": "" }
+                ]
+              },
+              { "type": "paragraph", "text": "The model predicts 'Not Churn' for almost every customer. Its high accuracy is driven entirely by the majority class, and it is not effective for churn detection at the default threshold." }
+            ]
+          },
+          {
+            "title": "Decision Tree: Deliberate Recall-Precision Trade-off",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Accuracy", "value": "84.9%", "description": "" },
+                  { "label": "ROC-AUC", "value": "0.7428", "description": "" },
+                  { "label": "PR-AUC", "value": "0.3387", "description": "~4x better than the 0.089 baseline" }
+                ]
+              },
+              { "type": "paragraph", "text": "The confusion matrix shows 4,023 true negatives, 532 false positives, 224 false negatives, and 221 true positives. The higher false-positive rate is a deliberate trade-off from the 5x false-negative penalty - better to reach out to a loyal customer than miss a churner. The first split is on days_since_last_purchase at 183.5 days (Gini 0.441), the strongest signal in the tree." }
+            ]
+          },
+          {
+            "title": "XGBoost: Strong Discriminatory Power",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "ROC-AUC", "value": "0.79", "description": "" },
+                  { "label": "Precision", "value": "0.70", "description": "" },
+                  { "label": "Recall", "value": "0.84", "description": "" },
+                  { "label": "F1-score", "value": "0.76", "description": "" }
+                ]
+              },
+              { "type": "paragraph", "text": "Confusion matrix: TN=353, FP=252, FN=116, TP=593. The high recall makes this model effective for flagging actual churners for intervention, with a good balance between true positives and true negatives and comparatively few false negatives. Churn rate among repeat customers was found to be 53.94%." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "K-Means Customer Segments (K = 4)",
+        "headers": [
+          { "label": "Cluster" },
+          { "label": "Segment Name" },
+          { "label": "Size", "align": "center" },
+          { "label": "Share", "align": "center" },
+          { "label": "Churn Rate", "align": "center" }
+        ],
+        "rows": [
+          ["0", "High-Value Occasional Customers", "1,843", "24.05%", "7.00%"],
+          ["1", "High-Value Occasional Customers", "1,823", "23.79%", "8.56%"],
+          ["2", "Repeat Multi-Category Customers", "1,838", "23.99%", "8.54%"],
+          ["3", "Dormant At-Risk Customers", "2,159", "28.17%", "11.49%"]
+        ],
+        "goodColumns": [],
+        "highlightRowIndexes": [3]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Segment Profiles",
+        "sections": [
+          { "heading": "Cluster 0 & 1 - High-Value Occasional Customers", "body": "Cluster 0 has the highest average total spend (~$3,542) and order value (~$145.50), order_count ~3.74, return_rate ~7.53%, newsletter subscription ~72.6%. Cluster 1 shows moderate spend (~$1,527), lower frequency (order_count ~1.43), order value ~$95.31, return_rate ~3.32%." },
+          { "heading": "Cluster 2 - Repeat Multi-Category Customers", "body": "Combines relatively high order_count (~3.78) with lower average spend per customer (~$822.74) and order value (~$74.65); newsletter subscription is 0.0 for this segment." },
+          { "heading": "Cluster 3 - Dormant At-Risk Customers", "body": "Highest population share and highest observed churn (~11.49%), lowest mean total spend (~$548.88), and low average review/rating signals. Membership tier prevalence shows many customers in higher tiers, but churn remains elevated - notably 12.17% in Tier 0 - indicating membership status alone does not mitigate churn for this segment." }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Business Insights by Model",
+        "sections": [
+          { "heading": "Logistic Regression", "body": "Because the model fails to detect the large majority of churners, it does not currently yield reliable, actionable business insight on its own - its output is dominated by bias toward predicting 'Not Churn'." },
+          { "heading": "K-Means", "body": "High-churn segments with non-trivial historical spend (clusters 0 and 1) represent the highest near-term revenue risk and should be prioritised for retention experiments. Cluster 3's high churn is not fully explained by membership tier, suggesting structural issues like reduced engagement or product-experience gaps. Cluster 2's high frequency but lower order value and high category diversity suggests cross-sell opportunity without heavy discounting. Return rates vary meaningfully across clusters (0.0753 for cluster 0 vs 0.0086 for cluster 3), implying different churn drivers across segments." },
+          { "heading": "Decision Tree", "body": "Customer recency is the most powerful churn signal: customers inactive beyond 183.5 days are high-risk. Among active customers, low total spending and zero reviews given are secondary indicators of weak engagement. Low return rates, low average order values, and short tenures characterise customers who disengage early - churn risk arises from multiple distinct patterns across the customer lifecycle, not a single cause." },
+          { "heading": "XGBoost", "body": "Over half of repeat customers (53.94%) are considered churned under the 365-day inactivity baseline - a significant revenue loss requiring urgent retention strategies. Sustained engagement over time is crucial to retention. Certain product categories (Beauty & Personal Care, Clothing & Apparel) show notable influence on churn prediction, suggesting engagement with these lines may signal loyalty or disengagement." }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Final Business Recommendation",
+            "color": "success",
+            "content": [
+              { "type": "paragraph", "text": "The combined model insights support a shift from reactive to proactive retention. The Decision Tree identifies 183.5 days (~6 months) of inactivity as the early-warning threshold. XGBoost flags customers representing $58K in monetary value who carry 81% of the churn risk - these should be prioritised for immediate intervention given their high revenue exposure." },
+              { "type": "paragraph", "text": "Some customers show low spending but high return rates, pointing to a broken customer experience or mismatched expectations rather than a pricing problem - this calls for targeted service and product-fit interventions rather than discount-based offers. Personalised reactivation campaigns should address dissatisfaction while rewarding high-value loyal customers, strengthening long-term retention across at-risk segments." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Segment-Specific Recommendations (K-Means)",
+        "sections": [
+          { "heading": "High-Value Customers (Clusters 0 & 1)", "body": "Protective retention: account-level outreach, loyalty reinforcement, personalised premium offers, early access - validated experimentally before broad rollout." },
+          { "heading": "Dormant At-Risk (Cluster 3)", "body": "Two-pronged approach: reactivation campaigns (time-limited incentives, personalised reminders) combined with diagnostics (surveys, quality checks, CX escalations) to identify root causes." },
+          { "heading": "Repeat Multi-Category (Cluster 2)", "body": "Personalised cross-sell and bundling recommendations; test margin-protective offers (free shipping thresholds, bundles) rather than blanket discounts." },
+          { "heading": "High-Return Segments", "body": "Product quality audits, clearer sizing/description information, and post-purchase customer service to reduce return-driven churn." }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Limitations",
+            "color": "warning",
+            "content": [
+              { "type": "bullets", "items": [
+                { "label": "Class imbalance:", "text": "Churners form only ~8.9% of the dataset, driving Logistic Regression's near-total recall failure." },
+                { "label": "Linearity assumption:", "text": "Logistic Regression assumes a linear log-odds relationship; tree-based models performing better suggests true relationships may be non-linear." },
+                { "label": "Static churn definition:", "text": "Based on a fixed 365-day inactivity threshold, which may not capture all nuances of disengagement." },
+                { "label": "K-Means assumptions:", "text": "Assumes roughly spherical, comparable-variance clusters using Euclidean distance; results depend on feature/preprocessing choices and represent a static snapshot, not a time-aware model." },
+                { "label": "Decision Tree trade-off:", "text": "The 5x false-negative penalty produces a low 29.3% churn precision - many flagged customers will not actually churn, a deliberate but costly trade-off." },
+                { "label": "XGBoost complexity:", "text": "Computationally heavy, requires careful hyperparameter tuning, and is sensitive to data noise/overfitting as a boosting method." }
+              ]}
+            ]
+          },
+          {
+            "title": "Future Improvements",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "Refine the churn definition beyond static 365-day inactivity to capture more nuanced disengagement. Incorporate additional features such as customer service interactions and demographic data. Apply threshold tuning and cost-sensitive evaluation, and validate retention strategies through controlled experiments (A/B testing)." }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Research Team - Group 19",
+        "members": [
+          { "name": "Kelvin Andikko", "subtitle": "Matric: 01533318" },
+          { "name": "Jeremiah William Sebestian", "subtitle": "Matric: 01549441" },
+          { "name": "Heidi Chong Jia Min", "subtitle": "Matric: 01464078" },
+          { "name": "Anabelle Eveleen Tandra", "subtitle": "Matric: 01550636" },
+          { "name": "Alif Raditya", "subtitle": "Matric: 01548968" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "References",
+        "items": [
+          { "primary": "Matuszelański, K., & Kopczewska, K. (2022). Customer Churn in Retail E-Commerce Business: Spatial and Machine Learning Approach. Journal of Theoretical and Applied Electronic Commerce Research, 17(1), 165-198." },
+          { "primary": "Manzoor, A., Qureshi, M. A., Kidney, E., & Longo, L. (2024). A Review on Machine Learning Methods for Customer Churn Prediction and Recommendations for Business Practitioners. IEEE Access, 12, 70434-70463." },
+          { "primary": "Geiler, L., Affeldt, S., & Nadif, M. (2022). A survey on machine learning methods for churn prediction. International Journal of Data Science and Analytics, 14, 217-242." },
+          { "primary": "Van den Poel, D., & Burez, J. (2009). A survey on machine learning methods for churn prediction. Expert Systems with Applications, 36(3), 4626-4636." },
+          { "primary": "Höppner, S., Stripling, E., Baesens, B., vanden Broucke, S., & Verdonck, T. (2020). Profit driven decision trees for churn prediction. European Journal of Operational Research, 284(3), 920-933." },
+          { "primary": "Chen, T., & Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (pp. 785-794)." },
+          { "primary": "Xiahou, X., & Harada, Y. (2022). B2C E-Commerce Customer Churn Prediction Based on K-Means and SVM. Journal of Theoretical and Applied Electronic Commerce Research, 17(2), 1-18." },
+          { "primary": "Ascarza, E. (2018). Retention Futility: Targeting High-Risk Customers Might be Ineffective. Journal of Marketing Research, 55(1), 80-98." }
+        ]
+      }
+    ]
+  ]
+}
