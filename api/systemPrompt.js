@@ -4,12 +4,12 @@
 // Edit the PORTFOLIO_OWNER block below with your own bio details, and add
 // any new project JSON imports as you create more projects.
 
-import hdbData from "../JSON/HDB.json" assert { type: "json" };
-import fraudDetectionData from "../JSON/fraud_detection.json" assert { type: "json" };
-import queryOptimizationData from "../JSON/query.json" assert { type: "json" };
-import evInfrastructureData from "../JSON/EV_Infrastructure.json" assert { type: "json" };
-import smmSocialNetworksData from "../JSON/social_network.json" assert { type: "json" };
-import customerChurnData from "../JSON/AML.json" assert { type: "json" };
+import hdbData from "../src/JSON/HDB.json" assert { type: "json" };
+import fraudDetectionData from "../src/JSON/fraud_detection.json" assert { type: "json" };
+import queryOptimizationData from "../src/JSON/query.json" assert { type: "json" };
+import evInfrastructureData from "../src/JSON/EV_Infrastructure.json" assert { type: "json" };
+import smmSocialNetworksData from "../src/JSON/social_network.json" assert { type: "json" };
+import customerChurnData from "../src/JSON/AML.json" assert { type: "json" };
 
 // -----------------------------------------------------------------------
 // EDIT THIS: your own bio / intro. This is what grounds "who am I" answers.
