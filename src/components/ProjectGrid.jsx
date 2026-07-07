@@ -247,6 +247,7 @@ export default function ProjectGrid() {
     {
       id: "wisely",
       title: "Wisely",
+      date: "2025",
       description:
         "A warehouse and sales tracking app that helps small businesses manage products, track expiration dates, and optimize restocks.",
       image: wisely,
@@ -257,6 +258,7 @@ export default function ProjectGrid() {
     {
       id: "dev4you",
       title: "Dev4You",
+      date: "2024",
       description:
         "A platform connecting nonprofits with developers to build websites and apps at minimal cost while helping developers gain real-world experience.",
       image: dev4you,
@@ -266,6 +268,7 @@ export default function ProjectGrid() {
     {
       id: "needwork",
       title: "Need Work",
+      date: "2025",
       description:
         "A search engine platform that helps people search for jobs from different job sites and allowing them to apply effortlessly.",
       image: needworkapp,
@@ -276,6 +279,7 @@ export default function ProjectGrid() {
     {
       id: "cestwosin",
       title: "CesTwoSkin",
+      date: "2023",
       description:
         "A mobile application that enables gamers to buy, sell, and trade Counter-Strike 2 weapon skins securely and effortlessly.",
       image: cs2skin,
@@ -285,6 +289,7 @@ export default function ProjectGrid() {
     {
       id: "tictactoe",
       title: "Tic Tac Shift",
+      date: "2025",
       description:
         "A web Application version of Tic Tac Toe with a twist, featuring a shifting board mechanic to enhance gameplay and strategy.",
       image: tictactoe,
@@ -295,6 +300,7 @@ export default function ProjectGrid() {
     {
       id: "HDB resale Value Drivers",
       title: "HDB Resale Value Drivers",
+      date: "2026",
       description:
         "A statistical analysis of factors influencing HDB resale flat prices in Singapore's West region.",
       image: hdb,
@@ -304,6 +310,7 @@ export default function ProjectGrid() {
     {
       id: "fraud-detection",
       title: "Study on Fraud Detection Prediction",
+      date: "2026",
       description: "Classification-based predictive modelling for UK fashion retail...",
       image: fraud,
       tech: ["knime"],
@@ -312,6 +319,7 @@ export default function ProjectGrid() {
     {
       id: "query-optimization",
       title: "Query Processing and Optimization",
+      date: "2026",
       description: "SARGABLE query optimization using MySQL generated columns",
       image: queryProcessingImage,
       tech: ["mysql"],
@@ -320,6 +328,7 @@ export default function ProjectGrid() {
     {
       id: "ev-infrastructure",
       title: "EV Infrastructure Planning",
+      date: "2026",
       description: "Analysis and planning for electric vehicle charging infrastructure in urban areas",
       image: evInfrastructure,
       tech: ["excel"],
@@ -328,6 +337,7 @@ export default function ProjectGrid() {
     {
       id: "machine-learning",
       title: "Machine Learning Applications",
+      date: "2026",
       description: "Exploring various machine learning techniques and their applications in real-world scenarios",
       image: machineLearning,
       tech: ["python", "scikit"],
@@ -336,6 +346,7 @@ export default function ProjectGrid() {
     {
       id: "social-network-analysis",
       title: "Social Network Analysis",
+      date: "2026",
       description: "Analyzing social network structures and dynamics using graph theory and machine learning",
       image: socialNetwork,
       tech: ["python"],
@@ -383,6 +394,16 @@ export default function ProjectGrid() {
                 >
                   {project.title}
                 </Typography>
+
+                {project.date && (
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                    sx={{ display: "block", mb: 1 }}
+                  >
+                    {project.date}
+                  </Typography>
+                )}
 
                 <Typography variant="body2" color="text.secondary">
                   {project.description}

@@ -517,6 +517,11 @@ const ProjectDetailComponent = ({ data }) => {
           <Typography variant="subtitle1" color="text.secondary">
             {meta.subtitle}
           </Typography>
+          {meta.date && (
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+              {meta.date}
+            </Typography>
+          )}
         </Box>
 
         {/* Navigation Tabs */}

@@ -3,6 +3,7 @@
   "meta": {
     "title": "Predicting Customer Churn Using Machine Learning Models",
     "subtitle": "Applying Supervised and Unsupervised Learning to Understand and Predict E-Commerce Customer Churn",
+    "date": "2026",
     "tabs": ["Overview", "Methodology", "Model Results", "Insights & Recommendations", "Team"]
   },
   "techStack": [

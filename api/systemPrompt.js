@@ -42,6 +42,9 @@ function summarizeProject(project) {
   const lines = [];
   lines.push(`### ${project.meta.title}`);
   lines.push(project.meta.subtitle);
+  if (project.meta.date) {
+    lines.push(`Year: ${project.meta.date}`);
+  }
 
   if (project.techStack?.length) {
     const stack = project.techStack.map((t) => t.label).join(", ");

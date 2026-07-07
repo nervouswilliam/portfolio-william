@@ -3,6 +3,7 @@
   "meta": {
     "title": "Query Processing and Optimization",
     "subtitle": "Making Generated Columns for SARGABLE Query Optimization",
+    "date": "2026",
     "tabs": ["Overview", "Problem & Solution", "Results & Comparison", "Team"]
   },
   "techStack": [

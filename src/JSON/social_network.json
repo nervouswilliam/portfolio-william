@@ -3,6 +3,7 @@
   "meta": {
     "title": "Social Communities and Influence Patterns in Super Mario Maker Player Networks",
     "subtitle": "Using Network Science to Detect Player Communities, Identify Influencers, and Power Course Recommendations",
+    "date": "2026",
     "tabs": ["Overview", "Methodology", "Community Analysis", "Influence & Recommendations", "Team"]
   },
   "techStack": [

@@ -13,6 +13,7 @@ export const ALL_PROJECTS = [
     "meta": {
       "title": "Repricing the HDB Market",
       "subtitle": "A Statistical Reassessment of Value Drivers in Post-COVID Singapore",
+      "date": "2026",
       "tabs": [
         "Overview",
         "Methodology",
@@ -298,6 +299,7 @@ export const ALL_PROJECTS = [
     "meta": {
       "title": "Study on Fraud Detection Prediction",
       "subtitle": "Classification-Based Predictive Modelling for UK Fashion Retail Digital Payments",
+      "date": "2026",
       "tabs": [
         "Overview",
         "Methodology",
@@ -609,6 +611,7 @@ export const ALL_PROJECTS = [
     "meta": {
       "title": "Query Processing and Optimization",
       "subtitle": "Making Generated Columns for SARGABLE Query Optimization",
+      "date": "2026",
       "tabs": [
         "Overview",
         "Problem & Solution",
@@ -1034,6 +1037,7 @@ export const ALL_PROJECTS = [
     "meta": {
       "title": "Singapore's Infrastructure Readiness For EV",
       "subtitle": "Will Singapore's power grid and public charging infrastructure support a 100% EV future by 2035?",
+      "date": "2026",
       "tabs": [
         "Overview",
         "Modelling & Methodology",
@@ -1419,6 +1423,7 @@ export const ALL_PROJECTS = [
     "meta": {
       "title": "Social Communities and Influence Patterns in Super Mario Maker Player Networks",
       "subtitle": "Using Network Science to Detect Player Communities, Identify Influencers, and Power Course Recommendations",
+      "date": "2026",
       "tabs": [
         "Overview",
         "Methodology",
@@ -2359,6 +2364,7 @@ export const ALL_PROJECTS = [
     "meta": {
       "title": "Predicting Customer Churn Using Machine Learning Models",
       "subtitle": "Applying Supervised and Unsupervised Learning to Understand and Predict E-Commerce Customer Churn",
+      "date": "2026",
       "tabs": [
         "Overview",
         "Methodology",
