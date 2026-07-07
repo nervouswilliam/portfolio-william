@@ -20,6 +20,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom"; // 1. Import these
 import { CssBaseline } from "@mui/material";
+import ChatWidget from "./components/ChatWidget";
 import Navbar from "./components/Navbar";
 import Home from "./pages/home";
 import ScrollToTop from "./components/ScrollToTop"; // 3. Import ScrollToTop component
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/social_network_analysis_project" element={<ProjectDetailComponent data={social_network_json} />} />
         <Route path="/machine_learning_project" element={<ProjectDetailComponent data={machine_learning_json} />} />
       </Routes>
+      <ChatWidget />
     </BrowserRouter>
   );  
 }
