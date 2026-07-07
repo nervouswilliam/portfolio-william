@@ -1,15 +1,14 @@
-// src/lib/systemPrompt.js
+// api/systemPrompt.js
 //
-// Builds the chatbot's system prompt from your existing project JSON files.
-// Edit the PORTFOLIO_OWNER block below with your own bio details, and add
-// any new project JSON imports as you create more projects.
+// Builds the chatbot's system prompt from your portfolio's project data.
+// Edit the PORTFOLIO_OWNER block below with your own bio details.
+//
+// Project data comes from ./projectsData.js — a plain JS module generated
+// from src/JSON/*.json, living inside api/ so Vercel's function bundler
+// always includes it (no cross-directory imports, no JSON import
+// assertions — both were the cause of the earlier ERR_MODULE_NOT_FOUND).
 
-import hdbData from "../src/JSON/HDB.json" assert { type: "json" };
-import fraudDetectionData from "../src/JSON/fraud_detection.json" assert { type: "json" };
-import queryOptimizationData from "../src/JSON/query.json" assert { type: "json" };
-import evInfrastructureData from "../src/JSON/EV_Infrastructure.json" assert { type: "json" };
-import smmSocialNetworksData from "../src/JSON/social_network.json" assert { type: "json" };
-import customerChurnData from "../src/JSON/AML.json" assert { type: "json" };
+import { ALL_PROJECTS } from "./projectsData.js";
 
 // -----------------------------------------------------------------------
 // EDIT THIS: your own bio / intro. This is what grounds "who am I" answers.
@@ -32,15 +31,6 @@ const PORTFOLIO_OWNER = {
     github: "https://github.com/nervouswilliam",
   },
 };
-
-const ALL_PROJECTS = [
-  hdbData,
-  fraudDetectionData,
-  queryOptimizationData,
-  evInfrastructureData,
-  smmSocialNetworksData,
-  customerChurnData,
-];
 
 // -----------------------------------------------------------------------
 // Flattens a project JSON (the same schema used by ProjectDetail.jsx) into
