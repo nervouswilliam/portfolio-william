@@ -82,7 +82,7 @@ export default function Navbar() {
                 color: "#64ffda",
               },
             }}
-            href="/CV_JEREMIAH_WILLIAM_SEBASTIAN.pdf"
+            href="/CV_WILLIAM.pdf"
             target="_blank"
           >
             Download CV
@@ -119,7 +119,7 @@ export default function Navbar() {
             ))}
             <MenuItem>
               <Button
-                href="/CV_JEREMIAH_WILLIAM_SEBASTIAN.pdf"
+                href="/CV_WILLIAM.pdf"
                 target="_blank"
                 fullWidth
                 sx={{
