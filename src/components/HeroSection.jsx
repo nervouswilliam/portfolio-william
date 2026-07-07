@@ -76,14 +76,27 @@ export default function HeroSection() {
       <Typography
         variant="h5"
         sx={{
+          color: "rgba(255,255,255,0.85)",
+          mb: 1.5,
+          fontWeight: 600,
+          maxWidth: "650px",
+        }}
+      >
+        Bridging the Gap Between Engineering Logic and Business Insight.
+      </Typography>
+
+      <Typography
+        variant="body1"
+        sx={{
           color: "rgba(255,255,255,0.7)",
           mb: 3,
           fontWeight: 400,
           maxWidth: "600px",
         }}
       >
-        A passionate <b>Backend Engineer</b> who enjoys building efficient,
-        scalable, and meaningful software that helps people and businesses grow.
+        I write code to build products, and queries and models to solve
+        business problems — turning your data into your greatest technical
+        asset.
       </Typography>
 
       {/* Buttons */}

@@ -15,7 +15,7 @@ const experiences = [
   {
     title: "Regional Business Planning and Analyst Intern, South East Asia and Korea",
     company: "Essilor Luxottica",
-    period: "July 2026 - December 2026",
+    period: "July 2026 - Present",
     description: [
       "Developed Forecasting Model for South East Asia and Korea Region using Excel",
       "Created Dashboard for Business Planning and Analysis using Power BI",
