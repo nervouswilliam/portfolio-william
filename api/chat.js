@@ -6,7 +6,7 @@
 // Required environment variable (set in Vercel dashboard, not in code):
 //   GEMINI_API_KEY
 
-import { SYSTEM_PROMPT } from "../src/lib/systemPrompt.js";
+import { SYSTEM_PROMPT } from "../src/data/systemPrompt.js";
 
 const GEMINI_MODEL = "gemini-2.5-flash"; // fast + free-tier friendly
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
