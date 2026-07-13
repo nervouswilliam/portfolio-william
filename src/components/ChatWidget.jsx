@@ -13,13 +13,12 @@ import {
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import CloseIcon from "@mui/icons-material/Close";
 import SendIcon from "@mui/icons-material/Send";
-
-const GREETING =
-  "Hi! I can answer questions about my background and the projects on this site — what would you like to know?";
+import { useTranslation } from "react-i18next";
 
 export default function ChatWidget() {
+  const { t, i18n } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState([{ role: "assistant", content: GREETING }]);
+  const [messages, setMessages] = useState([{ role: "assistant", content: t("chat.greeting") }]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -30,6 +29,16 @@ export default function ChatWidget() {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, loading]);
+
+  // Keep the greeting in sync with the language switcher, but only while the
+  // visitor hasn't started chatting yet — don't clobber an active conversation.
+  useEffect(() => {
+    setMessages((prev) =>
+      prev.length === 1 && prev[0].role === "assistant"
+        ? [{ role: "assistant", content: t("chat.greeting") }]
+        : prev
+    );
+  }, [i18n.language, t]);
 
   async function sendMessage() {
     const trimmed = input.trim();
@@ -56,14 +65,14 @@ export default function ChatWidget() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.error || "Something went wrong. Please try again.");
+        setError(data.error || t("chat.genericError"));
         setMessages((prev) => prev.slice(0, -1)); // roll back optimistic user message on hard failure
         return;
       }
 
       setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
     } catch (err) {
-      setError("Could not reach the assistant. Please check your connection and try again.");
+      setError(t("chat.networkError"));
     } finally {
       setLoading(false);
     }
@@ -108,7 +117,7 @@ export default function ChatWidget() {
                 AI
               </Avatar>
               <Typography variant="subtitle2" sx={{ fontWeight: "bold" }}>
-                Portfolio Assistant
+                {t("chat.assistantName")}
               </Typography>
             </Box>
             <IconButton size="small" onClick={() => setOpen(false)} sx={{ color: "#fff" }}>
@@ -158,7 +167,7 @@ export default function ChatWidget() {
               <Box sx={{ alignSelf: "flex-start", display: "flex", alignItems: "center", gap: 1, px: 1 }}>
                 <CircularProgress size={14} />
                 <Typography variant="caption" color="text.secondary">
-                  Thinking...
+                  {t("chat.thinking")}
                 </Typography>
               </Box>
             )}
@@ -175,7 +184,7 @@ export default function ChatWidget() {
             <TextField
               size="small"
               fullWidth
-              placeholder="Ask about my projects..."
+              placeholder={t("chat.placeholder")}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -186,7 +195,7 @@ export default function ChatWidget() {
               color="primary"
               onClick={sendMessage}
               disabled={loading || !input.trim()}
-              aria-label="Send message"
+              aria-label={t("chat.sendAria")}
             >
               <SendIcon fontSize="small" />
             </IconButton>
@@ -197,7 +206,7 @@ export default function ChatWidget() {
       <Fab
         color="primary"
         onClick={() => setOpen((prev) => !prev)}
-        aria-label={open ? "Close chat" : "Open chat"}
+        aria-label={open ? t("chat.closeAria") : t("chat.openAria")}
       >
         {open ? <CloseIcon /> : <ChatBubbleOutlineIcon />}
       </Fab>

@@ -10,69 +10,27 @@ import {
 } from "@mui/lab";
 import { Box, Typography, Paper } from "@mui/material";
 import WorkIcon from "@mui/icons-material/Work";
+import { useTranslation } from "react-i18next";
 
-const experiences = [
-  {
-    title: "Regional Business Planning and Analyst Intern, South East Asia and Korea",
-    company: "Essilor Luxottica",
-    period: "July 2026 - Present",
-    description: [
-      "Developed Forecasting Model for South East Asia and Korea Region using Excel",
-      "Created Dashboard for Business Planning and Analysis using Power BI",
-    ],
-  },
-  {
-    title: "Software Engineer",
-    company: "Wisely",
-    period: "February 2025 - November 2025",
-    description: [
-      "Designed and Implemented Web Application using React JS",
-      "Created reusable Table Component",
-      "Created input form for user",
-      "Designed and Implemented Backend Application using Supabase",
-      "Designed database schema and functions",
-      "Designed Row Level Security for database tables",
-    ],
-  },
-  {
-    title: "Backend Engineer Intern",
-    company: "Bank Central Asia (BCA)",
-    period: "April 2024 - February 2025",
-    description: [
-        "Designed and implemented backend using spring boot version 3",
-        "Created RESTful API (GET, POST, DELETE)",
-        "Created internationalization API",
-        "Created filter feature",
-        "Migrated Backend of existing BCA Services",
-        "Improve authentication from stateful architecture to stateless architecture" 
-    ],
-  },
-  {
-    title: "Frontend Engineer Intern",
-    company: "Bank Central Asia (BCA)",
-    period: "February 2024 – April 2024",
-    description: [
-      "Designed and Implemented website application using Angular JS framework with bootstrap version 3",
-      "Designed and implemented inputs feature for user to input",
-      "Designed and refactored components to optimize the feature"
-    ],
-  },
-  {
-    title: "Software Engineer",
-    company: "Dev4You Nonprofit Platform (Final Year Thesis)",
-    period: "2024 – 2025",
-    description: [
-        "Facilitated Collaboration between application developers and non profit organization by creating for project based engagement.",
-        "Enable Non Profit Organization to post technical requirements, such as mobile apps and websites to address their challenges",
-        "Recognize Developers Contribution to enhance their professional portfolios",
-        "Built Using ReactJS and MUI for the frontend and NodeJS and ExpressJS for the backend",
-        "Managed Database using PostgreSQL and used Kyseli as Object Relational Mapping (ORM)",
-        "Deployed the Website using Google Cloud Platform (GCP)"
-    ],
-  },
+// company/period are locale-invariant (proper nouns / dates); title & description
+// come from the active translation resource, matched by array index.
+const experienceMeta = [
+  { company: "Essilor Luxottica", period: "July 2026 - Present" },
+  { company: "Wisely", period: "February 2025 - November 2025" },
+  { company: "Bank Central Asia (BCA)", period: "April 2024 - February 2025" },
+  { company: "Bank Central Asia (BCA)", period: "February 2024 – April 2024" },
+  { company: "Dev4You Nonprofit Platform (Final Year Thesis)", period: "2024 – 2025" },
 ];
 
 export default function ExperienceTimeline() {
+  const { t } = useTranslation();
+  const translatedItems = t("experience.items", { returnObjects: true });
+  const experiences = experienceMeta.map((meta, i) => ({
+    ...meta,
+    title: translatedItems[i]?.title,
+    description: translatedItems[i]?.description || [],
+  }));
+
   return (
     <Box
       id="experience"
@@ -88,7 +46,7 @@ export default function ExperienceTimeline() {
         fontWeight="bold"
         gutterBottom
       >
-        Work Experience
+        {t("experience.heading")}
       </Typography>
 
       <Timeline position="alternate">

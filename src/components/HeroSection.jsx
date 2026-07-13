@@ -1,6 +1,7 @@
 import React from "react";
 import { Box, Typography, Button, Stack, Avatar } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import { useTranslation } from "react-i18next";
 // import profilepicture from "../assets/profilepicture.jpg";
 // import springboot from "../assets/tech stack logo/spring-boot.webp";
 // import reactIcon from "../assets/tech stack logo/react-icon.png";
@@ -10,6 +11,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 // import nodejs from "../assets/tech stack logo/nodejs.svg"
 
 export default function HeroSection() {
+  const { t } = useTranslation();
   const scrollToProjects = () => {
     document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -59,7 +61,7 @@ export default function HeroSection() {
         variant="h5"
         sx={{ color: "#64ffda", mb: 1, fontWeight: 500 }}
       >
-        Hi, I’m
+        {t("hero.greeting")}
       </Typography>
 
       <Typography
@@ -82,7 +84,7 @@ export default function HeroSection() {
           maxWidth: "650px",
         }}
       >
-        Bridging the Gap Between Engineering Logic and Business Insight.
+        {t("hero.headline")}
       </Typography>
 
       <Typography
@@ -94,9 +96,7 @@ export default function HeroSection() {
           maxWidth: "600px",
         }}
       >
-        I write code to build products, and queries and models to solve
-        business problems — turning your data into your greatest technical
-        asset.
+        {t("hero.subheadline")}
       </Typography>
 
       {/* Buttons */}
@@ -112,7 +112,7 @@ export default function HeroSection() {
           }}
           onClick={scrollToProjects}
         >
-          View My Projects
+          {t("hero.viewProjects")}
         </Button>
 
         <Button
@@ -129,7 +129,7 @@ export default function HeroSection() {
           }}
           onClick={scrollToContact}
         >
-          Contact Me
+          {t("hero.contactMe")}
         </Button>
       </Stack>
 

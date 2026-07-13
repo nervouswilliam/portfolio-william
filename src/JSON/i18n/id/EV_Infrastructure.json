@@ -1,0 +1,210 @@
+{
+  "id": "ev_infrastructure",
+  "meta": {
+    "title": "Kesiapan Infrastruktur Singapura untuk EV",
+    "subtitle": "Apakah jaringan listrik dan infrastruktur pengisian daya publik Singapura akan mendukung masa depan 100% EV pada tahun 2035?",
+    "date": "2026",
+    "tabs": ["Ikhtisar", "Pemodelan & Metodologi", "Temuan Utama", "Tim"]
+  },
+  "techStack": [
+    { "label": "Excel" },
+    { "label": "Scenario Manager" },
+    { "label": "Monte Carlo Simulation" },
+    { "label": "Sensitivity Analysis" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Informasi Mata Kuliah",
+      "items": [
+        { "primary": "Mata Kuliah", "secondary": "IS602 - Spreadsheet Modelling for Decision Making" },
+        { "primary": "Institusi", "secondary": "Singapore Management University" },
+        { "primary": "Kelompok", "secondary": "G1 - Group 5" },
+        { "primary": "Fokus", "secondary": "Jaringan Listrik & Infrastruktur Pengisian Daya EV" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Cakupan Studi",
+      "chip": { "label": "Proyeksi 2026 - 2035", "color": "primary" },
+      "captions": ["Hanya pengisian daya publik", "Tidak termasuk pengisian daya di rumah/tempat kerja"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Ikhtisar Proyek",
+        "paragraphs": [
+          {
+            "text": "Studi ini menilai apakah jaringan listrik dan infrastruktur pengisian daya publik Singapura dapat mendukung transisi penuh menuju masyarakat kendaraan listrik sepenuhnya pada tahun 2035. Per akhir 2024, mobil listrik menyumbang sekitar 7.5% dari total populasi mobil Singapura, naik dari di bawah 2% hanya dua tahun sebelumnya, dengan EV merepresentasikan sekitar sepertiga dari seluruh pendaftaran mobil baru pada tahun 2024."
+          },
+          {
+            "text": "Hipotesis: Jaringan listrik dan infrastruktur pengisian daya publik Singapura akan cukup memadai untuk mendukung transisi penuh menuju masyarakat kendaraan listrik sepenuhnya pada tahun 2035.",
+            "italic": true
+          },
+          {
+            "text": "Model ini menggunakan jajaran model BYD Singapura (Atto 3, Seal, Dolphin, Sealion) sebagai sampel representatif untuk menurunkan angka konsumsi listrik kWh/km yang dapat dipertanggungjawabkan, menggantikan asumsi industri yang umum dengan angka spesifik merek yang dapat diverifikasi secara publik."
+          }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Pertanyaan Penelitian",
+        "items": [
+          { "primary": "Apakah jaringan listrik Singapura akan mempertahankan margin cadangan yang cukup untuk menyerap beban puncak pengisian daya EV pada tahun 2035?" },
+          { "primary": "Apakah proyeksi infrastruktur pengisian daya publik nasional (target 60,000 charger pada tahun 2030) memadai untuk armada EV yang terus bertumbuh?" },
+          { "primary": "Apakah sumber daya pengisian daya publik terdistribusi secara merata di 55 wilayah perencanaan URA Singapura?" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Sumber Data",
+        "description": "Dataset utama yang digunakan untuk membangun dan mengkalibrasi model:",
+        "items": [
+          { "primary": "LTA - Populasi Kendaraan Bermotor Berdasarkan Jenis & Jenis Bahan Bakar", "secondary": "Baseline adopsi EV; tingkat penetrasi (~7.5%)" },
+          { "primary": "Data Kapasitas Grid & Pembangkitan EMA", "secondary": "Kelonggaran kapasitas grid; rasio kecukupan" },
+          { "primary": "Peta Jalan EV MOT / Target EV LTA", "secondary": "60,000 titik pengisian daya pada tahun 2030; 100% EV pada tahun 2040" },
+          { "primary": "Insentif EV LTA (EEAI, VES)", "secondary": "Tuas kebijakan; input analisis trade-off" },
+          { "primary": "HDB / URA - Lokasi Tempat Parkir", "secondary": "Pemodelan distribusi spasial (Modul 4)" },
+          { "primary": "SingStat - Kepadatan Penduduk", "secondary": "Distribusi permintaan; model kesetaraan spasial" },
+          { "primary": "BYD Singapura - Spesifikasi Model", "secondary": "Kapasitas baterai & jangkauan untuk perhitungan permintaan Modul 1" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Arsitektur Model",
+        "sections": [
+          {
+            "heading": "Model Black Box Keseluruhan",
+            "body": "Variabel disusun dalam tiga lapisan: input yang dapat dikontrol (insentif pemerintah, kebijakan pasokan COE, laju penempatan charger, penetapan harga TOU, alokasi anggaran infrastruktur), parameter yang tidak dapat dikontrol (efisiensi baterai, tren harga EV, rata-rata km tahunan, tingkat pengisian daya simultan, kepadatan penduduk), dan output (Rasio Kecukupan Grid, Skor Risiko Kelebihan Beban Grid, Rasio EV-terhadap-Charger, Skor Kesetaraan Spasial)."
+          },
+          {
+            "heading": "Empat Modul yang Saling Bergantung",
+            "body": "Modul 1 (Adopsi EV & Permintaan Listrik) merupakan satu-satunya titik ketergantungan bagi seluruh modul lainnya - outputnya mengalir ke Modul 2 (Dampak Beban Puncak pada Grid), Modul 3 (Kecukupan Infrastruktur Pengisian Daya), dan Modul 4 (Distribusi Spasial). Setiap perubahan pada asumsi adopsi akan merambat ke seluruh empat metrik kinerja."
+          },
+          {
+            "heading": "Pemodelan Skenario",
+            "body": "Tiga skenario - Konservatif, Dasar, dan Dipercepat - dikontrol melalui Excel Scenario Manager pada parameter Modul 1, menggunakan fungsi adopsi logistik (kurva-S), dan merambat secara otomatis ke seluruh modul turunan serta Dashboard."
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Parameter Skenario",
+        "headers": [
+          { "label": "Skenario" },
+          { "label": "L (Batas Saturasi)", "align": "center" },
+          { "label": "k (Kecuraman Pertumbuhan)", "align": "center" },
+          { "label": "t₀ (Tahun Titik Balik)", "align": "center" },
+          { "label": "Interpretasi" }
+        ],
+        "rows": [
+          ["Konservatif", "0.75", "0.35", "2032", "Penerapan kebijakan yang lebih lambat; insentif efektif secara parsial; adopsi mencapai puncak di akhir dekade"],
+          ["Dasar", "0.90", "0.50", "2030", "Selaras dengan target pemerintah; insentif EEAI berkelanjutan; peluncuran charger yang stabil"],
+          ["Dipercepat", "0.97", "0.70", "2028", "Dorongan kebijakan yang kuat; penyerapan insentif tinggi; saturasi armada lebih awal - kasus stres maksimum"]
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "Asumsi Pemodelan Utama",
+        "items": [
+          { "title": "Total Armada Mobil", "caption": "659,889 kendaraan (tetap) - EV menggantikan ICE yang pensiun seiring habisnya masa COE; armada tidak bertumbuh" },
+          { "title": "Km / kWh Tahunan per Kendaraan", "caption": "17,000 km/thn × 0.2001 kWh/km = 3,402 kWh/thn (BYD WLTP 0.174 × kenaikan dunia nyata 1.15)" },
+          { "title": "Jendela & Fraksi Pengisian Daya Puncak", "caption": "7:00-11:00 pm hari kerja; 60% armada mengisi daya secara simultan" },
+          { "title": "Bauran Charger & Daya Tertimbang", "caption": "20% DC cepat (50 kW) / 80% AC lambat (7.4 kW) → rata-rata 15.92 kW" },
+          { "title": "Ambang Margin Cadangan EMA", "caption": "≥ 15% margin cadangan = Skor Risiko ≤ 0.870" },
+          { "title": "Cakupan Studi", "caption": "Hanya pengisian daya publik (tempat parkir HDB/URA, pom bensin); pengisian daya pribadi di rumah/tempat kerja tidak termasuk" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Modul 1: Adopsi EV Sesuai Rencana",
+            "color": "success",
+            "content": [
+              { "type": "paragraph", "text": "Pada tahun 2035 akan terdapat 512,874 EV (pangsa armada 77.7%), permintaan tahunan sebesar 1,744.6 GWh, dengan beban puncak 4,899 MW. Pangsa energi EV sebesar 1.95% tampak rendah namun tidak mengindikasikan keamanan grid saat permintaan puncak." }
+            ]
+          },
+          {
+            "title": "Modul 2: Margin Cadangan Grid Terlampaui",
+            "color": "error",
+            "content": [
+              { "type": "paragraph", "text": "Margin cadangan 15% EMA akan terlampaui pada tahun 2033, ketika turun menjadi 9.4%. Pada tahun 2035, margin cadangan akan mencapai -6.2% dan Skor Risiko Kelebihan Beban Grid mencapai 1.062 (≥1.000 mengindikasikan saturasi grid), dengan permintaan puncak 16,746 MW berbanding kapasitas 15,761 MW." }
+            ]
+          },
+          {
+            "title": "Modul 3: Pengisian Daya Nasional Memadai",
+            "color": "success",
+            "content": [
+              { "type": "paragraph", "text": "Rasio EV-terhadap-Charger (ambang batas 10) tidak pernah terlampaui sepanjang periode 2026 hingga 2035 di seluruh skenario, hanya mencapai 5.818 pada tahun 2035. Infrastruktur pengisian daya publik Singapura akan cukup memadai untuk mendukung transisi EV sepenuhnya pada tahun 2035, berdasarkan target LTA sebesar 60,000 charger pada tahun 2030 dan pertumbuhan tahunan 8% setelahnya." }
+            ]
+          },
+          {
+            "title": "Modul 4: Kesetaraan Spasial Tidak Merata",
+            "color": "warning",
+            "content": [
+              { "type": "paragraph", "text": "16 dari 55 wilayah perencanaan melampaui ambang batas ECR sebesar 10 pada tahun 2035, dengan 5 wilayah tambahan berada dalam daftar WATCH. Wilayah dengan kinerja terburuk adalah Sengkang, dengan ECR sebesar 27.64, menyoroti kesenjangan struktural antara kecukupan tingkat nasional dan akses tingkat lokal." }
+            ]
+          },
+          {
+            "title": "Analisis Trade-off: Desain Insentif",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "Subsidi infrastruktur tidak memberikan dampak berarti terhadap adopsi EV, sedangkan rabat EEAI sebesar $10,000 per EV memaksimalkan adopsi dengan biaya fiskal terendah per EV, dengan subsidi infrastruktur $0 per charger direkomendasikan sebagai tuas kebijakan paling hemat biaya." }
+            ]
+          },
+          {
+            "title": "Analisis Trade-off: Biaya vs. Kesetaraan",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "Hub Pengisian Daya Terpusat mencakup hingga 1.45 EV per $1,000 pengeluaran pemerintah dibandingkan 0.32 EV per $1,000 untuk Hibah Tempat Parkir Terdistribusi Penuh - peningkatan efisiensi biaya sebesar 353% - namun sentralisasi gagal mencapai kesetaraan spasial, sehingga bauran optimal bergantung pada apakah pemerintah memprioritaskan efisiensi biaya atau kenyamanan pengemudi." }
+            ]
+          },
+          {
+            "title": "Analisis Sensitivitas: Grid adalah Kendala Pembatas",
+            "color": "error",
+            "content": [
+              { "type": "paragraph", "text": "15 dari 25 skenario yang dimodelkan menunjukkan skor risiko di atas ambang batas 1.00. Profil risiko grid jauh lebih sensitif terhadap variasi kapasitas dibandingkan fluktuasi permintaan puncak, mengkonfirmasi bahwa ekspansi infrastruktur merupakan kendala pembatas utama bagi kelangsungan jangka panjang." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Ringkasan Kesimpulan",
+        "headers": [
+          { "label": "Dimensi" },
+          { "label": "Hasil 2035 (Dasar | Dipercepat)", "align": "center" },
+          { "label": "Ambang Batas", "align": "center" },
+          { "label": "Kesimpulan", "align": "center" }
+        ],
+        "rows": [
+          ["Adopsi EV", "512,874 EV (77.7%) | 659,889 EV (100%)", "—", "Sesuai rencana pada semua skenario"],
+          ["Jaringan Listrik", "Margin Cadangan: -6.2% (Dasar) | -15.2% (Dipercepat)", "≥ 15% (EMA)", "TIDAK MEMADAI"],
+          ["Pengisian Daya Nasional", "ECR: 5.82 (Dasar) | 7.49 (Dipercepat)", "≤ 10 EV/charger", "MEMADAI"],
+          ["Kesetaraan Spasial", "16 dari 55 wilayah melampaui ambang batas ECR; ECR Sengkang = 27.64", "≤ 10 per wilayah", "TIDAK MERATA"]
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Tim Peneliti",
+        "members": [
+          { "name": "Albert Chia Song Tuck", "subtitle": "albert.chia.2025@mitb.smu.edu.sg" },
+          { "name": "Amanda Dea Gotama", "subtitle": "ad.gotama.2025@mitb.smu.edu.sg" },
+          { "name": "Chua Wee Tian", "subtitle": "wt.chua.2025@mitb.smu.edu.sg" },
+          { "name": "Jeremiah William Sebastian", "subtitle": "j.sebastian.2025@mitb.smu.edu.sg" },
+          { "name": "Heidi Chong Jia Min", "subtitle": "heidi.chong.2025@mitb.smu.edu.sg" }
+        ]
+      }
+    ]
+  ]
+}

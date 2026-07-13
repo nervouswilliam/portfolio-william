@@ -220,8 +220,10 @@ import socialNetwork from "/projects/social_network.png";
 
 
 import {useNavigate} from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 export default function ProjectGrid() {
+  const { t } = useTranslation();
   const [selectedProject, setSelectedProject] = useState(null);
   const navigate = useNavigate();
 
@@ -246,10 +248,9 @@ export default function ProjectGrid() {
   const projects = [
     {
       id: "wisely",
-      title: "Wisely",
+      title: t("projects.items.wisely.title"),
       date: "2025",
-      description:
-        "A warehouse and sales tracking app that helps small businesses manage products, track expiration dates, and optimize restocks.",
+      description: t("projects.items.wisely.description"),
       image: wisely,
       liveLink: "https://www.wisely.id",
       github: "https://github.com/nervouswilliam/WISE/tree/master/frontend",
@@ -257,20 +258,18 @@ export default function ProjectGrid() {
     },
     {
       id: "dev4you",
-      title: "Dev4You",
+      title: t("projects.items.dev4you.title"),
       date: "2024",
-      description:
-        "A platform connecting nonprofits with developers to build websites and apps at minimal cost while helping developers gain real-world experience.",
+      description: t("projects.items.dev4you.description"),
       image: dev4you,
       github: "https://github.com/nervouswilliam/skripsi",
       tech: ["react", "mui", "nodejs", "postgres"],
     },
     {
       id: "needwork",
-      title: "Need Work",
+      title: t("projects.items.needwork.title"),
       date: "2025",
-      description:
-        "A search engine platform that helps people search for jobs from different job sites and allowing them to apply effortlessly.",
+      description: t("projects.items.needwork.description"),
       image: needworkapp,
       liveLink: "https://www.needworkapp.com",
       github: "https://github.com/nervouswilliam/needworkapp.com",
@@ -278,20 +277,18 @@ export default function ProjectGrid() {
     },
     {
       id: "cestwosin",
-      title: "CesTwoSkin",
+      title: t("projects.items.cestwosin.title"),
       date: "2023",
-      description:
-        "A mobile application that enables gamers to buy, sell, and trade Counter-Strike 2 weapon skins securely and effortlessly.",
+      description: t("projects.items.cestwosin.description"),
       image: cs2skin,
       github: "https://github.com/nervouswilliam/cestwo_skin",
       tech: ["android", "java", "sqlite"],
     },
     {
       id: "tictactoe",
-      title: "Tic Tac Shift",
+      title: t("projects.items.tictactoe.title"),
       date: "2025",
-      description:
-        "A web Application version of Tic Tac Toe with a twist, featuring a shifting board mechanic to enhance gameplay and strategy.",
+      description: t("projects.items.tictactoe.description"),
       image: tictactoe,
       liveLink: "https://www.tictacshift.com",
       github: "https://github.com/nervouswilliam/TicTacToe",
@@ -299,55 +296,54 @@ export default function ProjectGrid() {
     },
     {
       id: "HDB resale Value Drivers",
-      title: "HDB Resale Value Drivers",
+      title: t("projects.items.HDB resale Value Drivers.title"),
       date: "2026",
-      description:
-        "A statistical analysis of factors influencing HDB resale flat prices in Singapore's West region.",
+      description: t("projects.items.HDB resale Value Drivers.description"),
       image: hdb,
       details: "hdb_project",
       tech: ["python", "pandas", "matplotlib"],
     },
     {
       id: "fraud-detection",
-      title: "Study on Fraud Detection Prediction",
+      title: t("projects.items.fraud-detection.title"),
       date: "2026",
-      description: "Classification-based predictive modelling for UK fashion retail...",
+      description: t("projects.items.fraud-detection.description"),
       image: fraud,
       tech: ["knime"],
       details: "fraud_detection_project",
     },
     {
       id: "query-optimization",
-      title: "Query Processing and Optimization",
+      title: t("projects.items.query-optimization.title"),
       date: "2026",
-      description: "SARGABLE query optimization using MySQL generated columns",
+      description: t("projects.items.query-optimization.description"),
       image: queryProcessingImage,
       tech: ["mysql"],
       details: "query_optimization_project",
     },
     {
       id: "ev-infrastructure",
-      title: "EV Infrastructure Planning",
+      title: t("projects.items.ev-infrastructure.title"),
       date: "2026",
-      description: "Analysis and planning for electric vehicle charging infrastructure in urban areas",
+      description: t("projects.items.ev-infrastructure.description"),
       image: evInfrastructure,
       tech: ["excel"],
       details: "ev_infrastructure_project",
     },
     {
       id: "machine-learning",
-      title: "Machine Learning Applications",
+      title: t("projects.items.machine-learning.title"),
       date: "2026",
-      description: "Exploring various machine learning techniques and their applications in real-world scenarios",
+      description: t("projects.items.machine-learning.description"),
       image: machineLearning,
       tech: ["python", "scikit"],
       details: "machine_learning_project",
     },
     {
       id: "social-network-analysis",
-      title: "Social Network Analysis",
+      title: t("projects.items.social-network-analysis.title"),
       date: "2026",
-      description: "Analyzing social network structures and dynamics using graph theory and machine learning",
+      description: t("projects.items.social-network-analysis.description"),
       image: socialNetwork,
       tech: ["python"],
       details: "social_network_analysis_project",
@@ -360,7 +356,7 @@ export default function ProjectGrid() {
         variant="h4"
         sx={{ textAlign: "center", mb: 5, fontWeight: "bold" }}
       >
-        Projects
+        {t("projects.heading")}
       </Typography>
 
       <Grid container spacing={4} justifyContent="center">
@@ -433,7 +429,7 @@ export default function ProjectGrid() {
                     size="small"
                     onClick={() => navigate(`/${project.details}`)}
                   >
-                    Details
+                    {t("projects.detailsBtn")}
                   </Button>
                 )}
 
@@ -444,7 +440,7 @@ export default function ProjectGrid() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    Live Demo
+                    {t("projects.liveDemoBtn")}
                   </Button>
                 )}
 
@@ -455,7 +451,7 @@ export default function ProjectGrid() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    GitHub
+                    {t("projects.githubBtn")}
                   </Button>
                 )}
 

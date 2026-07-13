@@ -31,6 +31,8 @@ import {
   SiPostgresql,
   SiPython,
 } from "react-icons/si";
+import { useTranslation } from "react-i18next";
+import { getProjectData } from "../JSON/i18n/registry";
 
 // ---------------------------------------------------------------------------
 // Icon registry — add new icons here and reference them by key in the JSON
@@ -49,11 +51,12 @@ const ICONS = {
 // Sidebar block components
 // ---------------------------------------------------------------------------
 function TechStackCard({ items = [] }) {
+  const { t } = useTranslation();
   return (
     <Card sx={{ mb: 3 }}>
       <CardContent>
         <Typography variant="h6" sx={{ fontWeight: "bold", mb: 2 }}>
-          Tech Stack
+          {t("projectDetail.techStack")}
         </Typography>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           {items.map((item, i) => {
@@ -479,13 +482,20 @@ const BLOCK_COMPONENTS = {
 // ---------------------------------------------------------------------------
 // Main component — pass in a `data` object matching the JSON schema
 // ---------------------------------------------------------------------------
-const ProjectDetailComponent = ({ data }) => {
+const ProjectDetailComponent = ({ data, projectKey }) => {
   const [activeTab, setActiveTab] = useState(0);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
 
-  if (!data) return null;
+  // Prefer locale-aware content resolved from projectKey; fall back to a
+  // directly-passed `data` prop (kept for backwards compatibility).
+  const resolvedData = projectKey
+    ? getProjectData(projectKey, i18n.resolvedLanguage) || data
+    : data;
 
-  const { meta, techStack = [], sidebar = [], tabsContent = [] } = data;
+  if (!resolvedData) return null;
+
+  const { meta, techStack = [], sidebar = [], tabsContent = [] } = resolvedData;
   const activeBlocks = tabsContent[activeTab] || [];
   const showSidebar = activeTab === 0 && sidebar.length > 0;
 
@@ -506,7 +516,7 @@ const ProjectDetailComponent = ({ data }) => {
             "&:hover": { backgroundColor: "primary.dark" },
           }}
         >
-          Back to Projects
+          {t("projectDetail.backToProjects")}
         </Button>
 
         {/* Header */}

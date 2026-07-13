@@ -1,0 +1,233 @@
+{
+  "id": "query_optimization",
+  "meta": {
+    "title": "Pemrosesan dan Optimasi Kueri",
+    "subtitle": "Membuat Generated Columns untuk Optimasi Kueri SARGABLE",
+    "date": "2026",
+    "tabs": ["Ikhtisar", "Masalah & Solusi", "Hasil & Perbandingan", "Tim"]
+  },
+  "techStack": [
+    { "label": "MySQL" },
+    { "label": "Generated Columns" },
+    { "label": "Query Optimization" },
+    { "label": "SARGABLE Predicates" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Informasi Mata Kuliah",
+      "items": [
+        { "primary": "Mata Kuliah", "secondary": "ISSS625 - Query Processing and Optimisation" },
+        { "primary": "Institusi", "secondary": "Singapore Management University" },
+        { "primary": "Fokus", "secondary": "Optimasi Kinerja Basis Data" }
+      ]
+    },
+    {
+      "type": "chipStack",
+      "title": "Sorotan Proyek",
+      "chips": [
+        { "label": "15x Lebih Sedikit Logical Reads", "color": "success" },
+        { "label": "Lebih Cepat 1.4 Detik", "color": "success" },
+        { "label": "Kompleksitas O(log n)", "color": "primary" }
+      ]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Ikhtisar Proyek",
+        "paragraphs": [
+          { "text": "Proyek ini mendemonstrasikan teknik optimasi kueri menggunakan generated columns di MySQL untuk membuat kueri SARGABLE (Search ARGument ABLE). Studi ini menggunakan skenario realistis sebuah toko perhiasan yang menjalankan kampanye promosi bulan ulang tahun, menunjukkan cara mengidentifikasi pelanggan yang lahir pada bulan tertentu secara efisien." },
+          { "text": "Dengan menerapkan generated columns dan mengoptimalkan predikat kueri, kami mencapai peningkatan performa yang signifikan sambil menjaga akurasi dan konsistensi data melalui otomatisasi. Proyek ini membandingkan kueri tradisional yang belum dioptimalkan dengan kueri yang telah dioptimalkan secara SARGABLE." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Skenario Bisnis",
+        "items": [
+          { "primary": "Konteks", "secondary": "Pemilik toko perhiasan ingin menjalankan kampanye promosi bulan ulang tahun" },
+          { "primary": "Tantangan", "secondary": "Bagaimana memverifikasi informasi pelanggan dan mengidentifikasi pelanggan yang lahir pada bulan tertentu" },
+          { "primary": "Tujuan", "secondary": "Mengirimkan penawaran promosi yang ditargetkan kepada pelanggan yang berulang tahun di bulan terpilih" },
+          { "primary": "Solusi", "secondary": "Menerapkan generated columns untuk pemrosesan kueri yang efisien" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Ikhtisar Dataset",
+        "description": "Dataset pelanggan sintetis yang dibuat untuk keperluan demonstrasi, dimuat ke dalam MySQL menggunakan bulk data loading.",
+        "note": "Catatan: birth_month adalah generated column yang diekstrak dari date_of_birth untuk optimasi kueri",
+        "headers": [
+          { "label": "Nama Kolom" },
+          { "label": "Tipe Data" },
+          { "label": "Tujuan" }
+        ],
+        "rows": [
+          ["customer_id", "INT (PK)", "ID pelanggan yang unik"],
+          ["first_name", "VARCHAR(50)", "Nama depan pelanggan"],
+          ["last_name", "VARCHAR(50)", "Nama belakang pelanggan"],
+          ["email", "VARCHAR(120)", "Informasi kontak"],
+          ["date_of_birth", "DATE", "Kolom tanggal lahir asli"],
+          ["birth_month", "TINYINT", "Dihasilkan dari date_of_birth"]
+        ],
+        "highlightRowIndexes": [5]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Memahami Generated Columns",
+        "sections": [
+          {
+            "heading": "Apa Itu Generated Columns?",
+            "body": "Generated columns adalah kolom yang dihitung dari kolom lain pada baris yang sama. Kolom ini secara otomatis menghitung nilai berdasarkan ekspresi yang diterapkan pada kolom lain, sehingga menghilangkan kebutuhan perhitungan manual dan mengurangi kesalahan."
+          },
+          {
+            "heading": "Dua Jenis Generated Columns",
+            "definitions": [
+              { "term": "Virtual Columns:", "description": "Dihitung saat dikueri, tidak disimpan dalam tabel. Menghemat ruang penyimpanan namun memerlukan perhitungan pada setiap kueri." },
+              { "term": "Stored Columns:", "description": "Dihitung sekali dan disimpan dalam tabel. Menggunakan lebih banyak ruang penyimpanan namun meningkatkan performa kueri dan memungkinkan pengindeksan." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Tanpa Optimasi (Kueri 1)",
+            "color": "warning",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "Pendekatan", "value": "Mengekstrak bulan lahir secara langsung (on-the-fly) menggunakan fungsi MONTH() pada date_of_birth" },
+                  { "label": "Kompleksitas", "value": "O(n) - Harus memindai SEMUA baris dan menghitung MONTH() untuk masing-masing" },
+                  { "label": "Biaya", "value": "208,580 (full table scan) | Kecepatan: 5.337 detik" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Dengan Optimasi (Kueri 2)",
+            "color": "success",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "Pendekatan", "value": "Menggunakan generated column SARGABLE (birth_month) dengan pencarian terindeks" },
+                  { "label": "Kompleksitas", "value": "O(log n + k) - Pencarian indeks ditambah pengambilan baris yang cocok" },
+                  { "label": "Biaya", "value": "62,686 (index range scan) | Kecepatan: 3.920 detik" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Apa yang Membuatnya SARGABLE?",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "Predikat SARGABLE (Search ARGument ABLE) memungkinkan query optimizer menggunakan indeks secara efisien. Dengan memindahkan perhitungan ke dalam generated column dan mengindeksnya, basis data dapat menggunakan index range scan alih-alih full table scan." }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "dataTable",
+        "title": "Perbandingan Performa",
+        "headers": [
+          { "label": "Metrik" },
+          { "label": "Tanpa Optimasi", "align": "center" },
+          { "label": "Dengan Generated Column", "align": "center" },
+          { "label": "Peningkatan", "align": "center" }
+        ],
+        "rows": [
+          ["Kompleksitas", "O(n)", "O(log n + k)", "Polinomial"],
+          ["Biaya", "208,580", "62,686", "~15x Lebih Baik"],
+          ["Kecepatan", "5.337 detik", "3.920 detik", "-1.417 detik (26.6%)"]
+        ],
+        "goodColumns": [2, 3],
+        "stripe": true
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Perbandingan Jenis Scan",
+            "color": "info",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "Tanpa Optimasi", "value": "Full Table Scan - memeriksa setiap baris satu per satu untuk menghitung bulan lahir" },
+                  { "label": "Dengan Optimasi", "value": "Index Range Scan - menggunakan indeks pada birth_month untuk hanya menemukan baris yang cocok" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "✓ Peningkatan Performa yang Signifikan",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Mengurangi logical reads sekitar 15x. Meskipun 1.4 detik terlihat kecil dengan ukuran dataset saat ini, peningkatan ini akan bertambah secara dramatis seiring data bertumbuh hingga jutaan baris." }]
+          },
+          {
+            "title": "✓ Keandalan Bisnis Melalui Otomatisasi",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Setiap pelanggan yang ditambahkan ke basis data secara otomatis mendapatkan bulan lahir yang terhitung. Mesin basis data memastikan akurasi data 100% tanpa intervensi manual." }]
+          },
+          {
+            "title": "✓ Kode Aplikasi yang Lebih Sederhana",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Kode aplikasi cukup mengkueri kolom birth_month secara langsung tanpa perlu melakukan perhitungan tanggal yang kompleks. Ini mengurangi kompleksitas kode dan beban pemeliharaan." }]
+          },
+          {
+            "title": "✓ Kenyamanan & Konsistensi",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Generated columns memastikan perhitungan yang konsisten di seluruh kueri dan aplikasi yang mengakses tabel yang sama. Tidak ada risiko perbedaan hasil perhitungan." }]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "⚠ Peningkatan Penggunaan Penyimpanan",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Membuat kolom dan indeks tambahan mengonsumsi lebih banyak ruang disk. Namun, peningkatan performa umumnya lebih besar daripada biaya ini." }]
+          },
+          {
+            "title": "⚠ Kekakuan Skema",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Setelah didefinisikan, mengubah ekspresi generated column memerlukan perubahan skema. Hal ini bisa menjadi rumit dalam lingkungan produksi dengan aliran data yang berkelanjutan." }]
+          },
+          {
+            "title": "⚠ Trade-off Performa",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Meskipun kueri menjadi lebih cepat, operasi INSERT dan UPDATE mungkin sedikit lebih lambat karena adanya perhitungan nilai generated column. Ini merupakan trade-off yang sepadan untuk aplikasi yang didominasi operasi baca (read-heavy)." }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Tim Peneliti - Query Slaves",
+        "members": [
+          { "name": "Anabelle Eveleen Tandra", "subtitle": "ae.tandra.2025@mitb.smu.edu.sg" },
+          { "name": "Chong Jia Min Heidi", "subtitle": "heidi.chong.2025@mitb.smu.edu.sg" },
+          { "name": "Jeremiah William Sebastian", "subtitle": "j.sebastian.2025@mitb.smu.edu.sg" },
+          { "name": "Kelvin Andikko", "subtitle": "k.andikko.2025@mitb.smu.edu.sg" },
+          { "name": "Zachary Artemus Kondas", "subtitle": "Za.kondas.2025@mitb.smu.edu.sg" }
+        ],
+        "footerNote": "Nama Tim: \"Query Slaves\" - Berdedikasi untuk mengoptimalkan kueri dan performa basis data"
+      }
+    ]
+  ]
+}

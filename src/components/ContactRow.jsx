@@ -2,8 +2,10 @@ import React from "react";
 import { Box, IconButton, Typography, Stack, Link } from "@mui/material";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import GitHubIcon from "@mui/icons-material/GitHub";
+import { useTranslation } from "react-i18next";
 
 export default function ContactRow() {
+  const { t } = useTranslation();
   return (
     <Box
       sx={{
@@ -12,7 +14,7 @@ export default function ContactRow() {
       }}
     >
       <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-        Let's Connect
+        {t("contact.heading")}
       </Typography>
 
       <Stack

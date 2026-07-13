@@ -1,0 +1,381 @@
+{
+  "id": "smm_social_networks",
+  "meta": {
+    "title": "《超级马里奥制造》玩家网络中的社群与影响力模式",
+    "subtitle": "运用网络科学检测玩家社群、识别影响者并驱动关卡推荐",
+    "date": "2026",
+    "tabs": ["概览", "研究方法", "社群分析", "影响力与推荐", "团队"]
+  },
+  "techStack": [
+    { "label": "Louvain Community Detection" },
+    { "label": "Label Propagation" },
+    { "label": "PageRank & Betweenness Centrality" },
+    { "label": "Chi-square / Kruskal-Wallis Testing" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "课程信息",
+      "items": [
+        { "primary": "课程", "secondary": "ISSS606 - 社交网络应用数据科学" },
+        { "primary": "院校", "secondary": "新加坡管理大学" },
+        { "primary": "小组", "secondary": "SuperKambros" },
+        { "primary": "数据集", "secondary": "SMMNet - 超级马里奥制造社交网络" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "网络规模",
+      "chip": { "label": "6,091名玩家", "color": "primary" },
+      "captions": ["285,796条加权边", "Louvain模块度：0.3681", "4个核心社群（≥100名玩家）"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "listCard",
+        "title": "研究问题",
+        "items": [
+          { "primary": "玩家是否会基于其游戏行为形成有意义的社群？" },
+          { "primary": "哪些是塑造网络结构的核心玩家、桥接玩家与创作者？" },
+          { "primary": "能否利用网络结构来支持关卡推荐与玩家发现？" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "五个核心实体",
+        "description": "SMMNet数据集围绕五个相互作用的实体建模：",
+        "items": [
+          { "primary": "玩家", "secondary": "个体用户" },
+          { "primary": "关卡", "secondary": "玩家创建的关卡" },
+          { "primary": "游玩", "secondary": "玩家与关卡之间的基础互动" },
+          { "primary": "点赞", "secondary": "权重2——较强的积极参与" },
+          { "primary": "通关", "secondary": "权重3——最高参与度" }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "构建网络",
+        "sections": [
+          { "heading": "筛选标准", "body": "二分图玩家-关卡网络基于权重≥3的互动构建，并限定于活跃度排名前8,000的玩家与前4,000个关卡。" },
+          { "heading": "投影阈值", "body": "将二分图投影为单模式玩家-玩家网络，仅保留两名玩家共同拥有≥2个关卡的边。" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "数据精简与筛选",
+        "items": [
+          { "primary": "对各表中不统一的player_id与关卡ID进行清洗与标准化" },
+          { "primary": "仅抽样活跃玩家与高人气关卡", "secondary": "以确保计算可行性并消除网络噪声" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "社群检测方法",
+        "sections": [
+          { "heading": "Louvain与标签传播算法对比", "body": "在加权玩家投影网络上进行了扩展的稳健性检验，将Louvain算法与标签传播算法（LPA）进行了比较。" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Louvain与标签传播算法对比",
+        "headers": [
+          { "label": "指标" },
+          { "label": "Louvain", "align": "center" },
+          { "label": "标签传播算法", "align": "center" }
+        ],
+        "rows": [
+          ["模块度", "0.3686", "0.325"],
+          ["运行时间", "约6.0秒", "约2.3秒"]
+        ],
+        "goodColumns": [1]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Louvain",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "模块度更高（0.3686），社群规模分布也更具实用性。" }]
+          },
+          {
+            "title": "标签传播算法",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "速度快约2.5倍，但结果在不同随机种子间波动更大。" }]
+          },
+          {
+            "title": "决策",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "采用Louvain算法生成主要社群画像；保留标签传播算法作为可扩展性基准。" }]
+          }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "社群画像的统计验证",
+        "sections": [
+          { "heading": "类别画像验证", "body": "卡方检验用于检验社群归属是否与关卡类别偏好相关。难度分布：Cramer's V = 0.323（卡方值 = 30,230.1，p<0.001）。游戏风格分布：Cramer's V = 0.127（卡方值 = 4,671.5，p<0.001）。难度是更强的类别区分因素；游戏风格仍具显著性，但影响较弱。" },
+          { "heading": "数值画像验证", "body": "克鲁斯卡尔-沃利斯检验用于比较四个核心社群间偏斜的数值变量。通关率：Eta平方(H) = 0.242（H=23,381.7，p<0.001）。尝试次数：Eta平方(H) = 0.181（H=17,461.6，p<0.001）。获得星星数：Eta平方(H) = 0.055（H=5,315.8，p<0.001）。三项数值维度均存在显著差异；通关率与尝试次数的效应量大于获得星星数。" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "dataTable",
+        "title": "社群规模与密度",
+        "headers": [
+          { "label": "社群" },
+          { "label": "玩家数", "align": "center" },
+          { "label": "密度", "align": "center" }
+        ],
+        "rows": [
+          ["休闲社群", "2,753", "0.0138"],
+          ["休闲社群2", "2,036", "0.0231"],
+          ["硬核精英", "1,188", "0.1081"],
+          ["新手", "114", "0.4423"]
+        ],
+        "note": "规模较小的群体密度更高——密度反映的是凝聚力，而非人气。"
+      },
+      {
+        "type": "dataTable",
+        "title": "社群行为画像",
+        "description": "标签在Louvain检测后，依据各社群主导的难度、游戏风格、通关率、平均尝试次数与平均获星数分配。",
+        "headers": [
+          { "label": "社群" },
+          { "label": "玩家数", "align": "center" },
+          { "label": "难度" },
+          { "label": "游戏风格" },
+          { "label": "通关率", "align": "center" }
+        ],
+        "rows": [
+          ["休闲社群", "2,753", "普通", "马里奥兄弟U", "26.01%"],
+          ["休闲社群2", "2,036", "普通", "马里奥兄弟", "16.38%"],
+          ["硬核精英", "1,188", "超级专家", "马里奥世界", "9.04%"],
+          ["新手", "114", "简单", "马里奥兄弟U", "51.98%"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "跨社群连接强度",
+        "description": "行表示来源社群；列表示其连接的去向。",
+        "headers": [
+          { "label": "来源 \\ 目标" },
+          { "label": "休闲社群", "align": "center" },
+          { "label": "休闲社群2", "align": "center" },
+          { "label": "硬核精英", "align": "center" },
+          { "label": "新手", "align": "center" }
+        ],
+        "rows": [
+          ["休闲社群", "45.66%", "33.91%", "18.72%", "1.71%"],
+          ["休闲社群2", "29.86%", "36.75%", "32.56%", "0.82%"],
+          ["硬核精英", "15.25%", "30.11%", "54.14%", "0.51%"],
+          ["新手", "29.76%", "16.23%", "10.85%", "43.17%"]
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "内部凝聚力强",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "对角线占比介于36.75%至54.14%之间，表明社群归属在行为上具有显著意义。" }]
+          },
+          {
+            "title": "休闲群体之间重叠最多",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "两个休闲社群之间的连接占比大约在30%至34%之间。" }]
+          },
+          {
+            "title": "小众边界分明",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "硬核社群到新手社群的连接仅占0.51%，表明二者之间的直接交流有限。这意味着推荐系统可以在保持相关性的同时，有意添加少量跨社群探索内容。" }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "影响力角色：谁在塑造网络",
+        "sections": [
+          { "heading": "创作者", "body": "在超级马里奥制造中构建新关卡，并将内容上传至整个社交社群。" },
+          { "heading": "核心玩家", "body": "游玩并精通关卡，引领潮流，开发新的策略与通关方式。" },
+          { "heading": "桥接玩家", "body": "在不同社群间传播内容，扩散由核心玩家创造的潮流。" },
+          { "heading": "普通玩家", "body": "消费内容，追随既有潮流，并参与社交互动。" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "顶尖创作型玩家",
+        "headers": [
+          { "label": "玩家ID" },
+          { "label": "所属社群" },
+          { "label": "PageRank值", "align": "center" },
+          { "label": "加权度数", "align": "center" },
+          { "label": "综合得分", "align": "center" }
+        ],
+        "rows": [
+          ["Conducteur59220", "休闲社群", "0.010121", "13856", "0.986052"],
+          ["Plusbellelavie5", "休闲社群", "0.008448", "14461", "0.790773"],
+          ["Feuxdelamoule", "休闲社群", "0.006536", "11361", "0.632406"],
+          ["cowboye123", "休闲社群", "0.006339", "10775", "0.568169"],
+          ["indien1966", "休闲社群", "0.005392", "10419", "0.512084"],
+          ["tc.coeur", "休闲社群", "0.005178", "10269", "0.460973"],
+          ["quentintheret", "休闲社群", "0.004499", "8900", "0.412866"],
+          ["coeur2017", "休闲社群", "0.004316", "8128", "0.380629"],
+          ["sioux4", "休闲社群", "0.004421", "8770", "0.378535"],
+          ["Tchad7", "休闲社群", "0.003876", "8305", "0.356597"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "顶尖核心玩家",
+        "headers": [
+          { "label": "玩家ID" },
+          { "label": "所属社群" },
+          { "label": "PageRank值", "align": "center" },
+          { "label": "加权度数", "align": "center" },
+          { "label": "核心游戏得分", "align": "center" }
+        ],
+        "rows": [
+          ["Thomasb35", "硬核精英社群", "0.004185", "10126", "0.556103"],
+          ["billyspencer", "休闲社群", "0.003321", "7163", "0.410833"],
+          ["iLudovichiVanno", "休闲社群2", "0.003020", "6593", "0.376258"],
+          ["CAPTAIN.LEVl", "休闲社群", "0.002628", "5312", "0.312545"],
+          ["kimnbud", "休闲社群", "0.002455", "5518", "0.311086"],
+          ["YvetteMack", "休闲社群", "0.002562", "5282", "0.308210"],
+          ["oosetsumo", "休闲社群", "0.002448", "5327", "0.304105"],
+          ["mogumoguerisan", "休闲社群2", "0.002459", "5290", "0.303415"],
+          ["Myhtra2", "休闲社群", "0.002402", "5362", "0.303065"],
+          ["SpeedrunRobban", "休闲社群", "0.002348", "4794", "0.280751"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "顶尖桥接玩家",
+        "headers": [
+          { "label": "玩家ID" },
+          { "label": "所属社群" },
+          { "label": "介数中心性", "align": "center" },
+          { "label": "加权度数", "align": "center" },
+          { "label": "综合得分", "align": "center" }
+        ],
+        "rows": [
+          ["Mario1UPkoopa", "休闲社群", "0.021614", "12246", "0.584810"],
+          ["shimidos32", "休闲社群2", "0.013081", "3571", "0.211416"],
+          ["RURI333HRIRU777H", "休闲社群", "0.012885", "9713", "0.446103"],
+          ["pedritopin2015", "休闲社群", "0.012791", "8865", "0.413617"],
+          ["Timridge", "休闲社群2", "0.012289", "4471", "0.249186"],
+          ["mario-tomoya", "休闲社群", "0.011921", "8340", "0.391808"],
+          ["Kodrak123", "休闲社群2", "0.011832", "3290", "0.192161"],
+          ["NEWT82", "休闲社群", "0.010384", "4675", "0.241096"],
+          ["catmarioheidi", "休闲社群", "0.009421", "8283", "0.368829"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "桥接玩家、核心玩家与普通玩家对比",
+        "headers": [
+          { "label": "玩家类型" },
+          { "label": "数量", "align": "center" },
+          { "label": "平均度数", "align": "center" },
+          { "label": "平均PageRank值", "align": "center" },
+          { "label": "平均介数中心性", "align": "center" },
+          { "label": "平均综合得分", "align": "center" }
+        ],
+        "rows": [
+          ["桥接玩家", "9", "7050.4444", "0.0037", "0.0129", "0.3443"],
+          ["核心玩家", "503", "1752.1213", "0.0007", "0.0012", "0.0693"],
+          ["创作者", "962", "483.5676", "0.0002", "0.0005", "0.0210"],
+          ["普通玩家", "4,614", "124.7939", "0.0001", "0.0001", "0.0049"]
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "多重角色重叠",
+        "sections": [
+          { "heading": "创作者 ∩ 桥接玩家（n=11）", "body": "Basilika, Conducteur59220, Feuxdelamoule, GTRP_Easy, Plusbellelavie5, WIIMoustique, coeur2017, cowboye123, indien1966, quentintheret, tc.coeur。" },
+          { "heading": "桥接玩家 ∩ 核心玩家（n=9）", "body": "Kodrak123, Mario1UPkoopa, NEWT82, RURI333HRIRU777H, Timridge, catmarioheidi, mario-tomoya, pedritopin2015, shimidos32。" },
+          { "heading": "创作者 ∩ 核心玩家（n=0）", "body": "没有玩家同时具备创作者与核心玩家两种角色——这两类影响力类型在结构上截然不同。" }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "从相似度到推荐",
+        "sections": [
+          { "heading": "基于共同关卡行为的玩家相似度", "body": "IDF加权对稀有的共同关卡赋予比全局热门关卡更高的权重。大多数关联较弱（大多数玩家对之间只共享少量特殊行为），但存在一条明显的长尾，其中少数玩家对共享大量关卡并获得较高的相似度权重。强关联玩家可作为未见关卡的证据，而非自动构成好友关系。" },
+          { "heading": "作为网络路径的推荐", "body": "推荐可解释为：目标玩家 → 相似玩家 → 未见关卡。这一路径具有可审计性——每个被推荐的关卡都可追溯到支持该推荐的邻居玩家。" },
+          { "heading": "评分公式", "body": "score(目标玩家, 关卡) = sum(相似度 × 互动权重 × 新颖度)。更多支持通常有帮助，但强关联邻居与稀有关卡的影响可能超过原始计数。" }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "基于相似度的推荐在离线对比中胜出",
+            "color": "success",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "命中率", "value": "33.9%（相似度）对比13.5%（社群）" },
+                  { "label": "目录覆盖率", "value": "60.9%（相似度）对比5.8%（社群）" },
+                  { "label": "跨社群发现率", "value": "21.2%（相似度）对比3.5%（社群）" }
+                ]
+              },
+              { "type": "paragraph", "text": "在3,654名玩家上针对Top-10推荐任务进行评估。相似度方法在提升相关性的同时，展现了更广泛、更多样化的关卡目录。" }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Top-N抽样方法",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "将分析限定于头部玩家与关卡，可能无法完全代表整个玩家群体。" }]
+          },
+          {
+            "title": "网络为静态快照",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "该网络代表某一时间点的快照，无法捕捉社群与影响力随时间演变的情况。" }]
+          },
+          {
+            "title": "仅进行了离线评估",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "推荐效果的评估是离线进行的；结果尚未通过针对真实玩家的线上A/B测试加以验证。" }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "研究团队 - SuperKambros",
+        "members": [
+          { "name": "Jeremiah William Sebastian" },
+          { "name": "Chong Jia Min Heidi" },
+          { "name": "Lu Zhao Chen" },
+          { "name": "Zachary Kondas" },
+          { "name": "Zhai Tingting" },
+          { "name": "Hu Yixuan" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "参考文献",
+        "items": [
+          { "primary": "Barabási, A.-L. (2016). Network Science. Cambridge University Press." },
+          { "primary": "Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E. (2008). Fast unfolding of communities in large networks. Journal of Statistical Mechanics: Theory and Experiment." },
+          { "primary": "Moraes, L. M. P., & Cordeiro, R. L. F. (2019). SMMnet: A Social Network of Games Dataset. Brazilian Symposium on Databases, Dataset Showcase Workshop." },
+          { "primary": "Moraes, L. M. P., & Cordeiro, R. L. F. (2025). Modeling and analyzing Social Networks of Games. Expert Systems with Applications." },
+          { "primary": "SMMnet数据集仓库", "secondary": "SMMnet - Super Mario Maker" }
+        ]
+      }
+    ]
+  ]
+}

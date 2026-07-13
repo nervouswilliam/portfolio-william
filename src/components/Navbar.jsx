@@ -6,21 +6,33 @@ import {
   Button,
   Menu,
   MenuItem,
-  Typography,
   Box,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import LanguageIcon from "@mui/icons-material/Language";
+import { useTranslation } from "react-i18next";
+import { SUPPORTED_LANGUAGES } from "../i18n";
 
-const sections = ["Introduction", "Experience", "Projects", "Education", "Contact"];
+const sectionIds = ["introduction", "experience", "projects", "education", "contact"];
 
 export default function Navbar() {
+  const { t, i18n } = useTranslation();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [langAnchorEl, setLangAnchorEl] = useState(null);
 
   const handleMenu = (event) => setAnchorEl(event.currentTarget);
   const handleClose = () => setAnchorEl(null);
 
+  const handleLangMenu = (event) => setLangAnchorEl(event.currentTarget);
+  const handleLangClose = () => setLangAnchorEl(null);
+  const changeLanguage = (code) => {
+    i18n.changeLanguage(code);
+    handleLangClose();
+    handleClose();
+  };
+
   const scrollToSection = (id) => {
-    document.getElementById(id.toLowerCase()).scrollIntoView({ behavior: "smooth" });
+    document.getElementById(id).scrollIntoView({ behavior: "smooth" });
     handleClose();
   };
 
@@ -50,23 +62,23 @@ export default function Navbar() {
               boxShadow: "0 0 10px rgba(100, 255, 218, 0.5)",
             },
           }}
-          onClick={() => scrollToSection("Introduction")}
+          onClick={() => scrollToSection("introduction")}
         />
 
         {/* ✅ Desktop Menu */}
-        <Box sx={{ display: { xs: "none", md: "flex" }, gap: 2 }}>
-          {sections.map((sec) => (
+        <Box sx={{ display: { xs: "none", md: "flex" }, alignItems: "center", gap: 2 }}>
+          {sectionIds.map((id) => (
             <Button
-              key={sec}
+              key={id}
               color="inherit"
-              onClick={() => scrollToSection(sec)}
+              onClick={() => scrollToSection(id)}
               sx={{
                 textTransform: "none",
                 fontWeight: 500,
                 "&:hover": { color: "#64ffda" },
               }}
             >
-              {sec}
+              {t(`nav.${id}`)}
             </Button>
           ))}
 
@@ -85,12 +97,29 @@ export default function Navbar() {
             href="/CV_WILLIAM.pdf"
             target="_blank"
           >
-            Download CV
+            {t("nav.downloadCV")}
           </Button>
+
+          <IconButton
+            color="inherit"
+            onClick={handleLangMenu}
+            aria-label={t("nav.language")}
+            sx={{ "&:hover": { color: "#64ffda" } }}
+          >
+            <LanguageIcon />
+          </IconButton>
         </Box>
 
         {/* ✅ Mobile Menu */}
-        <Box sx={{ display: { xs: "flex", md: "none" } }}>
+        <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center" }}>
+          <IconButton
+            color="inherit"
+            onClick={handleLangMenu}
+            aria-label={t("nav.language")}
+          >
+            <LanguageIcon />
+          </IconButton>
+
           <IconButton color="inherit" onClick={handleMenu}>
             <MenuIcon />
           </IconButton>
@@ -106,15 +135,15 @@ export default function Navbar() {
               },
             }}
           >
-            {sections.map((sec) => (
+            {sectionIds.map((id) => (
               <MenuItem
-                key={sec}
-                onClick={() => scrollToSection(sec)}
+                key={id}
+                onClick={() => scrollToSection(id)}
                 sx={{
                   "&:hover": { backgroundColor: "#112240", color: "#64ffda" },
                 }}
               >
-                {sec}
+                {t(`nav.${id}`)}
               </MenuItem>
             ))}
             <MenuItem>
@@ -131,11 +160,32 @@ export default function Navbar() {
                   },
                 }}
               >
-                Download CV
+                {t("nav.downloadCV")}
               </Button>
             </MenuItem>
           </Menu>
         </Box>
+
+        {/* ✅ Shared language menu — anchors to whichever globe icon (desktop or mobile) was clicked */}
+        <Menu
+          anchorEl={langAnchorEl}
+          open={Boolean(langAnchorEl)}
+          onClose={handleLangClose}
+          PaperProps={{
+            sx: { backgroundColor: "#0a192f", color: "white", minWidth: 160 },
+          }}
+        >
+          {SUPPORTED_LANGUAGES.map((lang) => (
+            <MenuItem
+              key={lang.code}
+              selected={i18n.resolvedLanguage === lang.code}
+              onClick={() => changeLanguage(lang.code)}
+              sx={{ "&:hover": { backgroundColor: "#112240", color: "#64ffda" } }}
+            >
+              {lang.label}
+            </MenuItem>
+          ))}
+        </Menu>
       </Toolbar>
     </AppBar>
   );

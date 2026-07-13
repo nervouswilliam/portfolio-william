@@ -1,0 +1,171 @@
+{
+  "id": "fraud_detection",
+  "meta": {
+    "title": "欺诈检测预测研究",
+    "subtitle": "面向英国时尚零售数字支付的分类预测建模",
+    "date": "2026",
+    "tabs": ["概览", "研究方法", "结果与分析", "团队"]
+  },
+  "techStack": [
+    { "label": "KNIME Analytics" },
+    { "label": "Logistic Regression" },
+    { "label": "Decision Tree" },
+    { "label": "Random Forest" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "课程信息",
+      "items": [
+        { "primary": "课程", "secondary": "ISSS602 - 数据分析实验室" },
+        { "primary": "院校", "secondary": "新加坡管理大学" },
+        { "primary": "学期", "secondary": "2026-27学年（一月）" },
+        { "primary": "研究对象", "secondary": "英国时尚零售" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "数据集统计",
+      "chip": { "label": "1,000笔交易", "color": "primary" },
+      "captions": ["欺诈率：约4.4%", "44例欺诈 / 956例非欺诈"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "项目概览",
+        "paragraphs": [
+          { "text": "随着数字支付系统的普及，本研究构建了一套基于分类的预测建模框架，以更好地识别零售行业中的欺诈交易。由于陈旧的欺诈检测系统无法识别新出现且不断演变的欺诈模式，消费者信心受到冲击，可能阻碍数字经济的发展。" },
+          { "text": "本研究通过比较三种分类模型——逻辑回归、决策树与随机森林，为零售商提供更有效的欺诈管理与防范手段与工具。分析采用KNIME Analytics Platform平台，基于来自英国时尚数字支付行业的1,000条交易记录进行模型开发与评估。" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "研究目标",
+        "items": [
+          { "primary": "分析与欺诈支付相关的交易特征与行为指标。" },
+          { "primary": "开发能够将交易分类为欺诈或合法的预测模型。" },
+          { "primary": "比较不同分类模型的性能表现。" },
+          { "primary": "揭示分析技术如何支持在线零售业务中的欺诈检测。" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "数据集详情",
+        "description": "英国时尚数字支付欺诈数据集包含1,000条交易层级记录，具备以下特征：",
+        "items": [
+          { "primary": "交易特征", "secondary": "金额、商品数量、折扣百分比、支付类型、渠道" },
+          { "primary": "行为指标", "secondary": "登录失败次数、设备变更、交易频率" },
+          { "primary": "风险指标", "secondary": "IP风险评分、账单/配送地址距离、地址指标、退货、拒付" },
+          { "primary": "最终变量", "secondary": "36个变量（24个原始变量 + 12个衍生/工程变量）" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "数据准备",
+        "sections": [
+          { "heading": "数据转换", "body": "将is_fraud变量由整数格式转换为字符串格式，以兼容机器学习学习器。分类变量采用独热编码进行转换，转化为二进制数值格式以便模型解读。" },
+          { "heading": "特征工程", "body": "构建了四个工程特征，以为欺诈行为提供明确指标：behavior_risk_score（行为风险评分）、risk_intensity（风险强度）、avg_item_value（平均商品价值）以及velocity_ratio（交易速率比）。" },
+          { "heading": "多重共线性检验", "body": "使用相关矩阵进行相关性分析。通过列过滤节点剔除相关系数高于0.7的变量，以防止系数估计出现方差膨胀。" },
+          { "heading": "数据平衡", "body": "采用SMOTE（合成少数类过采样技术）为少数欺诈类别生成合成记录，以解决数据集不平衡问题。数据集划分：70%用于训练，30%用于测试。" }
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "分类模型",
+        "items": [
+          { "title": "逻辑回归", "caption": "采用随机平均梯度优化的二元分类，并使用最大约登指数确定最优阈值" },
+          { "title": "决策树", "caption": "以基尼指数作为质量度量，结合最小描述长度（MDL）以平衡复杂度与预测能力" },
+          { "title": "随机森林", "caption": "采用信息增益作为分裂标准的250棵决策树集成学习" },
+          { "title": "数据标准化", "caption": "仅应用于逻辑回归（对数据尺度敏感）；不适用于基于树的模型" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "逻辑回归（最终选定模型）",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "召回率", "value": "92.3%", "description": "成功识别出13笔欺诈交易中的12笔，展现出较强的异常捕捉能力。" },
+                  { "label": "精确率", "value": "7.27%", "description": "假阳性率较高，但为最大限度减少欺诈遗漏，此权衡可以接受。" },
+                  { "label": "准确率", "value": "48.5%", "description": "AUC为0.723——由于召回率表现更优，被选为首选模型。" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "随机森林",
+            "color": "info",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "召回率", "value": "76.92%", "description": "正确识别出13例欺诈案例中的10例，性能优于决策树。" },
+                  { "label": "精确率", "value": "6.06%", "description": "假阳性率依然较高。" },
+                  { "label": "准确率", "value": "47.33%", "description": "反映出优先检测欺诈而非追求整体准确率的激进策略。" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "决策树",
+            "color": "warning",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "召回率", "value": "61.54%", "description": "正确识别出13例欺诈案例中的8例，欺诈检测能力中等。" },
+                  { "label": "精确率", "value": "5.67%", "description": "133笔非欺诈交易被误判为欺诈。" },
+                  { "label": "准确率", "value": "54.00%", "description": "性能中等，在检测平衡方面效果有限。" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "探索性数据分析（EDA）主要发现",
+            "color": "info",
+            "content": [
+              {
+                "type": "bullets",
+                "items": [
+                  { "label": "类别不平衡挑战：", "text": "欺诈率仅为4.4%（44例欺诈对956例非欺诈），构成显著的分类挑战。" },
+                  { "label": "欺诈者行为模式：", "text": "大多数欺诈发生在新账户（0-500天）且交易金额较低（低于100英镑）。" },
+                  { "label": "风险指标：", "text": "登录失败次数与较高的风险强度是关键的欺诈指标。" },
+                  { "label": "多维度异常：", "text": "欺诈者通过在邮箱域名风险评分、渠道与账户年龄等维度上交叉利用重叠模式来降低被检测的概率。" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "模型选择依据",
+            "color": "error",
+            "content": [
+              { "type": "paragraph", "text": "尽管精确率较低，仍选择了逻辑回归，因为漏检欺诈案例（假阴性）会给企业带来重大经济损失。92.3%的召回率确保了最大程度的欺诈检出，而较高的假阳性率可在对可疑交易采取行动前，由人工审核加以管理。" }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "研究团队",
+        "members": [
+          { "name": "Chan Guang Hua", "subtitle": "SMU" },
+          { "name": "Chong Jia Min Heidi", "subtitle": "SMU" },
+          { "name": "Jeremiah William Sebastian", "subtitle": "SMU" }
+        ]
+      }
+    ]
+  ]
+}

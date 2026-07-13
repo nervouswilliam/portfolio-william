@@ -1,0 +1,163 @@
+{
+  "nav": {
+    "introduction": "Perkenalan",
+    "experience": "Pengalaman",
+    "projects": "Proyek",
+    "education": "Pendidikan",
+    "contact": "Kontak",
+    "downloadCV": "Unduh CV",
+    "language": "Bahasa"
+  },
+  "hero": {
+    "greeting": "Hai, saya",
+    "headline": "Menjembatani Logika Rekayasa dan Wawasan Bisnis.",
+    "subheadline": "Saya menulis kode untuk membangun produk, serta menulis query dan membangun model untuk menyelesaikan masalah bisnis — mengubah data Anda menjadi aset teknis paling berharga.",
+    "viewProjects": "Lihat Proyek Saya",
+    "contactMe": "Hubungi Saya"
+  },
+  "experience": {
+    "heading": "Pengalaman Kerja",
+    "items": [
+      {
+        "title": "Magang Perencanaan Bisnis Regional dan Analis, Asia Tenggara dan Korea",
+        "description": [
+          "Mengembangkan model peramalan (forecasting) untuk wilayah Asia Tenggara dan Korea menggunakan Excel",
+          "Membuat dashboard untuk perencanaan dan analisis bisnis menggunakan Power BI"
+        ]
+      },
+      {
+        "title": "Software Engineer",
+        "description": [
+          "Merancang dan mengimplementasikan aplikasi web menggunakan React JS",
+          "Membuat komponen tabel yang dapat digunakan kembali (reusable)",
+          "Membuat formulir input untuk pengguna",
+          "Merancang dan mengimplementasikan aplikasi backend menggunakan Supabase",
+          "Merancang skema dan fungsi basis data",
+          "Merancang Row Level Security untuk tabel basis data"
+        ]
+      },
+      {
+        "title": "Magang Backend Engineer",
+        "description": [
+          "Merancang dan mengimplementasikan backend menggunakan Spring Boot versi 3",
+          "Membuat RESTful API (GET, POST, DELETE)",
+          "Membuat API internasionalisasi",
+          "Membuat fitur filter",
+          "Melakukan migrasi backend layanan BCA yang sudah ada",
+          "Meningkatkan autentikasi dari arsitektur stateful menjadi stateless"
+        ]
+      },
+      {
+        "title": "Magang Frontend Engineer",
+        "description": [
+          "Merancang dan mengimplementasikan aplikasi website menggunakan framework Angular JS dengan Bootstrap versi 3",
+          "Merancang dan mengimplementasikan fitur input untuk pengguna",
+          "Merancang dan melakukan refactor komponen untuk mengoptimalkan fitur"
+        ]
+      },
+      {
+        "title": "Software Engineer",
+        "description": [
+          "Memfasilitasi kolaborasi antara pengembang aplikasi dan organisasi nirlaba melalui keterlibatan berbasis proyek.",
+          "Memungkinkan organisasi nirlaba mempublikasikan kebutuhan teknis, seperti aplikasi mobile dan website, untuk mengatasi tantangan mereka",
+          "Mengakui kontribusi developer untuk meningkatkan portofolio profesional mereka",
+          "Dibangun menggunakan ReactJS dan MUI untuk frontend, serta NodeJS dan ExpressJS untuk backend",
+          "Mengelola basis data menggunakan PostgreSQL dan menggunakan Kysely sebagai Object Relational Mapping (ORM)",
+          "Melakukan deployment website menggunakan Google Cloud Platform (GCP)"
+        ]
+      }
+    ]
+  },
+  "education": {
+    "heading": "Pendidikan",
+    "gpaLabel": "IPK",
+    "items": [
+      {
+        "degree": "Magister Teknologi Informasi dalam Bisnis",
+        "description": [
+          "Berfokus pada Data Science dan Analitik",
+          "Menjembatani Teknologi dan Strategi Bisnis",
+          "Memperkuat kemampuan kepemimpinan dan inovasi untuk menghadirkan nilai bisnis"
+        ]
+      },
+      {
+        "degree": "Sarjana Ilmu Komputer",
+        "description": [
+          "Berfokus pada rekayasa perangkat lunak, algoritma, dan sistem data.",
+          "Terlibat dalam berbagai proyek tim dan tugas pengembangan backend.",
+          "Minor di bidang Pengembangan Aplikasi Mobile"
+        ]
+      }
+    ]
+  },
+  "projects": {
+    "heading": "Proyek",
+    "detailsBtn": "Detail",
+    "liveDemoBtn": "Demo Langsung",
+    "githubBtn": "GitHub",
+    "items": {
+      "wisely": {
+        "title": "Wisely",
+        "description": "Aplikasi pelacakan gudang dan penjualan yang membantu bisnis kecil mengelola produk, memantau tanggal kedaluwarsa, dan mengoptimalkan restock."
+      },
+      "dev4you": {
+        "title": "Dev4You",
+        "description": "Platform yang menghubungkan organisasi nirlaba dengan developer untuk membangun website dan aplikasi dengan biaya minim, sekaligus membantu developer mendapatkan pengalaman nyata."
+      },
+      "needwork": {
+        "title": "Need Work",
+        "description": "Platform mesin pencari yang membantu orang mencari pekerjaan dari berbagai situs lowongan kerja dan memudahkan mereka untuk melamar."
+      },
+      "cestwosin": {
+        "title": "CesTwoSkin",
+        "description": "Aplikasi mobile yang memungkinkan gamer membeli, menjual, dan menukar skin senjata Counter-Strike 2 dengan aman dan mudah."
+      },
+      "tictactoe": {
+        "title": "Tic Tac Shift",
+        "description": "Versi web dari permainan Tic Tac Toe dengan twist, menghadirkan mekanisme papan yang bergeser untuk meningkatkan gameplay dan strategi."
+      },
+      "HDB resale Value Drivers": {
+        "title": "Faktor Penentu Nilai Jual Kembali HDB",
+        "description": "Analisis statistik terhadap faktor-faktor yang memengaruhi harga jual kembali flat HDB di wilayah Barat Singapura."
+      },
+      "fraud-detection": {
+        "title": "Studi Prediksi Deteksi Fraud",
+        "description": "Pemodelan prediktif berbasis klasifikasi untuk pembayaran digital ritel fashion di Inggris..."
+      },
+      "query-optimization": {
+        "title": "Pemrosesan dan Optimisasi Query",
+        "description": "Optimisasi query SARGABLE menggunakan generated columns MySQL"
+      },
+      "ev-infrastructure": {
+        "title": "Perencanaan Infrastruktur Kendaraan Listrik",
+        "description": "Analisis dan perencanaan infrastruktur pengisian daya kendaraan listrik di kawasan perkotaan"
+      },
+      "machine-learning": {
+        "title": "Aplikasi Machine Learning",
+        "description": "Mengeksplorasi berbagai teknik machine learning dan penerapannya dalam skenario dunia nyata"
+      },
+      "social-network-analysis": {
+        "title": "Analisis Jaringan Sosial",
+        "description": "Menganalisis struktur dan dinamika jaringan sosial menggunakan teori graf dan machine learning"
+      }
+    }
+  },
+  "projectDetail": {
+    "backToProjects": "Kembali ke Proyek",
+    "techStack": "Tumpukan Teknologi"
+  },
+  "contact": {
+    "heading": "Mari Terhubung"
+  },
+  "chat": {
+    "greeting": "Hai! Saya bisa menjawab pertanyaan seputar latar belakang saya dan proyek-proyek di situs ini — ada yang ingin Anda ketahui?",
+    "assistantName": "Asisten Portofolio",
+    "thinking": "Sedang berpikir...",
+    "placeholder": "Tanyakan tentang proyek saya...",
+    "openAria": "Buka obrolan",
+    "closeAria": "Tutup obrolan",
+    "sendAria": "Kirim pesan",
+    "genericError": "Terjadi kesalahan. Silakan coba lagi.",
+    "networkError": "Tidak dapat terhubung ke asisten. Periksa koneksi Anda dan coba lagi."
+  }
+}

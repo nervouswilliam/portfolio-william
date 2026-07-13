@@ -1,32 +1,23 @@
 import React from "react";
 import { Box, Grid, Paper, Typography } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
-const educationData = [
-    {
-        degree: "Master of IT in Business",
-        school: "Singapore Management University (SMU)",
-        period: "2026-2027",
-        gpa: "3.58 / 4.00",
-        description: [
-        "Focused on Data Science and Analytics",
-        "Bridging Technology and Business Strategy",
-        "Strengthening leadership and innovation skills to deliver business value",
-        ],
-    },
-    {
-        degree: "Bachelor of Science in Computer Science",
-        school: "Bina Nusantara University (BINUS)",
-        period: "2021-2025",
-        gpa: "3.67 / 4.00",
-        description: [
-        "Focused on software engineering, algorithms, and data systems.",
-        "Worked on multiple team projects and backend development tasks.",
-        "Minor in Mobile Development",
-        ],
-    },
+// school/period/gpa are locale-invariant; degree & description come from the
+// active translation resource, matched by array index.
+const educationMeta = [
+  { school: "Singapore Management University (SMU)", period: "2026-2027", gpa: "3.58 / 4.00" },
+  { school: "Bina Nusantara University (BINUS)", period: "2021-2025", gpa: "3.67 / 4.00" },
 ];
 
 export default function EducationSection() {
+  const { t } = useTranslation();
+  const translatedItems = t("education.items", { returnObjects: true });
+  const educationData = educationMeta.map((meta, i) => ({
+    ...meta,
+    degree: translatedItems[i]?.degree,
+    description: translatedItems[i]?.description || [],
+  }));
+
   return (
     <Box
       id="education"
@@ -43,7 +34,7 @@ export default function EducationSection() {
         fontWeight="bold"
         gutterBottom
       >
-        Education
+        {t("education.heading")}
       </Typography>
 
       <Grid container spacing={4} justifyContent="center" sx={{ mt: 4 }}>
@@ -92,7 +83,7 @@ export default function EducationSection() {
                 color="text.secondary"
                 sx={{ mt: 2, fontStyle: "italic" }}
               >
-                GPA: {edu.gpa}
+                {t("education.gpaLabel")}: {edu.gpa}
               </Typography>
             </Paper>
           </Grid>

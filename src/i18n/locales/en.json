@@ -1,0 +1,163 @@
+{
+  "nav": {
+    "introduction": "Introduction",
+    "experience": "Experience",
+    "projects": "Projects",
+    "education": "Education",
+    "contact": "Contact",
+    "downloadCV": "Download CV",
+    "language": "Language"
+  },
+  "hero": {
+    "greeting": "Hi, I'm",
+    "headline": "Bridging the Gap Between Engineering Logic and Business Insight.",
+    "subheadline": "I write code to build products, and queries and models to solve business problems — turning your data into your greatest technical asset.",
+    "viewProjects": "View My Projects",
+    "contactMe": "Contact Me"
+  },
+  "experience": {
+    "heading": "Work Experience",
+    "items": [
+      {
+        "title": "Regional Business Planning and Analyst Intern, South East Asia and Korea",
+        "description": [
+          "Developed Forecasting Model for South East Asia and Korea Region using Excel",
+          "Created Dashboard for Business Planning and Analysis using Power BI"
+        ]
+      },
+      {
+        "title": "Software Engineer",
+        "description": [
+          "Designed and Implemented Web Application using React JS",
+          "Created reusable Table Component",
+          "Created input form for user",
+          "Designed and Implemented Backend Application using Supabase",
+          "Designed database schema and functions",
+          "Designed Row Level Security for database tables"
+        ]
+      },
+      {
+        "title": "Backend Engineer Intern",
+        "description": [
+          "Designed and implemented backend using spring boot version 3",
+          "Created RESTful API (GET, POST, DELETE)",
+          "Created internationalization API",
+          "Created filter feature",
+          "Migrated Backend of existing BCA Services",
+          "Improve authentication from stateful architecture to stateless architecture"
+        ]
+      },
+      {
+        "title": "Frontend Engineer Intern",
+        "description": [
+          "Designed and Implemented website application using Angular JS framework with bootstrap version 3",
+          "Designed and implemented inputs feature for user to input",
+          "Designed and refactored components to optimize the feature"
+        ]
+      },
+      {
+        "title": "Software Engineer",
+        "description": [
+          "Facilitated Collaboration between application developers and non profit organization by creating for project based engagement.",
+          "Enable Non Profit Organization to post technical requirements, such as mobile apps and websites to address their challenges",
+          "Recognize Developers Contribution to enhance their professional portfolios",
+          "Built Using ReactJS and MUI for the frontend and NodeJS and ExpressJS for the backend",
+          "Managed Database using PostgreSQL and used Kyseli as Object Relational Mapping (ORM)",
+          "Deployed the Website using Google Cloud Platform (GCP)"
+        ]
+      }
+    ]
+  },
+  "education": {
+    "heading": "Education",
+    "gpaLabel": "GPA",
+    "items": [
+      {
+        "degree": "Master of IT in Business",
+        "description": [
+          "Focused on Data Science and Analytics",
+          "Bridging Technology and Business Strategy",
+          "Strengthening leadership and innovation skills to deliver business value"
+        ]
+      },
+      {
+        "degree": "Bachelor of Science in Computer Science",
+        "description": [
+          "Focused on software engineering, algorithms, and data systems.",
+          "Worked on multiple team projects and backend development tasks.",
+          "Minor in Mobile Development"
+        ]
+      }
+    ]
+  },
+  "projects": {
+    "heading": "Projects",
+    "detailsBtn": "Details",
+    "liveDemoBtn": "Live Demo",
+    "githubBtn": "GitHub",
+    "items": {
+      "wisely": {
+        "title": "Wisely",
+        "description": "A warehouse and sales tracking app that helps small businesses manage products, track expiration dates, and optimize restocks."
+      },
+      "dev4you": {
+        "title": "Dev4You",
+        "description": "A platform connecting nonprofits with developers to build websites and apps at minimal cost while helping developers gain real-world experience."
+      },
+      "needwork": {
+        "title": "Need Work",
+        "description": "A search engine platform that helps people search for jobs from different job sites and allowing them to apply effortlessly."
+      },
+      "cestwosin": {
+        "title": "CesTwoSkin",
+        "description": "A mobile application that enables gamers to buy, sell, and trade Counter-Strike 2 weapon skins securely and effortlessly."
+      },
+      "tictactoe": {
+        "title": "Tic Tac Shift",
+        "description": "A web Application version of Tic Tac Toe with a twist, featuring a shifting board mechanic to enhance gameplay and strategy."
+      },
+      "HDB resale Value Drivers": {
+        "title": "HDB Resale Value Drivers",
+        "description": "A statistical analysis of factors influencing HDB resale flat prices in Singapore's West region."
+      },
+      "fraud-detection": {
+        "title": "Study on Fraud Detection Prediction",
+        "description": "Classification-based predictive modelling for UK fashion retail..."
+      },
+      "query-optimization": {
+        "title": "Query Processing and Optimization",
+        "description": "SARGABLE query optimization using MySQL generated columns"
+      },
+      "ev-infrastructure": {
+        "title": "EV Infrastructure Planning",
+        "description": "Analysis and planning for electric vehicle charging infrastructure in urban areas"
+      },
+      "machine-learning": {
+        "title": "Machine Learning Applications",
+        "description": "Exploring various machine learning techniques and their applications in real-world scenarios"
+      },
+      "social-network-analysis": {
+        "title": "Social Network Analysis",
+        "description": "Analyzing social network structures and dynamics using graph theory and machine learning"
+      }
+    }
+  },
+  "projectDetail": {
+    "backToProjects": "Back to Projects",
+    "techStack": "Tech Stack"
+  },
+  "contact": {
+    "heading": "Let's Connect"
+  },
+  "chat": {
+    "greeting": "Hi! I can answer questions about my background and the projects on this site — what would you like to know?",
+    "assistantName": "Portfolio Assistant",
+    "thinking": "Thinking...",
+    "placeholder": "Ask about my projects...",
+    "openAria": "Open chat",
+    "closeAria": "Close chat",
+    "sendAria": "Send message",
+    "genericError": "Something went wrong. Please try again.",
+    "networkError": "Could not reach the assistant. Please check your connection and try again."
+  }
+}

@@ -1,0 +1,298 @@
+{
+  "id": "customer_churn_ml",
+  "meta": {
+    "title": "Memprediksi Customer Churn Menggunakan Model Machine Learning",
+    "subtitle": "Menerapkan Supervised dan Unsupervised Learning untuk Memahami dan Memprediksi Churn Pelanggan E-Commerce",
+    "date": "2026",
+    "tabs": ["Ikhtisar", "Metodologi", "Hasil Model", "Wawasan & Rekomendasi", "Tim"]
+  },
+  "techStack": [
+    { "key": "python", "label": "Python" },
+    { "label": "Logistic Regression" },
+    { "label": "Decision Tree" },
+    { "label": "XGBoost" },
+    { "label": "K-Means Clustering" },
+    { "key": "scikit", "label": "Scikit-learn" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Informasi Mata Kuliah",
+      "items": [
+        { "primary": "Mata Kuliah", "secondary": "CS610 - Applied Machine Learning" },
+        { "primary": "Institusi", "secondary": "Singapore Management University" },
+        { "primary": "Semester", "secondary": "April Term, AY 2025/26" },
+        { "primary": "Kelompok", "secondary": "Group 19" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Dataset",
+      "chip": { "label": "Ecommerce Customer Behaviour & Sales 2020-2026", "color": "primary" },
+      "captions": ["25,000 data tingkat pesanan", "7,663 pelanggan unik", "Tingkat churn: 8.9%"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Latar Belakang & Masalah Bisnis",
+        "paragraphs": [
+          { "text": "Customer churn merupakan tantangan krusial dalam e-commerce karena pelanggan dapat dengan mudah berpindah antar platform dan berhenti terlibat secara diam-diam, tanpa adanya peristiwa pembatalan eksplisit seperti pada layanan berbasis langganan. Hal ini membuat churn sulit dideteksi secara dini menggunakan metode pemantauan tradisional." },
+          { "text": "Tantangan bisnis utamanya bukan hanya memprediksi apakah seorang pelanggan akan churn, tetapi memahami pola perilaku di baliknya - mengubah data historis pelanggan menjadi wawasan retensi yang dapat ditindaklanjuti, alih-alih mengandalkan kampanye reaktif yang luas dan memboroskan sumber daya pada pelanggan berisiko rendah." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Tujuan Proyek",
+        "items": [
+          { "primary": "Merumuskan customer churn sebagai masalah klasifikasi biner menggunakan data historis pelanggan, transaksi, keterlibatan, dan perilaku." },
+          { "primary": "Membandingkan berbagai pendekatan ML untuk prediksi churn dan penggalian wawasan: Logistic Regression (baseline), Decision Tree (interpretabilitas), XGBoost (kekuatan prediktif), dan K-Means (segmentasi)." },
+          { "primary": "Mengidentifikasi faktor pendorong churn utama yang relevan dengan strategi retensi e-commerce, seperti recency, frequency, pengeluaran, tingkat retur, dan keterlibatan." },
+          { "primary": "Menerjemahkan output model menjadi rekomendasi bisnis yang dapat ditindaklanjuti untuk mendukung retensi yang proaktif." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Pemahaman Data",
+        "description": "Dataset: Ecommerce Customer Behaviour & Sales 2020-2026 (Kaggle), berisi empat tabel:",
+        "items": [
+          { "primary": "customers.csv", "secondary": "Digunakan - atribut demografis dan tingkat akun; sumber untuk loyalty tier dan tenure_days" },
+          { "primary": "orders.csv", "secondary": "Digunakan - tabel transaksional inti untuk fitur tingkat pesanan dan agregat tingkat pelanggan" },
+          { "primary": "product_summary.csv", "secondary": "Dikecualikan - agregat tingkat produk pada keseluruhan dataset akan menyebabkan data leakage" },
+          { "primary": "monthly_revenue.csv", "secondary": "Dikecualikan - hanya digunakan untuk analisis eksploratif, bukan prediksi tingkat pelanggan" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Ringkasan Dataset",
+        "headers": [
+          { "label": "Item" },
+          { "label": "Nilai" }
+        ],
+        "rows": [
+          ["Ukuran dataset supervised akhir", "25,000 data tingkat pesanan"],
+          ["Ukuran dataset K-Means tingkat pelanggan", "7,663 pelanggan unik"],
+          ["Variabel target", "churned (1 = churn, 0 = tidak churn)"],
+          ["Distribusi churn", "8.9% (dataset supervised utama)"],
+          ["Dataset XGBoost", "Subset pelanggan berulang, 53.94% churn (ambang batas inaktivitas 365 hari)"],
+          ["Tugas prediksi", "Klasifikasi biner"],
+          ["Tugas segmentasi", "Clustering pelanggan unsupervised"]
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Pra-pemrosesan Data & Rekayasa Fitur",
+        "sections": [
+          { "heading": "Pembersihan Data", "body": "Kolom yang redundan dihapus dari dataset customers, termasuk total_orders dan returns_made (digabungkan menjadi return_rate), year/month/day_of_week/quarter (dipertahankan sebagai order_date), dan subtotal_usd/total_amount_usd/discount_pct/tax_pct (redundan dengan unit_price_usd dan quantity). order_status dihapus karena menduplikasi field boolean returned." },
+          { "heading": "Penanganan Nilai yang Hilang", "body": "customer_rating memiliki data yang hilang dalam jumlah besar dan diimputasi menggunakan nilai median. Tidak diperlukan imputasi lebih lanjut di bagian lain." },
+          { "heading": "Encoding Variabel Kategorikal", "body": "Variabel biner (misalnya gender) dipetakan ke 0/1. Variabel ordinal dengan urutan peringkat alami (membership_tier: Free, Silver, Gold, Platinum) di-encode secara ordinal. Variabel nominal (country, acquisition_channel, device_used, payment_method, category) di-one-hot-encode, dengan menghapus kategori pertama untuk menghindari dummy variable trap. product_name, karena kardinalitasnya yang tinggi, di-encode berdasarkan frekuensi." },
+          { "heading": "Rekayasa Fitur", "body": "Dua fitur direkayasa untuk menangkap sinyal perilaku: tenure_days (selisih antara tanggal registrasi pelanggan dan tanggal registrasi terbaru dalam dataset) dan return_rate (jumlah retur dibagi total pesanan)." }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Pendekatan Pemodelan",
+        "sections": [
+          { "heading": "Logistic Regression (Baseline)", "body": "Dilatih pada fitur perilaku yang mencakup perilaku pembelian, keterlibatan, sensitivitas harga, kepuasan, dan keragaman belanja. Pra-pemrosesan meliputi imputasi median, standardisasi StandardScaler, dan pembagian stratified 80/20. Dikonfigurasi dengan max_iter=3000, random_state=42; dievaluasi melalui accuracy, precision, recall, F1, ROC-AUC, PR-AUC, dan confusion matrix." },
+          { "heading": "Decision Tree", "body": "Kolom ID/tanggal dihapus karena tidak bersifat prediktif. Diregulasi dengan max_depth=5, min_samples_split=20, min_samples_leaf=10 untuk mencegah overfitting. Sebuah class_weight {0: 1, 1: 5} diterapkan karena false negative (churner yang terlewat) lebih merugikan bisnis dibandingkan false positive." },
+          { "heading": "XGBoost", "body": "Fitur direkayasa pada tingkat pelanggan (total_orders, monetary_value, total_discount, total_shipping, total_items, avg_delivery_days, avg_product_popularity). Churn didefinisikan melalui ambang batas inaktivitas 365 hari pada subset pelanggan berulang. Dilatih dengan 200 estimator, learning rate 0.02, kedalaman maksimum 4, dan scale_pos_weight untuk mengatasi ketidakseimbangan kelas. Karena menggunakan definisi churn dan subset pelanggan yang berbeda, metriknya tidak dapat dibandingkan secara langsung dengan model supervised lainnya." },
+          { "heading": "K-Means Clustering", "body": "Data tingkat pesanan diagregasi ke tingkat pelanggan (7,663 pelanggan) menggunakan recency, frequency, monetary value, keterlibatan, kepuasan, perilaku retur, sensitivitas harga, dan keragaman perilaku. Variabel yang miring (skewed) ditransformasi secara logaritmik sebelum standardisasi. Beberapa nilai K dievaluasi menggunakan Silhouette Score, Davies-Bouldin Index, dan interpretabilitas bisnis (ukuran segmen dan sebaran tingkat churn); label churn itu sendiri tidak digunakan selama clustering." }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "K-Means: Memilih K",
+        "description": "K = 4 dipilih sebagai kompromi praktis antara pemisahan statistik dan interpretabilitas bisnis (ukuran segmen, sebaran tingkat churn sebesar 0.0449).",
+        "headers": [
+          { "label": "K" },
+          { "label": "Silhouette Score", "align": "center" },
+          { "label": "Davies-Bouldin Index", "align": "center" },
+          { "label": "Sebaran Tingkat Churn", "align": "center" }
+        ],
+        "rows": [
+          ["2", "0.1171", "2.740", "0.0026"],
+          ["3", "0.0862", "2.480", "0.0439"],
+          ["4", "0.0800", "2.441", "0.0449"],
+          ["5", "0.0744", "2.466", "0.0686"],
+          ["6", "0.0850", "2.471", "0.0455"]
+        ],
+        "highlightRowIndexes": [2]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Logistic Regression: Akurasi Tinggi, Deteksi Churn Buruk",
+            "color": "error",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Accuracy", "value": "91.12%", "description": "" },
+                  { "label": "Precision", "value": "55.56%", "description": "" },
+                  { "label": "Recall", "value": "1.12%", "description": "hanya 5 dari 445 churner yang teridentifikasi dengan benar" },
+                  { "label": "ROC-AUC", "value": "0.660", "description": "" },
+                  { "label": "PR-AUC", "value": "0.212", "description": "" }
+                ]
+              },
+              { "type": "paragraph", "text": "Model ini memprediksi 'Not Churn' untuk hampir semua pelanggan. Akurasi tingginya sepenuhnya didorong oleh kelas mayoritas, dan model ini tidak efektif untuk deteksi churn pada ambang batas default." }
+            ]
+          },
+          {
+            "title": "Decision Tree: Trade-off Recall-Precision yang Disengaja",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Accuracy", "value": "84.9%", "description": "" },
+                  { "label": "ROC-AUC", "value": "0.7428", "description": "" },
+                  { "label": "PR-AUC", "value": "0.3387", "description": "~4x lebih baik dari baseline 0.089" }
+                ]
+              },
+              { "type": "paragraph", "text": "Confusion matrix menunjukkan 4,023 true negative, 532 false positive, 224 false negative, dan 221 true positive. Tingkat false-positive yang lebih tinggi merupakan trade-off yang disengaja dari penalti false-negative 5x - lebih baik menjangkau pelanggan setia daripada melewatkan seorang churner. Split pertama berada pada days_since_last_purchase di 183.5 hari (Gini 0.441), sinyal terkuat dalam tree tersebut." }
+            ]
+          },
+          {
+            "title": "XGBoost: Daya Diskriminatif yang Kuat",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "ROC-AUC", "value": "0.79", "description": "" },
+                  { "label": "Precision", "value": "0.70", "description": "" },
+                  { "label": "Recall", "value": "0.84", "description": "" },
+                  { "label": "F1-score", "value": "0.76", "description": "" }
+                ]
+              },
+              { "type": "paragraph", "text": "Confusion matrix: TN=353, FP=252, FN=116, TP=593. Recall yang tinggi membuat model ini efektif untuk menandai churner sesungguhnya untuk intervensi, dengan keseimbangan yang baik antara true positive dan true negative serta false negative yang relatif sedikit. Tingkat churn di antara pelanggan berulang ditemukan sebesar 53.94%." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Segmen Pelanggan K-Means (K = 4)",
+        "headers": [
+          { "label": "Cluster" },
+          { "label": "Nama Segmen" },
+          { "label": "Ukuran", "align": "center" },
+          { "label": "Proporsi", "align": "center" },
+          { "label": "Tingkat Churn", "align": "center" }
+        ],
+        "rows": [
+          ["0", "Pelanggan Sesekali Bernilai Tinggi", "1,843", "24.05%", "7.00%"],
+          ["1", "Pelanggan Sesekali Bernilai Tinggi", "1,823", "23.79%", "8.56%"],
+          ["2", "Pelanggan Berulang Multi-Kategori", "1,838", "23.99%", "8.54%"],
+          ["3", "Pelanggan Dorman Berisiko", "2,159", "28.17%", "11.49%"]
+        ],
+        "goodColumns": [],
+        "highlightRowIndexes": [3]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Profil Segmen",
+        "sections": [
+          { "heading": "Cluster 0 & 1 - Pelanggan Sesekali Bernilai Tinggi", "body": "Cluster 0 memiliki rata-rata total belanja tertinggi (~$3,542) dan nilai pesanan (~$145.50), order_count ~3.74, return_rate ~7.53%, langganan newsletter ~72.6%. Cluster 1 menunjukkan belanja moderat (~$1,527), frekuensi lebih rendah (order_count ~1.43), nilai pesanan ~$95.31, return_rate ~3.32%." },
+          { "heading": "Cluster 2 - Pelanggan Berulang Multi-Kategori", "body": "Menggabungkan order_count yang relatif tinggi (~3.78) dengan rata-rata belanja per pelanggan yang lebih rendah (~$822.74) dan nilai pesanan (~$74.65); langganan newsletter adalah 0.0 untuk segmen ini." },
+          { "heading": "Cluster 3 - Pelanggan Dorman Berisiko", "body": "Proporsi populasi tertinggi dan churn teramati tertinggi (~11.49%), rata-rata total belanja terendah (~$548.88), dan sinyal review/rating rata-rata yang rendah. Prevalensi tingkat keanggotaan menunjukkan banyak pelanggan berada pada tier yang lebih tinggi, namun churn tetap meningkat - khususnya 12.17% pada Tier 0 - mengindikasikan bahwa status keanggotaan saja tidak mengurangi churn untuk segmen ini." }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Wawasan Bisnis per Model",
+        "sections": [
+          { "heading": "Logistic Regression", "body": "Karena model gagal mendeteksi sebagian besar churner, model ini saat ini belum menghasilkan wawasan bisnis yang andal dan dapat ditindaklanjuti dengan sendirinya - outputnya didominasi oleh bias terhadap prediksi 'Not Churn'." },
+          { "heading": "K-Means", "body": "Segmen dengan churn tinggi dan riwayat belanja yang tidak sepele (cluster 0 dan 1) merepresentasikan risiko pendapatan jangka pendek tertinggi dan harus diprioritaskan untuk eksperimen retensi. Churn tinggi pada Cluster 3 tidak sepenuhnya dijelaskan oleh tingkat keanggotaan, mengindikasikan masalah struktural seperti keterlibatan yang menurun atau kesenjangan pengalaman produk. Frekuensi tinggi namun nilai pesanan lebih rendah dan keragaman kategori tinggi pada Cluster 2 menyiratkan peluang cross-sell tanpa diskon besar-besaran. Tingkat retur bervariasi secara signifikan antar cluster (0.0753 untuk cluster 0 vs 0.0086 untuk cluster 3), mengindikasikan faktor pendorong churn yang berbeda di setiap segmen." },
+          { "heading": "Decision Tree", "body": "Recency pelanggan merupakan sinyal churn paling kuat: pelanggan yang tidak aktif lebih dari 183.5 hari berisiko tinggi. Di antara pelanggan aktif, total belanja yang rendah dan nol review yang diberikan merupakan indikator sekunder dari keterlibatan yang lemah. Tingkat retur rendah, nilai pesanan rata-rata rendah, dan tenure singkat mencirikan pelanggan yang berhenti terlibat lebih awal - risiko churn muncul dari berbagai pola berbeda di sepanjang siklus hidup pelanggan, bukan dari satu penyebab tunggal." },
+          { "heading": "XGBoost", "body": "Lebih dari separuh pelanggan berulang (53.94%) dianggap churn berdasarkan baseline inaktivitas 365 hari - kehilangan pendapatan yang signifikan yang memerlukan strategi retensi mendesak. Keterlibatan yang berkelanjutan dari waktu ke waktu sangat penting bagi retensi. Kategori produk tertentu (Beauty & Personal Care, Clothing & Apparel) menunjukkan pengaruh yang cukup besar terhadap prediksi churn, mengindikasikan bahwa keterlibatan dengan lini produk ini dapat menjadi sinyal loyalitas atau ketidakterlibatan." }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Rekomendasi Bisnis Akhir",
+            "color": "success",
+            "content": [
+              { "type": "paragraph", "text": "Gabungan wawasan model mendukung pergeseran dari retensi reaktif menuju proaktif. Decision Tree mengidentifikasi 183.5 hari (~6 bulan) inaktivitas sebagai ambang batas peringatan dini. XGBoost menandai pelanggan yang merepresentasikan $58K nilai moneter yang membawa 81% risiko churn - pelanggan ini harus diprioritaskan untuk intervensi segera mengingat eksposur pendapatan mereka yang tinggi." },
+              { "type": "paragraph", "text": "Sebagian pelanggan menunjukkan belanja rendah namun tingkat retur tinggi, mengindikasikan pengalaman pelanggan yang bermasalah atau ekspektasi yang tidak sesuai, bukan masalah harga - ini memerlukan intervensi layanan dan kesesuaian produk yang tertarget, bukan penawaran berbasis diskon. Kampanye reaktivasi yang dipersonalisasi harus mengatasi ketidakpuasan sekaligus memberikan penghargaan kepada pelanggan setia bernilai tinggi, memperkuat retensi jangka panjang di seluruh segmen berisiko." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Rekomendasi Spesifik per Segmen (K-Means)",
+        "sections": [
+          { "heading": "Pelanggan Bernilai Tinggi (Cluster 0 & 1)", "body": "Retensi protektif: pendekatan tingkat akun, penguatan loyalitas, penawaran premium yang dipersonalisasi, akses awal - divalidasi secara eksperimental sebelum peluncuran secara luas." },
+          { "heading": "Dorman Berisiko (Cluster 3)", "body": "Pendekatan dua arah: kampanye reaktivasi (insentif terbatas waktu, pengingat yang dipersonalisasi) dikombinasikan dengan diagnostik (survei, pemeriksaan kualitas, eskalasi CX) untuk mengidentifikasi akar penyebabnya." },
+          { "heading": "Berulang Multi-Kategori (Cluster 2)", "body": "Rekomendasi cross-sell dan bundling yang dipersonalisasi; uji coba penawaran yang menjaga margin (ambang batas pengiriman gratis, bundling) daripada diskon menyeluruh." },
+          { "heading": "Segmen dengan Retur Tinggi", "body": "Audit kualitas produk, informasi ukuran/deskripsi yang lebih jelas, dan layanan pelanggan pasca-pembelian untuk mengurangi churn yang dipicu oleh retur." }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Keterbatasan",
+            "color": "warning",
+            "content": [
+              { "type": "bullets", "items": [
+                { "label": "Ketidakseimbangan kelas:", "text": "Churner hanya membentuk ~8.9% dari dataset, yang mendorong kegagalan recall Logistic Regression yang hampir total." },
+                { "label": "Asumsi linearitas:", "text": "Logistic Regression mengasumsikan hubungan log-odds yang linear; model berbasis tree yang berkinerja lebih baik menyiratkan bahwa hubungan sesungguhnya mungkin bersifat non-linear." },
+                { "label": "Definisi churn yang statis:", "text": "Berdasarkan ambang batas inaktivitas tetap 365 hari, yang mungkin tidak menangkap seluruh nuansa dari berhentinya keterlibatan." },
+                { "label": "Asumsi K-Means:", "text": "Mengasumsikan cluster yang kurang lebih berbentuk bulat dengan varians yang sebanding menggunakan jarak Euclidean; hasilnya bergantung pada pilihan fitur/pra-pemrosesan dan merepresentasikan gambaran statis pada satu titik waktu, bukan model yang mempertimbangkan waktu." },
+                { "label": "Trade-off Decision Tree:", "text": "Penalti false-negative 5x menghasilkan precision churn yang rendah sebesar 29.3% - banyak pelanggan yang ditandai sebenarnya tidak akan churn, sebuah trade-off yang disengaja namun mahal." },
+                { "label": "Kompleksitas XGBoost:", "text": "Secara komputasi berat, memerlukan penyetelan hyperparameter yang cermat, dan sensitif terhadap noise data/overfitting sebagai metode boosting." }
+              ]}
+            ]
+          },
+          {
+            "title": "Peningkatan di Masa Depan",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "Menyempurnakan definisi churn melampaui inaktivitas statis 365 hari untuk menangkap ketidakterlibatan yang lebih bernuansa. Menambahkan fitur tambahan seperti interaksi layanan pelanggan dan data demografis. Menerapkan penyetelan ambang batas dan evaluasi yang sensitif terhadap biaya, serta memvalidasi strategi retensi melalui eksperimen terkontrol (pengujian A/B)." }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Tim Peneliti - Group 19",
+        "members": [
+          { "name": "Kelvin Andikko", "subtitle": "Matric: 01533318" },
+          { "name": "Jeremiah William Sebestian", "subtitle": "Matric: 01549441" },
+          { "name": "Heidi Chong Jia Min", "subtitle": "Matric: 01464078" },
+          { "name": "Anabelle Eveleen Tandra", "subtitle": "Matric: 01550636" },
+          { "name": "Alif Raditya", "subtitle": "Matric: 01548968" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Referensi",
+        "items": [
+          { "primary": "Matuszelański, K., & Kopczewska, K. (2022). Customer Churn in Retail E-Commerce Business: Spatial and Machine Learning Approach. Journal of Theoretical and Applied Electronic Commerce Research, 17(1), 165-198." },
+          { "primary": "Manzoor, A., Qureshi, M. A., Kidney, E., & Longo, L. (2024). A Review on Machine Learning Methods for Customer Churn Prediction and Recommendations for Business Practitioners. IEEE Access, 12, 70434-70463." },
+          { "primary": "Geiler, L., Affeldt, S., & Nadif, M. (2022). A survey on machine learning methods for churn prediction. International Journal of Data Science and Analytics, 14, 217-242." },
+          { "primary": "Van den Poel, D., & Burez, J. (2009). A survey on machine learning methods for churn prediction. Expert Systems with Applications, 36(3), 4626-4636." },
+          { "primary": "Höppner, S., Stripling, E., Baesens, B., vanden Broucke, S., & Verdonck, T. (2020). Profit driven decision trees for churn prediction. European Journal of Operational Research, 284(3), 920-933." },
+          { "primary": "Chen, T., & Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (pp. 785-794)." },
+          { "primary": "Xiahou, X., & Harada, Y. (2022). B2C E-Commerce Customer Churn Prediction Based on K-Means and SVM. Journal of Theoretical and Applied Electronic Commerce Research, 17(2), 1-18." },
+          { "primary": "Ascarza, E. (2018). Retention Futility: Targeting High-Risk Customers Might be Ineffective. Journal of Marketing Research, 55(1), 80-98." }
+        ]
+      }
+    ]
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "id": "hdb",
+  "meta": {
+    "title": "重新定价组屋市场",
+    "subtitle": "新冠疫情后新加坡组屋价值驱动因素的统计再评估",
+    "date": "2026",
+    "tabs": ["概览", "研究方法", "主要发现", "团队"]
+  },
+  "techStack": [
+    { "key": "react", "label": "React" },
+    { "key": "mui", "label": "Material UI" },
+    { "key": "python", "label": "Python" },
+    { "key": "postgresql", "label": "PostgreSQL" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "课程信息",
+      "items": [
+        { "primary": "课程", "secondary": "IS630 - 数据科学统计思维" },
+        { "primary": "院校", "secondary": "新加坡管理大学" },
+        { "primary": "学期", "secondary": "2025/26学年一月学期" },
+        { "primary": "研究区域", "secondary": "新加坡西部" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "数据范围",
+      "chip": { "label": "2015-2024年（10年）", "color": "primary" },
+      "captions": ["疫情前：2015-2019年", "疫情后：2020-2024年"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "项目概览",
+        "paragraphs": [
+          {
+            "text": "本项目开展了一项深入的统计分析，以考察各类因素对新加坡西部地区组屋转售价格的因果关系与影响。研究分析了2015年至2024年的交易数据，对疫情前与疫情后时期进行了全面的十年期对比分析。"
+          },
+          {
+            "text": "本研究并不单纯追求预测精度，而是强调运用纯粹的统计推理来理解组屋转售市场中真正的价值驱动因素。",
+            "variant": "body2",
+            "italic": true
+          }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "研究目标",
+        "items": [
+          { "primary": "新冠疫情前后，各类因素对组屋转售价格的影响发生了怎样的变化？" },
+          { "primary": "剩余租期对组屋转售价格（每平方米单价）的影响程度如何？" },
+          { "primary": "收入与宏观经济因素在疫情前后如何影响西部地区的组屋转售价格？" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "数据来源",
+        "description": "所有数据集均取自新加坡政府官方开放数据平台：",
+        "items": [
+          { "primary": "组屋转售交易数据（2015年1月至2026年1月）", "secondary": "来自建屋发展局（data.gov.sg）" },
+          { "primary": "地铁与巴士站数据", "secondary": "来自OneMap（onemap.gov.sg）" },
+          { "primary": "经济指标（失业率、GDP增长率、利率）", "secondary": "来自新加坡统计局与新加坡金融管理局" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "分析方法",
+        "sections": [
+          {
+            "heading": "探索性数据分析（EDA）",
+            "body": "通过箱形图、热力图与相关性分析等初步数据可视化与统计摘要，识别数据中的模式与关系。"
+          },
+          {
+            "heading": "推断统计",
+            "body": "运用方差分析（ANOVA）、曼-惠特尼U检验和克鲁斯卡尔-沃利斯检验进行假设检验，以验证观察到的趋势并判断其统计显著性。"
+          },
+          {
+            "heading": "回归建模",
+            "body": "运用多元线性回归与OLS回归模型，在控制住房特征与地理位置效应的前提下，量化各变量对转售价格的独立贡献。"
+          }
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "所进行的统计检验",
+        "items": [
+          { "title": "斯皮尔曼相关系数", "caption": "用于检验变量间的多重共线性" },
+          { "title": "双因素方差分析", "caption": "用于分析便利性与时间因素的影响" },
+          { "title": "Tukey HSD检验", "caption": "用于量化各因素组间的差异" },
+          { "title": "克鲁斯卡尔-沃利斯检验", "caption": "用于非参数分布比较" },
+          { "title": "曼-惠特尼U检验", "caption": "用于比较疫情前后时期" },
+          { "title": "OLS回归", "caption": "用于量化宏观经济变量的贡献" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "疫情后市场结构性变化",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "2020年后，组屋市场经历了结构性的价格上涨，价格从疫情前的25万至40万新元升至疫情后的50万新元以上，平均售价上涨了18.39万新元。" }]
+          },
+          {
+            "title": "便利性溢价",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "高便利性地区（评分80-100）相较中等便利性地区享有3.39万新元的溢价。疫情后，买家愿意为便捷交通与临近设施支付大幅更高的价格。" }]
+          },
+          {
+            "title": "楼层重要性提升",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "楼层已成为疫情后的关键驱动因素，25楼以上单位存在明显溢价。房型仍是主要因素，但已不再是唯一决定因素。" }]
+          },
+          {
+            "title": "可负担性持续下降",
+            "color": "error",
+            "content": [{ "type": "paragraph", "text": "房价收入比（PIR）在疫情后显著恶化，反映可负担性持续下滑。疫情前PIR呈缓慢下降趋势（可负担性改善），但2020年起出现急剧攀升，显示出结构性的可负担性危机。" }]
+          },
+          {
+            "title": "剩余租期的影响",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "剩余租期与每平方米单价之间呈非线性正相关关系。租期低于70年时价格急剧下降，随后趋于稳定。疫情后，买家越来越多地购买房龄较老的组屋，可能是出于可负担性的考量。" }]
+          },
+          {
+            "title": "收入是关键驱动因素",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "家庭收入是最强的宏观经济驱动因素。家庭收入中位数每增加1,000新元，转售价格约上涨6.7%，反映出购买力效应。" }]
+          },
+          {
+            "title": "地理位置仍至关重要",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "金文泰因临近大学与生活设施，价格始终居于高位。疫情后，武吉巴督的房价也显著上涨。地理位置仍是决定转售价值的关键因素。" }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "研究团队",
+        "members": [
+          { "name": "Kelvin Andikko", "subtitle": "Matric: 01533318" },
+          { "name": "Jeremiah William Sebestian", "subtitle": "Matric: 01549441" },
+          { "name": "Heidi Chong Jia Min", "subtitle": "Matric: 01464078" },
+          { "name": "Lim Eng Soon", "subtitle": "Matric: 01550636" },
+          { "name": "Atharva Dipak Bhavsar", "subtitle": "Matric: 01548558" },
+          { "name": "Prajapati Parth Jignesh", "subtitle": "Matric: 01548275" },
+          { "name": "Varun Kumar Konjeti", "subtitle": "Matric: 01550808" }
+        ]
+      }
+    ]
+  ]
+}

@@ -1,0 +1,233 @@
+{
+  "id": "query_optimization",
+  "meta": {
+    "title": "查询处理与优化",
+    "subtitle": "利用生成列实现SARGABLE查询优化",
+    "date": "2026",
+    "tabs": ["概览", "问题与解决方案", "结果与对比", "团队"]
+  },
+  "techStack": [
+    { "label": "MySQL" },
+    { "label": "Generated Columns" },
+    { "label": "Query Optimization" },
+    { "label": "SARGABLE Predicates" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "课程信息",
+      "items": [
+        { "primary": "课程", "secondary": "ISSS625 - 查询处理与优化" },
+        { "primary": "院校", "secondary": "新加坡管理大学" },
+        { "primary": "研究方向", "secondary": "数据库性能优化" }
+      ]
+    },
+    {
+      "type": "chipStack",
+      "title": "项目亮点",
+      "chips": [
+        { "label": "逻辑读次数减少15倍", "color": "success" },
+        { "label": "速度提升1.4秒", "color": "success" },
+        { "label": "O(log n)复杂度", "color": "primary" }
+      ]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "项目概览",
+        "paragraphs": [
+          { "text": "本项目演示了在MySQL中利用生成列创建SARGABLE（可用于搜索参数，Search ARGument ABLE）查询的优化技术。研究以一家珠宝店开展生日月促销活动为真实场景，展示如何高效识别特定月份出生的客户。" },
+          { "text": "通过实现生成列并优化查询谓词，我们在借助自动化保持数据准确性与一致性的同时，实现了显著的性能提升。项目将传统未优化查询与SARGABLE优化查询进行了对比。" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "业务场景",
+        "items": [
+          { "primary": "背景", "secondary": "一家珠宝店店主希望开展生日月促销活动" },
+          { "primary": "挑战", "secondary": "如何核实客户信息并识别特定月份出生的客户" },
+          { "primary": "目标", "secondary": "向在所选月份过生日的客户发送定向促销优惠" },
+          { "primary": "解决方案", "secondary": "实现生成列以提升查询处理效率" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "数据集概览",
+        "description": "为演示目的创建的合成客户数据集，通过批量数据加载导入MySQL。",
+        "note": "注：birth_month是从date_of_birth中提取的生成列，用于查询优化",
+        "headers": [
+          { "label": "列名" },
+          { "label": "数据类型" },
+          { "label": "用途" }
+        ],
+        "rows": [
+          ["customer_id", "INT (PK)", "唯一客户ID"],
+          ["first_name", "VARCHAR(50)", "客户名"],
+          ["last_name", "VARCHAR(50)", "客户姓"],
+          ["email", "VARCHAR(120)", "联系信息"],
+          ["date_of_birth", "DATE", "原始生日字段"],
+          ["birth_month", "TINYINT", "由date_of_birth生成"]
+        ],
+        "highlightRowIndexes": [5]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "理解生成列",
+        "sections": [
+          {
+            "heading": "什么是生成列？",
+            "body": "生成列是根据同一行中其他列计算得出的列。它们基于应用于其他列的表达式自动计算数值，无需人工计算，从而减少错误。"
+          },
+          {
+            "heading": "两种生成列类型",
+            "definitions": [
+              { "term": "虚拟列：", "description": "在查询时计算，不存储在表中。可节省存储空间，但每次查询都需要重新计算。" },
+              { "term": "存储列：", "description": "计算一次后保存在表中。占用更多存储空间，但可提升查询性能并支持建立索引。" }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "未优化（查询1）",
+            "color": "warning",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "方法", "value": "对date_of_birth即时使用MONTH()函数提取生日月份" },
+                  { "label": "复杂度", "value": "O(n)——必须扫描所有行并逐行计算MONTH()" },
+                  { "label": "开销", "value": "208,580（全表扫描）| 速度：5.337秒" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "已优化（查询2）",
+            "color": "success",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "方法", "value": "使用带索引查找的SARGABLE生成列（birth_month）" },
+                  { "label": "复杂度", "value": "O(log n + k)——索引查找加匹配行提取" },
+                  { "label": "开销", "value": "62,686（索引范围扫描）| 速度：3.920秒" }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "什么使其具备SARGABLE特性？",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "SARGABLE（可用于搜索参数）谓词使查询优化器能够高效利用索引。通过将计算移入生成列并为其建立索引，数据库能够使用索引范围扫描而非全表扫描。" }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "dataTable",
+        "title": "性能对比",
+        "headers": [
+          { "label": "指标" },
+          { "label": "未优化", "align": "center" },
+          { "label": "使用生成列", "align": "center" },
+          { "label": "改进幅度", "align": "center" }
+        ],
+        "rows": [
+          ["复杂度", "O(n)", "O(log n + k)", "多项式级"],
+          ["开销", "208,580", "62,686", "约提升15倍"],
+          ["速度", "5.337秒", "3.920秒", "-1.417秒（26.6%）"]
+        ],
+        "goodColumns": [2, 3],
+        "stripe": true
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "扫描类型对比",
+            "color": "info",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "未优化", "value": "全表扫描——逐行检查以计算生日月份" },
+                  { "label": "已优化", "value": "索引范围扫描——利用birth_month上的索引仅定位匹配行" }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "✓ 显著的性能提升",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "逻辑读次数减少约15倍。在当前数据集规模下1.4秒的提升看似不大，但随着数据增长至数百万行，这一优势将显著扩大。" }]
+          },
+          {
+            "title": "✓ 通过自动化提升业务可靠性",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "每新增一位客户，系统都会自动计算其生日月份。数据库引擎确保100%的数据准确性，无需人工干预。" }]
+          },
+          {
+            "title": "✓ 更简洁的应用代码",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "应用代码只需直接查询birth_month列，而无需执行复杂的日期计算。这降低了代码复杂度与维护成本。" }]
+          },
+          {
+            "title": "✓ 便利性与一致性",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "生成列可确保访问同一张表的所有查询与应用之间计算结果的一致性，不存在计算差异的风险。" }]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "⚠ 存储占用增加",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "新增列与索引会占用更多磁盘空间。然而，性能收益通常超过这一成本。" }]
+          },
+          {
+            "title": "⚠ 模式僵化",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "生成表达式一经定义，修改需要进行模式变更。在数据持续流入的生产环境中，这可能较为复杂。" }]
+          },
+          {
+            "title": "⚠ 性能权衡",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "虽然查询速度更快，但由于需要计算生成值，INSERT与UPDATE操作可能略有变慢。对于读密集型应用而言，这是值得的权衡。" }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "研究团队 - Query Slaves",
+        "members": [
+          { "name": "Anabelle Eveleen Tandra", "subtitle": "ae.tandra.2025@mitb.smu.edu.sg" },
+          { "name": "Chong Jia Min Heidi", "subtitle": "heidi.chong.2025@mitb.smu.edu.sg" },
+          { "name": "Jeremiah William Sebastian", "subtitle": "j.sebastian.2025@mitb.smu.edu.sg" },
+          { "name": "Kelvin Andikko", "subtitle": "k.andikko.2025@mitb.smu.edu.sg" },
+          { "name": "Zachary Artemus Kondas", "subtitle": "Za.kondas.2025@mitb.smu.edu.sg" }
+        ],
+        "footerNote": "团队名称：“Query Slaves”——致力于优化数据库查询与性能"
+      }
+    ]
+  ]
+}

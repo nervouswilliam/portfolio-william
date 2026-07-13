@@ -1,0 +1,298 @@
+{
+  "id": "customer_churn_ml",
+  "meta": {
+    "title": "运用机器学习模型预测客户流失",
+    "subtitle": "应用监督式与非监督式学习理解并预测电商客户流失",
+    "date": "2026",
+    "tabs": ["概览", "研究方法", "模型结果", "洞察与建议", "团队"]
+  },
+  "techStack": [
+    { "key": "python", "label": "Python" },
+    { "label": "Logistic Regression" },
+    { "label": "Decision Tree" },
+    { "label": "XGBoost" },
+    { "label": "K-Means Clustering" },
+    { "key": "scikit", "label": "Scikit-learn" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "课程信息",
+      "items": [
+        { "primary": "课程", "secondary": "CS610 - 应用机器学习" },
+        { "primary": "院校", "secondary": "新加坡管理大学" },
+        { "primary": "学期", "secondary": "2025/26学年四月学期" },
+        { "primary": "小组", "secondary": "第19组" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "数据集",
+      "chip": { "label": "2020-2026年电商客户行为与销售数据", "color": "primary" },
+      "captions": ["25,000条订单级记录", "7,663名独立客户", "流失率：8.9%"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "背景与业务问题",
+        "paragraphs": [
+          { "text": "客户流失是电商行业面临的一项关键挑战，因为客户可以轻易在平台间切换并悄然停止使用，而不像订阅服务那样存在明确的取消事件。这使得利用传统监测方法难以及早发现流失。" },
+          { "text": "核心业务挑战不仅在于预测客户是否会流失，更在于理解其背后的行为模式——将历史客户数据转化为可执行的留存洞察，而非依赖对低风险客户造成资源浪费的广泛、被动式营销活动。" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "项目目标",
+        "items": [
+          { "primary": "利用历史客户、交易、参与度与行为数据，将客户流失构建为一个二元分类问题。" },
+          { "primary": "比较多种机器学习方法在流失预测与洞察生成方面的表现：逻辑回归（基线）、决策树（可解释性）、XGBoost（预测能力）以及K-Means（客户细分）。" },
+          { "primary": "识别与电商留存策略相关的关键流失驱动因素，如新近度、频率、消费金额、退货率与参与度。" },
+          { "primary": "将模型产出转化为可执行的业务建议，以支持主动式客户留存。" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "数据理解",
+        "description": "数据集：2020-2026年电商客户行为与销售数据（Kaggle），包含四张数据表：",
+        "items": [
+          { "primary": "customers.csv", "secondary": "已使用——人口统计学与账户层级属性；会员等级与tenure_days（客户在期天数）的数据来源" },
+          { "primary": "orders.csv", "secondary": "已使用——核心交易表，用于订单级特征与客户级聚合" },
+          { "primary": "product_summary.csv", "secondary": "已排除——基于整个数据集的产品级聚合会导致数据泄漏" },
+          { "primary": "monthly_revenue.csv", "secondary": "已排除——仅用于探索性分析，不用于客户级预测" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "数据集摘要",
+        "headers": [
+          { "label": "项目" },
+          { "label": "数值" }
+        ],
+        "rows": [
+          ["最终监督式数据集规模", "25,000条订单级记录"],
+          ["客户级K-Means数据集规模", "7,663名独立客户"],
+          ["目标变量", "churned（1=流失，0=未流失）"],
+          ["流失分布", "8.9%（主监督式数据集）"],
+          ["XGBoost数据集", "回头客子集，流失率53.94%（365天不活跃阈值）"],
+          ["预测任务", "二元分类"],
+          ["细分任务", "非监督式客户聚类"]
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "数据预处理与特征工程",
+        "sections": [
+          { "heading": "数据清洗", "body": "从客户数据集中剔除了冗余列，包括total_orders与returns_made（已合并为return_rate）、year/month/day_of_week/quarter（已保留为order_date）以及subtotal_usd/total_amount_usd/discount_pct/tax_pct（与unit_price_usd和quantity存在冗余）。order_status因与returned布尔字段重复而被剔除。" },
+          { "heading": "缺失值处理", "body": "customer_rating存在大量缺失数据，采用中位数进行插补。其余字段无需进一步插补。" },
+          { "heading": "类别变量编码", "body": "二元变量（如性别）被映射为0/1。具有自然等级顺序的有序变量（membership_tier：Free、Silver、Gold、Platinum）采用有序编码。名义变量（国家、获客渠道、使用设备、支付方式、类别）采用独热编码，并舍弃首个类别以避免虚拟变量陷阱。product_name因基数较高，改为频率编码。" },
+          { "heading": "特征工程", "body": "构建了两个特征以捕捉行为信号：tenure_days（客户注册日期与数据集中最新注册日期之差）以及return_rate（退货数除以订单总数）。" }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "建模方法",
+        "sections": [
+          { "heading": "逻辑回归（基线模型）", "body": "基于涵盖购买行为、参与度、价格敏感度、满意度与购物多样性的行为特征进行训练。预处理包括中位数插补、StandardScaler标准化，以及80/20分层划分。配置max_iter=3000，random_state=42；通过准确率、精确率、召回率、F1值、ROC-AUC、PR-AUC及混淆矩阵进行评估。" },
+          { "heading": "决策树", "body": "剔除了ID/日期等非预测性列。通过max_depth=5、min_samples_split=20、min_samples_leaf=10进行正则化以防止过拟合。由于假阴性（漏检流失客户）对业务的代价高于假阳性，应用了{0: 1, 1: 5}的类别权重。" },
+          { "heading": "XGBoost", "body": "在客户层级构建了特征（total_orders、monetary_value、total_discount、total_shipping、total_items、avg_delivery_days、avg_product_popularity）。流失定义基于回头客子集上365天的不活跃阈值。训练时使用200个estimator、学习率0.02、最大深度4，并采用scale_pos_weight以应对类别不平衡。由于其采用不同的流失定义与客户子集，其指标不能与其他监督式模型直接比较。" },
+          { "heading": "K-Means聚类", "body": "订单级数据被聚合至客户层级（7,663名客户），使用新近度、频率、消费金额、参与度、满意度、退货行为、价格敏感度与行为多样性等维度。偏斜变量在标准化前进行了对数变换。通过轮廓系数、Davies-Bouldin指数以及业务可解释性（细分规模与流失率分布）评估了多个K值；聚类过程本身未使用流失标签。" }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "K-Means：选择K值",
+        "description": "综合考量统计学分离度与业务可解释性（细分规模、流失率分布跨度0.0449），最终选定K = 4作为实用折中方案。",
+        "headers": [
+          { "label": "K值" },
+          { "label": "轮廓系数", "align": "center" },
+          { "label": "Davies-Bouldin指数", "align": "center" },
+          { "label": "流失率分布跨度", "align": "center" }
+        ],
+        "rows": [
+          ["2", "0.1171", "2.740", "0.0026"],
+          ["3", "0.0862", "2.480", "0.0439"],
+          ["4", "0.0800", "2.441", "0.0449"],
+          ["5", "0.0744", "2.466", "0.0686"],
+          ["6", "0.0850", "2.471", "0.0455"]
+        ],
+        "highlightRowIndexes": [2]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "逻辑回归：准确率高，但流失检测效果差",
+            "color": "error",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "准确率", "value": "91.12%", "description": "" },
+                  { "label": "精确率", "value": "55.56%", "description": "" },
+                  { "label": "召回率", "value": "1.12%", "description": "445例流失客户中仅正确识别出5例" },
+                  { "label": "ROC-AUC", "value": "0.660", "description": "" },
+                  { "label": "PR-AUC", "value": "0.212", "description": "" }
+                ]
+              },
+              { "type": "paragraph", "text": "该模型几乎对所有客户都预测为“未流失”。其高准确率完全是由多数类别驱动的，在默认阈值下对流失检测并不有效。" }
+            ]
+          },
+          {
+            "title": "决策树：刻意权衡召回率与精确率",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "准确率", "value": "84.9%", "description": "" },
+                  { "label": "ROC-AUC", "value": "0.7428", "description": "" },
+                  { "label": "PR-AUC", "value": "0.3387", "description": "约为0.089基线的4倍" }
+                ]
+              },
+              { "type": "paragraph", "text": "混淆矩阵显示真阴性4,023例，假阳性532例，假阴性224例，真阳性221例。较高的假阳性率是5倍假阴性惩罚下的刻意权衡——宁可多联系一位忠诚客户，也不愿漏掉一位流失客户。树的第一个分裂节点是days_since_last_purchase（距上次购买天数）在183.5天处（基尼系数0.441），是树中最强的信号。" }
+            ]
+          },
+          {
+            "title": "XGBoost：判别能力强",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "ROC-AUC", "value": "0.79", "description": "" },
+                  { "label": "精确率", "value": "0.70", "description": "" },
+                  { "label": "召回率", "value": "0.84", "description": "" },
+                  { "label": "F1分数", "value": "0.76", "description": "" }
+                ]
+              },
+              { "type": "paragraph", "text": "混淆矩阵：TN=353，FP=252，FN=116，TP=593。较高的召回率使该模型能有效标记出真实的流失客户以便介入，真阳性与真阴性之间取得了良好平衡，假阴性也相对较少。回头客中的流失率为53.94%。" }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "K-Means客户细分（K = 4）",
+        "headers": [
+          { "label": "聚类" },
+          { "label": "细分名称" },
+          { "label": "规模", "align": "center" },
+          { "label": "占比", "align": "center" },
+          { "label": "流失率", "align": "center" }
+        ],
+        "rows": [
+          ["0", "高价值偶发客户", "1,843", "24.05%", "7.00%"],
+          ["1", "高价值偶发客户", "1,823", "23.79%", "8.56%"],
+          ["2", "多品类回头客", "1,838", "23.99%", "8.54%"],
+          ["3", "沉睡高风险客户", "2,159", "28.17%", "11.49%"]
+        ],
+        "goodColumns": [],
+        "highlightRowIndexes": [3]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "细分画像",
+        "sections": [
+          { "heading": "聚类0与1 - 高价值偶发客户", "body": "聚类0的平均总消费最高（约3,542美元），平均订单金额约145.50美元，order_count约3.74，退货率约7.53%，通讯订阅率约72.6%。聚类1消费中等（约1,527美元），购买频率较低（order_count约1.43），订单金额约95.31美元，退货率约3.32%。" },
+          { "heading": "聚类2 - 多品类回头客", "body": "该聚类order_count相对较高（约3.78），但客户平均消费（约822.74美元）与订单金额（约74.65美元）较低；该细分的通讯订阅率为0.0。" },
+          { "heading": "聚类3 - 沉睡高风险客户", "body": "占比最高，流失率也最高（约11.49%），平均总消费最低（约548.88美元），平均评价/评分信号也较低。会员等级分布显示该细分中不少客户处于较高等级，但流失率依然居高不下——尤其是Tier 0等级中达到12.17%——表明会员身份本身并不能缓解该细分的流失。" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "各模型的业务洞察",
+        "sections": [
+          { "heading": "逻辑回归", "body": "由于该模型未能检测出绝大多数流失客户，其自身目前无法提供可靠、可执行的业务洞察——其输出结果被“未流失”预测偏差所主导。" },
+          { "heading": "K-Means", "body": "具有一定历史消费额的高流失细分（聚类0与1）代表了近期收入风险最高的群体，应优先纳入留存实验。聚类3的高流失率无法完全由会员等级解释，暗示可能存在参与度下降或产品体验缺陷等结构性问题。聚类2购买频率高但订单金额较低、品类多样性较高，暗示存在无需大幅折扣的交叉销售机会。各聚类间退货率差异显著（聚类0为0.0753，聚类3为0.0086），暗示不同细分存在不同的流失驱动因素。" },
+          { "heading": "决策树", "body": "客户新近度是最强有力的流失信号：超过183.5天未活跃的客户属于高风险群体。在活跃客户中，消费总额低且从未给出评价是参与度弱的次要指标。低退货率、低平均订单金额与短在期时长是早期流失客户的特征——流失风险源于客户生命周期中多种不同模式，而非单一原因。" },
+          { "heading": "XGBoost", "body": "在365天不活跃基线下，超过半数（53.94%）的回头客被判定为已流失——这是一项重大的收入损失，亟需紧急的留存策略。持续的长期参与对留存至关重要。某些产品品类（美容个护、服装服饰）对流失预测有显著影响，表明与这些品类的互动可能预示忠诚度或流失倾向。" }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "最终业务建议",
+            "color": "success",
+            "content": [
+              { "type": "paragraph", "text": "综合各模型的洞察，支持从被动式留存转向主动式留存。决策树将183.5天（约6个月）的不活跃期识别为预警阈值。XGBoost标记出代表5.8万美元消费金额、承担81%流失风险的客户群体——鉴于其较高的收入敞口，应优先进行紧急干预。" },
+              { "type": "paragraph", "text": "部分客户消费较低但退货率较高，这指向的是糟糕的客户体验或预期不匹配，而非定价问题——这需要有针对性的服务与产品适配性干预，而非以折扣为主的优惠。个性化的重新激活活动应在化解不满情绪的同时奖励高价值忠诚客户，从而强化各风险细分的长期留存。" }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "针对各细分的具体建议（K-Means）",
+        "sections": [
+          { "heading": "高价值客户（聚类0与1）", "body": "保护性留存：账户级别的主动联系、忠诚度强化、个性化高端优惠、优先体验——在全面推广前进行实验验证。" },
+          { "heading": "沉睡高风险客户（聚类3）", "body": "双管齐下：重新激活活动（限时激励、个性化提醒）结合诊断措施（调查问卷、质量检查、客户体验升级处理）以查明根本原因。" },
+          { "heading": "多品类回头客（聚类2）", "body": "个性化的交叉销售与捆绑推荐；测试保护利润率的优惠方案（免运费门槛、套装组合），而非一刀切式折扣。" },
+          { "heading": "高退货率细分", "body": "产品质量审核、更清晰的尺码/描述信息，以及售后客户服务，以减少因退货引发的流失。" }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "局限性",
+            "color": "warning",
+            "content": [
+              { "type": "bullets", "items": [
+                { "label": "类别不平衡：", "text": "流失客户仅占数据集的约8.9%，导致逻辑回归召回率几近失效。" },
+                { "label": "线性假设：", "text": "逻辑回归假定对数几率呈线性关系；基于树的模型表现更优，暗示真实关系可能是非线性的。" },
+                { "label": "静态流失定义：", "text": "基于固定的365天不活跃阈值，可能无法捕捉客户脱离的所有细微差别。" },
+                { "label": "K-Means假设：", "text": "假定聚类近似球形且方差相当，采用欧氏距离；结果取决于特征与预处理选择，且仅代表某一时点的静态快照，而非考虑时间因素的模型。" },
+                { "label": "决策树的权衡：", "text": "5倍假阴性惩罚导致流失精确率仅为29.3%——许多被标记的客户实际上不会流失，这是一种刻意但代价不菲的权衡。" },
+                { "label": "XGBoost的复杂性：", "text": "计算开销大，需要仔细调整超参数，且作为一种提升方法，对数据噪声/过拟合较为敏感。" }
+              ]}
+            ]
+          },
+          {
+            "title": "未来改进方向",
+            "color": "info",
+            "content": [
+              { "type": "paragraph", "text": "在静态365天不活跃阈值基础上进一步细化流失定义，以捕捉更细致的脱离行为。纳入客户服务互动与人口统计学数据等更多特征。应用阈值调整与成本敏感型评估，并通过受控实验（A/B测试）验证留存策略。" }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "研究团队 - 第19组",
+        "members": [
+          { "name": "Kelvin Andikko", "subtitle": "Matric: 01533318" },
+          { "name": "Jeremiah William Sebestian", "subtitle": "Matric: 01549441" },
+          { "name": "Heidi Chong Jia Min", "subtitle": "Matric: 01464078" },
+          { "name": "Anabelle Eveleen Tandra", "subtitle": "Matric: 01550636" },
+          { "name": "Alif Raditya", "subtitle": "Matric: 01548968" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "参考文献",
+        "items": [
+          { "primary": "Matuszelański, K., & Kopczewska, K. (2022). Customer Churn in Retail E-Commerce Business: Spatial and Machine Learning Approach. Journal of Theoretical and Applied Electronic Commerce Research, 17(1), 165-198." },
+          { "primary": "Manzoor, A., Qureshi, M. A., Kidney, E., & Longo, L. (2024). A Review on Machine Learning Methods for Customer Churn Prediction and Recommendations for Business Practitioners. IEEE Access, 12, 70434-70463." },
+          { "primary": "Geiler, L., Affeldt, S., & Nadif, M. (2022). A survey on machine learning methods for churn prediction. International Journal of Data Science and Analytics, 14, 217-242." },
+          { "primary": "Van den Poel, D., & Burez, J. (2009). A survey on machine learning methods for churn prediction. Expert Systems with Applications, 36(3), 4626-4636." },
+          { "primary": "Höppner, S., Stripling, E., Baesens, B., vanden Broucke, S., & Verdonck, T. (2020). Profit driven decision trees for churn prediction. European Journal of Operational Research, 284(3), 920-933." },
+          { "primary": "Chen, T., & Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (pp. 785-794)." },
+          { "primary": "Xiahou, X., & Harada, Y. (2022). B2C E-Commerce Customer Churn Prediction Based on K-Means and SVM. Journal of Theoretical and Applied Electronic Commerce Research, 17(2), 1-18." },
+          { "primary": "Ascarza, E. (2018). Retention Futility: Targeting High-Risk Customers Might be Ineffective. Journal of Marketing Research, 55(1), 80-98." }
+        ]
+      }
+    ]
+  ]
+}

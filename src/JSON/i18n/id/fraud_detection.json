@@ -1,0 +1,171 @@
+{
+  "id": "fraud_detection",
+  "meta": {
+    "title": "Studi Prediksi Deteksi Kecurangan (Fraud)",
+    "subtitle": "Pemodelan Prediktif Berbasis Klasifikasi untuk Pembayaran Digital Ritel Fashion Inggris",
+    "date": "2026",
+    "tabs": ["Ikhtisar", "Metodologi", "Hasil & Analisis", "Tim"]
+  },
+  "techStack": [
+    { "label": "KNIME Analytics" },
+    { "label": "Logistic Regression" },
+    { "label": "Decision Tree" },
+    { "label": "Random Forest" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Informasi Mata Kuliah",
+      "items": [
+        { "primary": "Mata Kuliah", "secondary": "ISSS602 - Data Analytics Lab" },
+        { "primary": "Institusi", "secondary": "Singapore Management University" },
+        { "primary": "Semester", "secondary": "AY 2026-27 (January)" },
+        { "primary": "Fokus", "secondary": "Ritel Fashion Inggris" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Statistik Dataset",
+      "chip": { "label": "1,000 Transaksi", "color": "primary" },
+      "captions": ["Tingkat Kecurangan: ~4.4%", "44 Kasus Fraud / 956 Non-Fraud"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Ikhtisar Proyek",
+        "paragraphs": [
+          { "text": "Penelitian ini menerapkan kerangka pemodelan prediktif berbasis klasifikasi untuk membantu mengidentifikasi transaksi curang di sektor ritel seiring pertumbuhan sistem pembayaran digital. Sistem deteksi kecurangan yang usang gagal mendeteksi pola kecurangan baru yang terus berkembang, sehingga mengguncang kepercayaan pelanggan dan berpotensi menghambat pertumbuhan ekonomi digital." },
+          { "text": "Studi ini memberikan peritel sarana dan alat untuk manajemen dan pencegahan kecurangan yang lebih baik dengan membandingkan tiga model klasifikasi: Logistic Regression, Decision Tree, dan Random Forest. Analisis ini menggunakan KNIME Analytics Platform untuk mengembangkan dan mengevaluasi model pada 1,000 data transaksi dari sektor pembayaran digital ritel fashion Inggris." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Tujuan Penelitian",
+        "items": [
+          { "primary": "Menganalisis karakteristik transaksi dan indikator perilaku yang terkait dengan pembayaran curang." },
+          { "primary": "Mengembangkan model prediktif yang mengklasifikasikan transaksi sebagai curang atau sah." },
+          { "primary": "Membandingkan kinerja berbagai model klasifikasi." },
+          { "primary": "Memberikan wawasan tentang bagaimana analitik dapat mendukung deteksi kecurangan dalam operasi ritel daring." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Detail Dataset",
+        "description": "Dataset UK Fashion Digital Payments Fraud berisi 1,000 data pada tingkat transaksi dengan karakteristik berikut:",
+        "items": [
+          { "primary": "Karakteristik transaksi", "secondary": "Jumlah, jumlah item, persentase diskon, jenis pembayaran, kanal" },
+          { "primary": "Indikator perilaku", "secondary": "Percobaan login gagal, perubahan perangkat, kecepatan transaksi" },
+          { "primary": "Indikator risiko", "secondary": "Skor risiko IP, jarak tagihan/pengiriman, indikator alamat, retur, chargeback" },
+          { "primary": "Variabel Akhir", "secondary": "36 variabel (24 asli + 12 hasil rekayasa/turunan)" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Persiapan Data",
+        "sections": [
+          { "heading": "Transformasi Data", "body": "Variabel is_fraud dikonversi dari format integer ke string agar kompatibel dengan learner machine learning. Variabel kategorikal ditransformasikan menggunakan one-to-many encoding, mengubahnya menjadi format numerik biner untuk interpretasi model." },
+          { "heading": "Rekayasa Fitur", "body": "Empat fitur hasil rekayasa dibuat untuk memberikan indikator eksplisit perilaku kecurangan: behavior_risk_score, risk_intensity, avg_item_value, dan velocity_ratio." },
+          { "heading": "Pemeriksaan Multikolinearitas", "body": "Analisis korelasi dilakukan menggunakan matriks korelasi. Variabel dengan skor korelasi di atas 0.7 dikeluarkan menggunakan node column filter untuk mencegah inflasi varians pada estimasi koefisien." },
+          { "heading": "Penyeimbangan Data", "body": "SMOTE (Synthetic Minority Over-sampling Technique) diterapkan untuk mengatasi ketidakseimbangan dataset dengan menghasilkan data sintetis untuk kelas minoritas fraud. Pembagian dataset: 70% pelatihan, 30% pengujian." }
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "Model Klasifikasi",
+        "items": [
+          { "title": "Logistic Regression", "caption": "Klasifikasi biner dengan optimasi Stochastic Average Gradient dan Max Youden's Index untuk pemilihan ambang batas optimal" },
+          { "title": "Decision Tree", "caption": "Ukuran kualitas indeks Gini dengan Minimum Description Length (MDL) untuk menyeimbangkan kompleksitas dan daya prediksi" },
+          { "title": "Random Forest", "caption": "Ensemble learning dengan 250 decision tree menggunakan information gain sebagai kriteria pemisahan" },
+          { "title": "Normalisasi Data", "caption": "Hanya diterapkan pada Logistic Regression (sensitif terhadap skala data); tidak diterapkan pada model berbasis pohon" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Logistic Regression (Model Terpilih)",
+            "color": "success",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Recall", "value": "92.3%", "description": "Berhasil mengidentifikasi 12 dari 13 transaksi curang, menunjukkan kemampuan kuat dalam menangkap anomali." },
+                  { "label": "Precision", "value": "7.27%", "description": "Tingkat false-positive tinggi, namun trade-off ini dapat diterima karena meminimalkan kebocoran kecurangan." },
+                  { "label": "Accuracy", "value": "48.5%", "description": "dengan AUC: 0.723 - Dipilih sebagai model utama karena kinerja recall yang unggul." }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Random Forest",
+            "color": "info",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Recall", "value": "76.92%", "description": "Berhasil mengidentifikasi 10 dari 13 kasus fraud dengan benar, menunjukkan peningkatan kinerja dibandingkan Decision Tree." },
+                  { "label": "Precision", "value": "6.06%", "description": "Masih mempertahankan tingkat false positive yang tinggi." },
+                  { "label": "Accuracy", "value": "47.33%", "description": "Mencerminkan pendekatan agresif yang mengutamakan deteksi kecurangan di atas akurasi keseluruhan." }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Decision Tree",
+            "color": "warning",
+            "content": [
+              {
+                "type": "metrics",
+                "items": [
+                  { "label": "Recall", "value": "61.54%", "description": "Berhasil mengidentifikasi 8 dari 13 kasus fraud dengan benar, dengan kemampuan deteksi kecurangan yang moderat." },
+                  { "label": "Precision", "value": "5.67%", "description": "133 transaksi non-fraud salah diklasifikasikan sebagai fraud." },
+                  { "label": "Accuracy", "value": "54.00%", "description": "Kinerja moderat dengan efektivitas terbatas dalam menyeimbangkan deteksi." }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Temuan Utama dari EDA",
+            "color": "info",
+            "content": [
+              {
+                "type": "bullets",
+                "items": [
+                  { "label": "Tantangan Ketidakseimbangan Kelas:", "text": "Tingkat kecurangan hanya 4.4% (44 fraud vs 956 non-fraud) menghadirkan tantangan klasifikasi yang signifikan." },
+                  { "label": "Pola Pelaku Kecurangan:", "text": "Sebagian besar kecurangan terjadi pada akun yang lebih baru (0-500 hari) dengan jumlah transaksi lebih rendah (<100 GBP)." },
+                  { "label": "Indikator Risiko:", "text": "Percobaan login gagal dan intensitas risiko yang lebih tinggi merupakan indikator kecurangan utama." },
+                  { "label": "Anomali Multi-dimensi:", "text": "Pelaku kecurangan meminimalkan deteksi dengan menggunakan pola yang tumpang tindih pada skor risiko domain email, kanal, dan usia akun." }
+                ]
+              }
+            ]
+          },
+          {
+            "title": "Justifikasi Pemilihan Model",
+            "color": "error",
+            "content": [
+              { "type": "paragraph", "text": "Logistic Regression dipilih meskipun memiliki precision lebih rendah karena kasus kecurangan yang terlewat (false negative) mengakibatkan kerugian finansial yang signifikan. Recall sebesar 92.3% memastikan deteksi kecurangan yang maksimal, sementara false positive yang tinggi dapat dikelola melalui verifikasi manual oleh petugas sebelum tindakan diambil terhadap transaksi yang mencurigakan." }
+            ]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Tim Peneliti",
+        "members": [
+          { "name": "Chan Guang Hua", "subtitle": "SMU" },
+          { "name": "Chong Jia Min Heidi", "subtitle": "SMU" },
+          { "name": "Jeremiah William Sebastian", "subtitle": "SMU" }
+        ]
+      }
+    ]
+  ]
+}

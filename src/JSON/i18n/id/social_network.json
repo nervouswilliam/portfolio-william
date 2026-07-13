@@ -1,0 +1,381 @@
+{
+  "id": "smm_social_networks",
+  "meta": {
+    "title": "Komunitas Sosial dan Pola Pengaruh dalam Jaringan Pemain Super Mario Maker",
+    "subtitle": "Menggunakan Network Science untuk Mendeteksi Komunitas Pemain, Mengidentifikasi Influencer, dan Mendukung Rekomendasi Course",
+    "date": "2026",
+    "tabs": ["Ikhtisar", "Metodologi", "Analisis Komunitas", "Pengaruh & Rekomendasi", "Tim"]
+  },
+  "techStack": [
+    { "label": "Louvain Community Detection" },
+    { "label": "Label Propagation" },
+    { "label": "PageRank & Betweenness Centrality" },
+    { "label": "Chi-square / Kruskal-Wallis Testing" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Informasi Mata Kuliah",
+      "items": [
+        { "primary": "Mata Kuliah", "secondary": "ISSS606 - Applied Data Science for Social Networks" },
+        { "primary": "Institusi", "secondary": "Singapore Management University" },
+        { "primary": "Kelompok", "secondary": "SuperKambros" },
+        { "primary": "Dataset", "secondary": "SMMNet - Super Mario Maker Social Network" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Skala Jaringan",
+      "chip": { "label": "6,091 Pemain", "color": "primary" },
+      "captions": ["285,796 edge berbobot", "Modularitas Louvain: 0.3681", "4 komunitas inti (≥100 pemain)"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "listCard",
+        "title": "Pertanyaan Penelitian",
+        "items": [
+          { "primary": "Apakah pemain membentuk komunitas yang bermakna berdasarkan perilaku bermain mereka?" },
+          { "primary": "Siapa saja pemain inti, pemain penjembatan (bridge players), dan kreator yang membentuk struktur jaringan?" },
+          { "primary": "Dapatkah struktur jaringan digunakan untuk mendukung rekomendasi course dan penemuan pemain (player discovery)?" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Lima Entitas Inti",
+        "description": "Dataset SMMNet dimodelkan berdasarkan lima entitas yang saling berinteraksi:",
+        "items": [
+          { "primary": "Player", "secondary": "Pengguna individu" },
+          { "primary": "Courses", "secondary": "Level yang dibuat oleh pemain" },
+          { "primary": "Play", "secondary": "Interaksi dasar antara pemain dan course" },
+          { "primary": "Likes", "secondary": "Bobot 2 - keterlibatan positif yang kuat" },
+          { "primary": "Clears", "secondary": "Bobot 3 - keterlibatan maksimum" }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Membangun Jaringan",
+        "sections": [
+          { "heading": "Kriteria Penyaringan", "body": "Jaringan bipartit pemain-course dibangun menggunakan interaksi dengan bobot ≥ 3, dibatasi pada 8,000 pemain teratas dan 4,000 course teratas berdasarkan aktivitas." },
+          { "heading": "Ambang Batas Proyeksi", "body": "Graf bipartit diproyeksikan menjadi jaringan pemain-pemain satu mode, hanya mempertahankan edge di mana dua pemain berbagi ≥ 2 course yang sama." }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Reduksi dan Penyaringan Data",
+        "items": [
+          { "primary": "Membersihkan dan menstandardisasi player_id dan course ID yang heterogen di seluruh tabel" },
+          { "primary": "Hanya mengambil sampel pemain aktif dan level yang sangat populer", "secondary": "Untuk memastikan kelayakan komputasi dan menghilangkan noise jaringan" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Pendekatan Deteksi Komunitas",
+        "sections": [
+          { "heading": "Louvain vs Label Propagation", "body": "Uji ketahanan (robustness check) tambahan dijalankan pada proyeksi pemain berbobot, membandingkan algoritma Louvain dengan Label Propagation (LPA)." }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Perbandingan Louvain vs Label Propagation",
+        "headers": [
+          { "label": "Metrik" },
+          { "label": "Louvain", "align": "center" },
+          { "label": "Label Propagation", "align": "center" }
+        ],
+        "rows": [
+          ["Modularitas", "0.3686", "0.325"],
+          ["Waktu Eksekusi", "~6.0 detik", "~2.3 detik"]
+        ],
+        "goodColumns": [1]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Louvain",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Modularitas lebih tinggi (0.3686) dan profil ukuran komunitas yang lebih berguna." }]
+          },
+          {
+            "title": "Label Propagation",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Sekitar 2.5x lebih cepat, namun hasilnya lebih bervariasi antar random seed." }]
+          },
+          {
+            "title": "Keputusan",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Menggunakan Louvain untuk profil komunitas utama; mempertahankan Label Propagation sebagai benchmark skalabilitas." }]
+          }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Validasi Statistik Profil Komunitas",
+        "sections": [
+          { "heading": "Validasi Profil Kategorikal", "body": "Uji chi-square memeriksa apakah keanggotaan komunitas berasosiasi dengan preferensi course kategorikal. Campuran tingkat kesulitan: Cramer's V = 0.323 (chi2 = 30,230.1, p<0.001). Campuran gaya permainan: Cramer's V = 0.127 (chi2 = 4,671.5, p<0.001). Tingkat kesulitan merupakan pemisah kategorikal yang lebih kuat; gaya permainan tetap signifikan namun lebih lemah." },
+          { "heading": "Validasi Profil Numerik", "body": "Uji Kruskal-Wallis membandingkan variabel numerik yang miring (skewed) di keempat komunitas inti. Clear rate: Eta-squared(H) = 0.242 (H=23,381.7, p<0.001). Attempts: Eta-squared(H) = 0.181 (H=17,461.6, p<0.001). Stars received: Eta-squared(H) = 0.055 (H=5,315.8, p<0.001). Ketiga dimensi numerik berbeda secara signifikan; clear rate dan attempts memiliki efek yang lebih besar dibandingkan stars." }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "dataTable",
+        "title": "Ukuran dan Kepadatan Komunitas",
+        "headers": [
+          { "label": "Komunitas" },
+          { "label": "Pemain", "align": "center" },
+          { "label": "Kepadatan", "align": "center" }
+        ],
+        "rows": [
+          ["Komunitas Kasual", "2,753", "0.0138"],
+          ["Komunitas Kasual 2", "2,036", "0.0231"],
+          ["Elite Hardcore", "1,188", "0.1081"],
+          ["Pemula", "114", "0.4423"]
+        ],
+        "note": "Kelompok yang lebih kecil jauh lebih padat - kepadatan mencerminkan kohesi, bukan popularitas."
+      },
+      {
+        "type": "dataTable",
+        "title": "Profil Perilaku Komunitas",
+        "description": "Label diberikan setelah deteksi Louvain menggunakan tingkat kesulitan dominan, gaya permainan, clear rate, rata-rata attempts, dan rata-rata stars yang diterima oleh course mereka.",
+        "headers": [
+          { "label": "Komunitas" },
+          { "label": "Pemain", "align": "center" },
+          { "label": "Tingkat Kesulitan" },
+          { "label": "Gaya Permainan" },
+          { "label": "Clear Rate", "align": "center" }
+        ],
+        "rows": [
+          ["Komunitas Kasual", "2,753", "Normal", "Mario Bros U", "26.01%"],
+          ["Komunitas Kasual 2", "2,036", "Normal", "Mario Bros", "16.38%"],
+          ["Elite Hardcore", "1,188", "Super Expert", "Mario World", "9.04%"],
+          ["Pemula", "114", "Easy", "Mario Bros U", "51.98%"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Kekuatan Koneksi Antar-Komunitas",
+        "description": "Baris menunjukkan komunitas sumber; kolom menunjukkan ke mana koneksinya mengarah.",
+        "headers": [
+          { "label": "Sumber \\ Target" },
+          { "label": "Komunitas Kasual", "align": "center" },
+          { "label": "Komunitas Kasual 2", "align": "center" },
+          { "label": "Elite Hardcore", "align": "center" },
+          { "label": "Pemula", "align": "center" }
+        ],
+        "rows": [
+          ["Komunitas Kasual", "45.66%", "33.91%", "18.72%", "1.71%"],
+          ["Komunitas Kasual 2", "29.86%", "36.75%", "32.56%", "0.82%"],
+          ["Elite Hardcore", "15.25%", "30.11%", "54.14%", "0.51%"],
+          ["Pemula", "29.76%", "16.23%", "10.85%", "43.17%"]
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Kohesi Internal yang Kuat",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Porsi diagonal berkisar antara 36.75% hingga 54.14%, sehingga keanggotaan komunitas bermakna secara perilaku." }]
+          },
+          {
+            "title": "Kelompok Kasual Paling Banyak Tumpang Tindih",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Kedua komunitas kasual bertukar sekitar 30% hingga 34% dari tautan mereka." }]
+          },
+          {
+            "title": "Batas Niche Sangat Tajam",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Tautan dari Hardcore ke Pemula hanya menyumbang 0.51%, mengindikasikan percampuran langsung yang terbatas. Ini menyiratkan bahwa rekomendasi dapat mempertahankan relevansi sambil dengan sengaja menambahkan sedikit penemuan lintas-komunitas." }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Peran Pengaruh: Siapa yang Membentuk Jaringan",
+        "sections": [
+          { "heading": "Kreator", "body": "Membangun course baru di Super Mario Maker dan mengunggah konten ke seluruh komunitas sosial." },
+          { "heading": "Pemain Inti", "body": "Memainkan dan menguasai course, menetapkan tren, serta mengembangkan strategi dan playthrough baru." },
+          { "heading": "Pemain Penjembatan (Bridge Players)", "body": "Membagikan konten lintas komunitas dan menyebarkan tren yang diciptakan oleh pemain inti." },
+          { "heading": "Pemain Normal", "body": "Mengonsumsi konten, mengikuti tren yang ada, dan terlibat secara sosial." }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Pemain Kreator Teratas",
+        "headers": [
+          { "label": "ID Pemain" },
+          { "label": "Komunitas" },
+          { "label": "Page Rank", "align": "center" },
+          { "label": "Weighted Degree", "align": "center" },
+          { "label": "Skor Komposit", "align": "center" }
+        ],
+        "rows": [
+          ["Conducteur59220", "Komunitas Kasual", "0.010121", "13856", "0.986052"],
+          ["Plusbellelavie5", "Komunitas Kasual", "0.008448", "14461", "0.790773"],
+          ["Feuxdelamoule", "Komunitas Kasual", "0.006536", "11361", "0.632406"],
+          ["cowboye123", "Komunitas Kasual", "0.006339", "10775", "0.568169"],
+          ["indien1966", "Komunitas Kasual", "0.005392", "10419", "0.512084"],
+          ["tc.coeur", "Komunitas Kasual", "0.005178", "10269", "0.460973"],
+          ["quentintheret", "Komunitas Kasual", "0.004499", "8900", "0.412866"],
+          ["coeur2017", "Komunitas Kasual", "0.004316", "8128", "0.380629"],
+          ["sioux4", "Komunitas Kasual", "0.004421", "8770", "0.378535"],
+          ["Tchad7", "Komunitas Kasual", "0.003876", "8305", "0.356597"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Pemain Inti Teratas",
+        "headers": [
+          { "label": "ID Pemain" },
+          { "label": "Komunitas" },
+          { "label": "Page Rank", "align": "center" },
+          { "label": "Weighted Degree", "align": "center" },
+          { "label": "Skor Gameplay Inti", "align": "center" }
+        ],
+        "rows": [
+          ["Thomasb35", "Komunitas Elite Hardcore", "0.004185", "10126", "0.556103"],
+          ["billyspencer", "Komunitas Kasual", "0.003321", "7163", "0.410833"],
+          ["iLudovichiVanno", "Komunitas Kasual 2", "0.003020", "6593", "0.376258"],
+          ["CAPTAIN.LEVl", "Komunitas Kasual", "0.002628", "5312", "0.312545"],
+          ["kimnbud", "Komunitas Kasual", "0.002455", "5518", "0.311086"],
+          ["YvetteMack", "Komunitas Kasual", "0.002562", "5282", "0.308210"],
+          ["oosetsumo", "Komunitas Kasual", "0.002448", "5327", "0.304105"],
+          ["mogumoguerisan", "Komunitas Kasual 2", "0.002459", "5290", "0.303415"],
+          ["Myhtra2", "Komunitas Kasual", "0.002402", "5362", "0.303065"],
+          ["SpeedrunRobban", "Komunitas Kasual", "0.002348", "4794", "0.280751"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Pemain Penjembatan Teratas",
+        "headers": [
+          { "label": "ID Pemain" },
+          { "label": "Komunitas" },
+          { "label": "Betweenness", "align": "center" },
+          { "label": "Weighted Degree", "align": "center" },
+          { "label": "Skor Komposit", "align": "center" }
+        ],
+        "rows": [
+          ["Mario1UPkoopa", "Komunitas Kasual", "0.021614", "12246", "0.584810"],
+          ["shimidos32", "Komunitas Kasual 2", "0.013081", "3571", "0.211416"],
+          ["RURI333HRIRU777H", "Komunitas Kasual", "0.012885", "9713", "0.446103"],
+          ["pedritopin2015", "Komunitas Kasual", "0.012791", "8865", "0.413617"],
+          ["Timridge", "Komunitas Kasual 2", "0.012289", "4471", "0.249186"],
+          ["mario-tomoya", "Komunitas Kasual", "0.011921", "8340", "0.391808"],
+          ["Kodrak123", "Komunitas Kasual 2", "0.011832", "3290", "0.192161"],
+          ["NEWT82", "Komunitas Kasual", "0.010384", "4675", "0.241096"],
+          ["catmarioheidi", "Komunitas Kasual", "0.009421", "8283", "0.368829"]
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Perbandingan Pemain Penjembatan vs Inti vs Normal",
+        "headers": [
+          { "label": "Tipe Pemain" },
+          { "label": "Jumlah", "align": "center" },
+          { "label": "Rata-rata Degree", "align": "center" },
+          { "label": "Rata-rata PageRank", "align": "center" },
+          { "label": "Rata-rata Betweenness", "align": "center" },
+          { "label": "Rata-rata Skor Komposit", "align": "center" }
+        ],
+        "rows": [
+          ["Pemain Penjembatan", "9", "7050.4444", "0.0037", "0.0129", "0.3443"],
+          ["Pemain Inti", "503", "1752.1213", "0.0007", "0.0012", "0.0693"],
+          ["Kreator", "962", "483.5676", "0.0002", "0.0005", "0.0210"],
+          ["Pemain Normal", "4,614", "124.7939", "0.0001", "0.0001", "0.0049"]
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Tumpang Tindih Multi-Peran",
+        "sections": [
+          { "heading": "Kreator ∩ Pemain Penjembatan (n=11)", "body": "Basilika, Conducteur59220, Feuxdelamoule, GTRP_Easy, Plusbellelavie5, WIIMoustique, coeur2017, cowboye123, indien1966, quentintheret, tc.coeur." },
+          { "heading": "Pemain Penjembatan ∩ Pemain Inti (n=9)", "body": "Kodrak123, Mario1UPkoopa, NEWT82, RURI333HRIRU777H, Timridge, catmarioheidi, mario-tomoya, pedritopin2015, shimidos32." },
+          { "heading": "Kreator ∩ Pemain Inti (n=0)", "body": "Tidak ada pemain yang menempati peran Kreator dan Pemain Inti secara bersamaan - kedua jenis pengaruh ini secara struktural berbeda." }
+        ]
+      },
+      {
+        "type": "sectionsCard",
+        "title": "Dari Kemiripan Menuju Rekomendasi",
+        "sections": [
+          { "heading": "Kemiripan Pemain dari Perilaku Course Bersama", "body": "Pembobotan IDF memberikan nilai lebih besar pada course bersama yang jarang dibandingkan course yang populer secara global. Sebagian besar hubungan lemah (sebagian besar pasangan pemain hanya berbagi sedikit perilaku khas), namun terdapat ekor yang kuat di mana sekelompok kecil pasangan berbagi banyak course dan menerima bobot kemiripan tinggi. Tetangga yang kuat menjadi bukti untuk course yang belum pernah dilihat, bukan otomatis menjadi teman." },
+          { "heading": "Rekomendasi sebagai Jalur Jaringan", "body": "Sebuah rekomendasi dijelaskan sebagai: pemain target → pemain serupa → course yang belum pernah dilihat. Jalur ini dapat diaudit - setiap course yang direkomendasikan dapat ditelusuri kembali ke tetangga yang mendukungnya." },
+          { "heading": "Formula Skoring", "body": "score(target, course) = sum(similarity x interaction weight x novelty). Dukungan yang lebih banyak sering membantu, namun tetangga yang kuat dan course yang langka dapat mengungguli jumlah mentah." }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Rekomendasi Berbasis Kemiripan Unggul dalam Perbandingan Offline",
+            "color": "success",
+            "content": [
+              {
+                "type": "keyValueList",
+                "items": [
+                  { "label": "Hit rate", "value": "33.9% (kemiripan) vs 13.5% (komunitas)" },
+                  { "label": "Cakupan katalog", "value": "60.9% (kemiripan) vs 5.8% (komunitas)" },
+                  { "label": "Penemuan lintas-komunitas", "value": "21.2% (kemiripan) vs 3.5% (komunitas)" }
+                ]
+              },
+              { "type": "paragraph", "text": "Dievaluasi pada 3,654 pemain untuk tugas rekomendasi Top-10. Kemiripan meningkatkan relevansi sekaligus menampilkan katalog course yang jauh lebih luas dan beragam." }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Pendekatan Sampling Top-N",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Membatasi analisis pada pemain dan course teratas mungkin tidak sepenuhnya mewakili seluruh basis pemain." }]
+          },
+          {
+            "title": "Jaringan Bersifat Statis",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Jaringan ini merepresentasikan gambaran pada satu titik waktu dan tidak menangkap bagaimana komunitas dan pengaruh berkembang." }]
+          },
+          {
+            "title": "Hanya Evaluasi Offline",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Kinerja rekomendasi dinilai secara offline; hasilnya belum divalidasi melalui pengujian A/B langsung dengan pemain sungguhan." }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Tim Peneliti - SuperKambros",
+        "members": [
+          { "name": "Jeremiah William Sebastian" },
+          { "name": "Chong Jia Min Heidi" },
+          { "name": "Lu Zhao Chen" },
+          { "name": "Zachary Kondas" },
+          { "name": "Zhai Tingting" },
+          { "name": "Hu Yixuan" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Referensi",
+        "items": [
+          { "primary": "Barabási, A.-L. (2016). Network Science. Cambridge University Press." },
+          { "primary": "Blondel, V. D., Guillaume, J.-L., Lambiotte, R., & Lefebvre, E. (2008). Fast unfolding of communities in large networks. Journal of Statistical Mechanics: Theory and Experiment." },
+          { "primary": "Moraes, L. M. P., & Cordeiro, R. L. F. (2019). SMMnet: A Social Network of Games Dataset. Brazilian Symposium on Databases, Dataset Showcase Workshop." },
+          { "primary": "Moraes, L. M. P., & Cordeiro, R. L. F. (2025). Modeling and analyzing Social Networks of Games. Expert Systems with Applications." },
+          { "primary": "Repositori dataset SMMnet", "secondary": "SMMnet - Super Mario Maker" }
+        ]
+      }
+    ]
+  ]
+}

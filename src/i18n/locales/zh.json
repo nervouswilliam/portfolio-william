@@ -1,0 +1,163 @@
+{
+  "nav": {
+    "introduction": "简介",
+    "experience": "工作经历",
+    "projects": "项目",
+    "education": "教育背景",
+    "contact": "联系方式",
+    "downloadCV": "下载简历",
+    "language": "语言"
+  },
+  "hero": {
+    "greeting": "你好，我是",
+    "headline": "连接工程逻辑与商业洞察的桥梁。",
+    "subheadline": "我编写代码来构建产品，也编写查询语句和构建模型来解决业务问题——将数据转化为你最宝贵的技术资产。",
+    "viewProjects": "查看我的项目",
+    "contactMe": "联系我"
+  },
+  "experience": {
+    "heading": "工作经历",
+    "items": [
+      {
+        "title": "东南亚及韩国区域业务规划与分析实习生",
+        "description": [
+          "使用 Excel 为东南亚及韩国区域制定预测模型",
+          "使用 Power BI 创建业务规划与分析仪表盘"
+        ]
+      },
+      {
+        "title": "软件工程师",
+        "description": [
+          "使用 React JS 设计并实现 Web 应用程序",
+          "创建可复用的表格组件",
+          "创建用户输入表单",
+          "使用 Supabase 设计并实现后端应用程序",
+          "设计数据库架构与函数",
+          "为数据库表设计行级安全策略（Row Level Security）"
+        ]
+      },
+      {
+        "title": "后端工程师实习生",
+        "description": [
+          "使用 Spring Boot 3 设计并实现后端系统",
+          "创建 RESTful API（GET、POST、DELETE）",
+          "创建国际化（i18n）API",
+          "创建筛选功能",
+          "迁移 BCA 现有服务的后端",
+          "将身份验证架构从有状态（stateful）改进为无状态（stateless）"
+        ]
+      },
+      {
+        "title": "前端工程师实习生",
+        "description": [
+          "使用 Angular JS 框架结合 Bootstrap 3 设计并实现网站应用",
+          "设计并实现用户输入功能",
+          "设计并重构组件以优化功能"
+        ]
+      },
+      {
+        "title": "软件工程师",
+        "description": [
+          "通过基于项目的合作方式，促进应用开发者与非营利组织之间的协作。",
+          "使非营利组织能够发布技术需求（如移动应用和网站），以应对其面临的挑战",
+          "认可开发者的贡献，帮助他们提升职业作品集",
+          "前端使用 ReactJS 和 MUI 构建，后端使用 NodeJS 和 ExpressJS 构建",
+          "使用 PostgreSQL 管理数据库，并使用 Kysely 作为对象关系映射（ORM）",
+          "使用 Google Cloud Platform（GCP）部署网站"
+        ]
+      }
+    ]
+  },
+  "education": {
+    "heading": "教育背景",
+    "gpaLabel": "GPA",
+    "items": [
+      {
+        "degree": "商业信息技术硕士",
+        "description": [
+          "专注于数据科学与分析",
+          "连接技术与商业战略",
+          "增强领导力与创新能力，以创造商业价值"
+        ]
+      },
+      {
+        "degree": "计算机科学学士",
+        "description": [
+          "专注于软件工程、算法与数据系统。",
+          "参与多个团队项目及后端开发任务。",
+          "辅修移动开发"
+        ]
+      }
+    ]
+  },
+  "projects": {
+    "heading": "项目",
+    "detailsBtn": "详情",
+    "liveDemoBtn": "在线演示",
+    "githubBtn": "GitHub",
+    "items": {
+      "wisely": {
+        "title": "Wisely",
+        "description": "一款仓库与销售追踪应用，帮助小型企业管理产品、追踪保质期并优化补货。"
+      },
+      "dev4you": {
+        "title": "Dev4You",
+        "description": "一个连接非营利组织与开发者的平台，以最低成本构建网站和应用，同时帮助开发者获得真实项目经验。"
+      },
+      "needwork": {
+        "title": "Need Work",
+        "description": "一个搜索引擎平台，帮助用户从不同招聘网站搜索职位，并轻松投递申请。"
+      },
+      "cestwosin": {
+        "title": "CesTwoSkin",
+        "description": "一款移动应用，让玩家能够安全、便捷地买卖和交易 Counter-Strike 2 武器皮肤。"
+      },
+      "tictactoe": {
+        "title": "Tic Tac Shift",
+        "description": "带有新玩法的网页版井字棋，加入了棋盘位移机制以提升游戏性与策略性。"
+      },
+      "HDB resale Value Drivers": {
+        "title": "组屋（HDB）转售价值驱动因素",
+        "description": "对影响新加坡西部地区组屋转售价格的因素进行的统计分析。"
+      },
+      "fraud-detection": {
+        "title": "欺诈检测预测研究",
+        "description": "针对英国时尚零售数字支付的基于分类的预测建模……"
+      },
+      "query-optimization": {
+        "title": "查询处理与优化",
+        "description": "使用 MySQL 生成列（Generated Columns）实现 SARGABLE 查询优化"
+      },
+      "ev-infrastructure": {
+        "title": "电动车基础设施规划",
+        "description": "针对城市地区电动车充电基础设施的分析与规划"
+      },
+      "machine-learning": {
+        "title": "机器学习应用",
+        "description": "探索多种机器学习技术及其在实际场景中的应用"
+      },
+      "social-network-analysis": {
+        "title": "社交网络分析",
+        "description": "使用图论与机器学习分析社交网络结构与动态"
+      }
+    }
+  },
+  "projectDetail": {
+    "backToProjects": "返回项目列表",
+    "techStack": "技术栈"
+  },
+  "contact": {
+    "heading": "保持联系"
+  },
+  "chat": {
+    "greeting": "你好！我可以回答关于我的背景以及本网站项目的问题——你想了解什么？",
+    "assistantName": "作品集助手",
+    "thinking": "思考中...",
+    "placeholder": "询问我的项目相关问题...",
+    "openAria": "打开聊天",
+    "closeAria": "关闭聊天",
+    "sendAria": "发送消息",
+    "genericError": "出了点问题，请重试。",
+    "networkError": "无法连接到助手，请检查网络连接后重试。"
+  }
+}

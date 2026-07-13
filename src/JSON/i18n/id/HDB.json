@@ -1,0 +1,160 @@
+{
+  "id": "hdb",
+  "meta": {
+    "title": "Menilai Ulang Pasar HDB",
+    "subtitle": "Kajian Statistik terhadap Faktor Penentu Nilai di Singapura Pasca-COVID",
+    "date": "2026",
+    "tabs": ["Ikhtisar", "Metodologi", "Temuan Utama", "Tim"]
+  },
+  "techStack": [
+    { "key": "react", "label": "React" },
+    { "key": "mui", "label": "Material UI" },
+    { "key": "python", "label": "Python" },
+    { "key": "postgresql", "label": "PostgreSQL" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Informasi Mata Kuliah",
+      "items": [
+        { "primary": "Mata Kuliah", "secondary": "IS630 - Statistical Thinking for Data Science" },
+        { "primary": "Institusi", "secondary": "Singapore Management University" },
+        { "primary": "Semester", "secondary": "January Term, AY 2025/26" },
+        { "primary": "Wilayah Fokus", "secondary": "Singapura Barat" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Rentang Data",
+      "chip": { "label": "2015-2024 (10 tahun)", "color": "primary" },
+      "captions": ["Pra-COVID: 2015-2019", "Pasca-COVID: 2020-2024"]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Ikhtisar Proyek",
+        "paragraphs": [
+          {
+            "text": "Proyek ini melakukan analisis statistik mendalam untuk menelaah hubungan sebab-akibat dan dampak berbagai faktor terhadap harga Rumah Susun Jual Kembali (HDB Resale Flat) di wilayah Barat Singapura. Studi ini menganalisis transaksi dari tahun 2015-2024, memberikan analisis komprehensif selama 10 tahun yang membandingkan periode pra-COVID dan pasca-COVID."
+          },
+          {
+            "text": "Alih-alih hanya berfokus pada akurasi prediksi, penelitian ini menekankan penalaran statistik murni pada data untuk memahami faktor penentu nilai yang sesungguhnya di pasar HDB resale.",
+            "variant": "body2",
+            "italic": true
+          }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Tujuan Penelitian",
+        "items": [
+          { "primary": "Bagaimana pengaruh berbagai faktor terhadap harga rumah HDB resale berubah sebelum dan sesudah COVID-19?" },
+          { "primary": "Sejauh mana sisa masa sewa (remaining lease) memengaruhi harga per meter persegi (PSM) rumah HDB resale?" },
+          { "primary": "Bagaimana pendapatan dan faktor makroekonomi memengaruhi harga rumah HDB resale di wilayah Barat sebelum & sesudah COVID?" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Sumber Data",
+        "description": "Seluruh dataset diperoleh dari portal data terbuka resmi Pemerintah Singapura:",
+        "items": [
+          { "primary": "Transaksi Rumah HDB Resale (Jan 2015 – Jan 2026)", "secondary": "dari HDB (data.gov.sg)" },
+          { "primary": "Data Stasiun MRT & Bus", "secondary": "dari OneMap (onemap.gov.sg)" },
+          { "primary": "Indikator Ekonomi (Pengangguran, Pertumbuhan PDB, Suku Bunga)", "secondary": "dari SingStat dan MAS" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Pendekatan Analitis",
+        "sections": [
+          {
+            "heading": "Analisis Data Eksploratif (EDA)",
+            "body": "Visualisasi data awal dan ringkasan statistik meliputi box plot, heatmap, dan analisis korelasi untuk mengidentifikasi pola dan hubungan dalam data."
+          },
+          {
+            "heading": "Statistik Inferensial",
+            "body": "Pengujian hipotesis menggunakan ANOVA, uji Mann-Whitney U, dan uji Kruskal-Wallis untuk memvalidasi tren yang teramati dan menentukan signifikansi statistik."
+          },
+          {
+            "heading": "Pemodelan Regresi",
+            "body": "Model regresi multi-linear dan regresi OLS untuk mengukur kontribusi independen setiap variabel terhadap harga resale, dengan mengontrol karakteristik hunian dan efek lokasi."
+          }
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "Uji Statistik yang Dilakukan",
+        "items": [
+          { "title": "Korelasi Spearman", "caption": "Untuk memeriksa multikolinearitas antar variabel" },
+          { "title": "ANOVA Dua Arah", "caption": "Untuk menganalisis dampak faktor kenyamanan dan waktu" },
+          { "title": "Uji Tukey HSD", "caption": "Untuk mengukur perbedaan antar kelompok faktor" },
+          { "title": "Uji Kruskal-Wallis", "caption": "Untuk perbandingan distribusi non-parametrik" },
+          { "title": "Uji Mann-Whitney U", "caption": "Untuk membandingkan periode pra dan pasca-COVID" },
+          { "title": "Regresi OLS", "caption": "Untuk mengukur kontribusi variabel makroekonomi" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Pergeseran Pasar Pasca-COVID",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Pasar HDB mengalami kenaikan harga struktural setelah tahun 2020, dengan harga naik dari $250K-$400K pra-COVID menjadi lebih dari $500K pasca-COVID. Ini merepresentasikan kenaikan rata-rata harga jual sebesar $183.9K." }]
+          },
+          {
+            "title": "Premium Kenyamanan",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Lokasi dengan kenyamanan tinggi (skor 80-100) memiliki premium sebesar $33.9K dibandingkan area dengan kenyamanan menengah. Pasca-COVID, pembeli bersedia membayar jauh lebih mahal untuk aksesibilitas dan kedekatan dengan transportasi umum." }]
+          },
+          {
+            "title": "Pentingnya Tingkat Lantai",
+            "color": "warning",
+            "content": [{ "type": "paragraph", "text": "Tingkat lantai muncul sebagai faktor penentu penting pasca-COVID, dengan premium yang jelas untuk unit di atas lantai 25. Tipe kamar tetap menjadi faktor utama, namun bukan lagi satu-satunya penentu." }]
+          },
+          {
+            "title": "Keterjangkauan yang Menurun",
+            "color": "error",
+            "content": [{ "type": "paragraph", "text": "Rasio Harga terhadap Pendapatan (PIR) menunjukkan penurunan tajam pasca-COVID, mengindikasikan keterjangkauan yang semakin memburuk. Pra-COVID menunjukkan penurunan PIR secara bertahap (keterjangkauan membaik), namun sejak 2020 terjadi lonjakan tajam yang mengindikasikan krisis keterjangkauan struktural." }]
+          },
+          {
+            "title": "Dampak Sisa Masa Sewa",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Terdapat hubungan positif non-linear antara sisa masa sewa dan PSM. Harga turun tajam untuk masa sewa di bawah 70 tahun, kemudian stabil. Pasca-COVID, pembeli semakin banyak membeli unit yang lebih tua, kemungkinan karena keterbatasan keterjangkauan." }]
+          },
+          {
+            "title": "Pendapatan sebagai Faktor Kunci",
+            "color": "success",
+            "content": [{ "type": "paragraph", "text": "Pendapatan rumah tangga merupakan faktor makroekonomi terkuat. Kenaikan S$1,000 pada median pendapatan rumah tangga berasosiasi dengan kenaikan sekitar 6.7% pada harga resale, mencerminkan efek daya beli." }]
+          },
+          {
+            "title": "Lokasi Tetap Krusial",
+            "color": "info",
+            "content": [{ "type": "paragraph", "text": "Clementi secara konsisten memiliki harga tertinggi karena kedekatannya dengan universitas dan fasilitas umum. Pasca-COVID, Bukit Batok juga meningkat signifikan. Lokasi tetap menjadi penentu utama nilai resale." }]
+          }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "teamGrid",
+        "title": "Tim Peneliti",
+        "members": [
+          { "name": "Kelvin Andikko", "subtitle": "Matric: 01533318" },
+          { "name": "Jeremiah William Sebestian", "subtitle": "Matric: 01549441" },
+          { "name": "Heidi Chong Jia Min", "subtitle": "Matric: 01464078" },
+          { "name": "Lim Eng Soon", "subtitle": "Matric: 01550636" },
+          { "name": "Atharva Dipak Bhavsar", "subtitle": "Matric: 01548558" },
+          { "name": "Prajapati Parth Jignesh", "subtitle": "Matric: 01548275" },
+          { "name": "Varun Kumar Konjeti", "subtitle": "Matric: 01550808" }
+        ]
+      }
+    ]
+  ]
+}
