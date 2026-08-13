@@ -66,6 +66,7 @@ export default function HeroSection() {
 
       <Typography
         variant="h2"
+        component="h1"
         sx={{
           fontWeight: "bold",
           mb: 2,

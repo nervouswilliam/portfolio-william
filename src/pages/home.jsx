@@ -4,10 +4,12 @@ import ProjectGrid from "../components/ProjectGrid";
 import ContactRow from "../components/ContactRow";
 import HeroSection from "../components/HeroSection";
 import EducationSection from "../components/EducationSection";
+import SEO from "../components/SEO";
 
 export default function Home() {
   return (
     <>
+      <SEO path="/" />
       <Section id="Introduction" bgColor="#0a192f">
         <HeroSection/>
       </Section>

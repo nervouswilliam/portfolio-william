@@ -12,6 +12,10 @@ export const SUPPORTED_LANGUAGES = [
   { code: "zh", label: "中文" },
 ];
 
+function syncHtmlLang(lng) {
+  document.documentElement.lang = lng;
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
@@ -29,6 +33,9 @@ i18n
       caches: ["localStorage"],
       lookupLocalStorage: "portfolio_lang",
     },
-  });
+  })
+  .then(() => syncHtmlLang(i18n.resolvedLanguage));
+
+i18n.on("languageChanged", syncHtmlLang);
 
 export default i18n;

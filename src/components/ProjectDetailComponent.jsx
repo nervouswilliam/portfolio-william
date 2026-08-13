@@ -1,5 +1,5 @@
 import React, { useState, Fragment } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Box,
   Container,
@@ -33,6 +33,16 @@ import {
 } from "react-icons/si";
 import { useTranslation } from "react-i18next";
 import { getProjectData } from "../JSON/i18n/registry";
+import SEO from "./SEO";
+
+const OG_IMAGES = {
+  hdb: "/projects/hdb.jpg",
+  fraud_detection: "/projects/fraud_detection.jpg",
+  query_optimization: "/projects/query_processing.jpg",
+  ev_infrastructure: "/projects/ev_infrastructure.jpg",
+  social_network_analysis: "/projects/social_network.png",
+  machine_learning: "/projects/machine_learning.jpg",
+};
 
 // ---------------------------------------------------------------------------
 // Icon registry — add new icons here and reference them by key in the JSON
@@ -485,6 +495,7 @@ const BLOCK_COMPONENTS = {
 const ProjectDetailComponent = ({ data, projectKey }) => {
   const [activeTab, setActiveTab] = useState(0);
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, i18n } = useTranslation();
 
   // Prefer locale-aware content resolved from projectKey; fall back to a
@@ -501,6 +512,12 @@ const ProjectDetailComponent = ({ data, projectKey }) => {
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 4 }}>
+      <SEO
+        title={meta.title}
+        description={meta.subtitle}
+        path={location.pathname}
+        image={OG_IMAGES[projectKey]}
+      />
       <Container maxWidth="lg">
         <Button
           startIcon={<ArrowBack />}

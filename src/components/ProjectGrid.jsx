@@ -219,13 +219,12 @@ import machineLearning from "/projects/machine_learning.jpg";
 import socialNetwork from "/projects/social_network.png";
 
 
-import {useNavigate} from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 export default function ProjectGrid() {
   const { t } = useTranslation();
   const [selectedProject, setSelectedProject] = useState(null);
-  const navigate = useNavigate();
 
   const techIcons = {
     react: { icon: <SiReact size={22} />, label: "React" },
@@ -427,7 +426,8 @@ export default function ProjectGrid() {
                 {project.details && (
                   <Button
                     size="small"
-                    onClick={() => navigate(`/${project.details}`)}
+                    component={RouterLink}
+                    to={`/${project.details}`}
                   >
                     {t("projects.detailsBtn")}
                   </Button>
