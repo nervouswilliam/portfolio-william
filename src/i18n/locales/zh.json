@@ -95,6 +95,12 @@
     "detailsBtn": "详情",
     "liveDemoBtn": "在线演示",
     "githubBtn": "GitHub",
+    "sortLabel": "项目排序",
+    "sortDate": "最新",
+    "sortAlphabetical": "字母顺序",
+    "sortPinned": "已置顶",
+    "pin": "置顶项目",
+    "unpin": "取消置顶",
     "items": {
       "wisely": {
         "title": "Wisely",

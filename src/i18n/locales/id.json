@@ -95,6 +95,12 @@
     "detailsBtn": "Detail",
     "liveDemoBtn": "Demo Langsung",
     "githubBtn": "GitHub",
+    "sortLabel": "Urutkan proyek",
+    "sortDate": "Terbaru",
+    "sortAlphabetical": "A–Z",
+    "sortPinned": "Disematkan",
+    "pin": "Sematkan proyek",
+    "unpin": "Lepas sematan proyek",
     "items": {
       "wisely": {
         "title": "Wisely",

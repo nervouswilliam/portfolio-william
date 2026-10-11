@@ -186,7 +186,12 @@ import {
   Button,
   Box,
   Tooltip,
+  IconButton,
+  ToggleButton,
+  ToggleButtonGroup,
 } from "@mui/material";
+import StarIcon from "@mui/icons-material/Star";
+import StarBorderIcon from "@mui/icons-material/StarBorder";
 
 import {
   SiReact,
@@ -222,9 +227,34 @@ import socialNetwork from "/projects/social_network.png";
 import { Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+const PINNED_STORAGE_KEY = "portfolio_pinned_projects";
+
+function loadPinned() {
+  try {
+    const raw = localStorage.getItem(PINNED_STORAGE_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export default function ProjectGrid() {
-  const { t } = useTranslation();
-  const [selectedProject, setSelectedProject] = useState(null);
+  const { t, i18n } = useTranslation();
+  const [sortBy, setSortBy] = useState("date");
+  const [pinnedIds, setPinnedIds] = useState(loadPinned);
+
+  const togglePin = (id) => {
+    setPinnedIds((prev) => {
+      const next = prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id];
+      try {
+        localStorage.setItem(PINNED_STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // storage unavailable (private mode etc.) — pin still works for this session
+      }
+      return next;
+    });
+  };
 
   const techIcons = {
     react: { icon: <SiReact size={22} />, label: "React" },
@@ -349,20 +379,47 @@ export default function ProjectGrid() {
     },
   ];
 
+  const byDateDesc = (a, b) => Number(b.date) - Number(a.date);
+  const sortedProjects = [...projects].sort((a, b) => {
+    if (sortBy === "alphabetical") {
+      return a.title.localeCompare(b.title, i18n.language);
+    }
+    if (sortBy === "pinned") {
+      const pinDiff = pinnedIds.includes(b.id) - pinnedIds.includes(a.id);
+      return pinDiff || byDateDesc(a, b);
+    }
+    return byDateDesc(a, b);
+  });
+
   return (
     <Box>
       <Typography
         variant="h4"
-        sx={{ textAlign: "center", mb: 5, fontWeight: "bold" }}
+        sx={{ textAlign: "center", mb: 3, fontWeight: "bold" }}
       >
         {t("projects.heading")}
       </Typography>
 
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 5 }}>
+        <ToggleButtonGroup
+          exclusive
+          size="small"
+          value={sortBy}
+          onChange={(_, value) => value && setSortBy(value)}
+          aria-label={t("projects.sortLabel")}
+        >
+          <ToggleButton value="date">{t("projects.sortDate")}</ToggleButton>
+          <ToggleButton value="alphabetical">{t("projects.sortAlphabetical")}</ToggleButton>
+          <ToggleButton value="pinned">{t("projects.sortPinned")}</ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
       <Grid container spacing={4} justifyContent="center">
-        {projects.map((project, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
+        {sortedProjects.map((project) => (
+          <Grid item xs={12} sm={6} md={4} key={project.id}>
             <Card
               sx={{
+                position: "relative",
                 maxWidth: 400,
                 mx: "auto",
                 borderRadius: 3,
@@ -374,6 +431,28 @@ export default function ProjectGrid() {
                 height: "100%",
               }}
             >
+              <Tooltip
+                title={pinnedIds.includes(project.id) ? t("projects.unpin") : t("projects.pin")}
+                arrow
+              >
+                <IconButton
+                  onClick={() => togglePin(project.id)}
+                  aria-label={pinnedIds.includes(project.id) ? t("projects.unpin") : t("projects.pin")}
+                  aria-pressed={pinnedIds.includes(project.id)}
+                  sx={{
+                    position: "absolute",
+                    top: 8,
+                    right: 8,
+                    zIndex: 1,
+                    backgroundColor: "rgba(10, 25, 47, 0.7)",
+                    color: pinnedIds.includes(project.id) ? "#ffd54f" : "#fff",
+                    "&:hover": { backgroundColor: "rgba(10, 25, 47, 0.9)" },
+                  }}
+                >
+                  {pinnedIds.includes(project.id) ? <StarIcon /> : <StarBorderIcon />}
+                </IconButton>
+              </Tooltip>
+
               <CardMedia
                 component="img"
                 height="200"

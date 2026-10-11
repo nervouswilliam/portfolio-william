@@ -95,6 +95,12 @@
     "detailsBtn": "Details",
     "liveDemoBtn": "Live Demo",
     "githubBtn": "GitHub",
+    "sortLabel": "Sort projects",
+    "sortDate": "Newest",
+    "sortAlphabetical": "A–Z",
+    "sortPinned": "Pinned",
+    "pin": "Pin project",
+    "unpin": "Unpin project",
     "items": {
       "wisely": {
         "title": "Wisely",
