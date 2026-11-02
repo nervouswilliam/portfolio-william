@@ -41,6 +41,7 @@ export default function App() {
         <Route path="/ev_infrastructure_project" element={<ProjectDetailComponent projectKey="ev_infrastructure" />} />
         <Route path="/social_network_analysis_project" element={<ProjectDetailComponent projectKey="social_network_analysis" />} />
         <Route path="/machine_learning_project" element={<ProjectDetailComponent projectKey="machine_learning" />} />
+        <Route path="/agentic_risk_project" element={<ProjectDetailComponent projectKey="agentic_risk" />} />
       </Routes>
       <ChatWidget />
     </BrowserRouter>

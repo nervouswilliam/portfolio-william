@@ -30,12 +30,17 @@ import {
   SiNodedotjs,
   SiPostgresql,
   SiPython,
+  SiN8N,
+  SiOpenai,
+  SiJavascript,
 } from "react-icons/si";
 import { useTranslation } from "react-i18next";
 import { getProjectData } from "../JSON/i18n/registry";
 import SEO from "./SEO";
+import WorkflowExplorer from "./WorkflowExplorer";
 
 const OG_IMAGES = {
+  agentic_risk: "/projects/agentic_risk.png",
   hdb: "/projects/hdb.jpg",
   fraud_detection: "/projects/fraud_detection.jpg",
   query_optimization: "/projects/query_processing.jpg",
@@ -55,6 +60,9 @@ const ICONS = {
   node: SiNodedotjs,
   postgresql: SiPostgresql,
   python: SiPython,
+  n8n: SiN8N,
+  openai: SiOpenai,
+  javascript: SiJavascript,
 };
 
 // ---------------------------------------------------------------------------
@@ -487,6 +495,7 @@ const BLOCK_COMPONENTS = {
   highlightBoxes: HighlightBoxes,
   dataTable: DataTable,
   teamGrid: TeamGrid,
+  workflowExplorer: WorkflowExplorer,
 };
 
 // ---------------------------------------------------------------------------

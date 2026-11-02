@@ -145,6 +145,10 @@
       "social-network-analysis": {
         "title": "Social Network Analysis",
         "description": "Analyzing social network structures and dynamics using graph theory and machine learning"
+      },
+      "agentic-risk": {
+        "title": "Agentic AI Risk Assessment Workflow",
+        "description": "A multi-agent n8n workflow where three specialist AI agents and an orchestrator assess bank customer risk from uploaded rule files, producing CSV reports and a management dashboard."
       }
     }
   },
@@ -165,5 +169,36 @@
     "sendAria": "Send message",
     "genericError": "Something went wrong. Please try again.",
     "networkError": "Could not reach the assistant. Please check your connection and try again."
+  },
+  "workflow": {
+    "startTour": "Start guided tour",
+    "exitTour": "Exit tour",
+    "next": "Next",
+    "back": "Back",
+    "step": "Step {{current}} of {{total}}",
+    "hint": "Drag to pan · Ctrl/⌘ + scroll to zoom · Click any node to see its logic",
+    "focus": "Focus:",
+    "allLanes": "All",
+    "showSub": "Show model & parser sub-nodes",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Fit to screen",
+    "canvasLabel": "Interactive diagram of the n8n workflow",
+    "close": "Close",
+    "counts": "{{nodes}} nodes · {{edges}} connections",
+    "panel": {
+      "logic": "How it works",
+      "config": "Configuration",
+      "dataIn": "Data in",
+      "dataOut": "Data out",
+      "receivesFrom": "Receives from",
+      "sendsTo": "Sends to",
+      "uses": "Uses",
+      "attachedTo": "Attached to",
+      "showExcerpt": "Show",
+      "hideExcerpt": "Hide",
+      "emptyTitle": "Select a node",
+      "emptyBody": "Click any node in the diagram to see what it does, the logic behind it, and the nodes it connects to. Start the guided tour to follow a full run from upload to dashboard."
+    }
   }
 }

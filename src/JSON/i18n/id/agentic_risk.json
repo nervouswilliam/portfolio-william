@@ -1,0 +1,198 @@
+{
+  "id": "agentic_risk",
+  "meta": {
+    "title": "Workflow Penilaian Risiko Agentic AI",
+    "subtitle": "Pipeline Multi-Agen n8n untuk Penyaringan Risiko Nasabah Perbankan",
+    "date": "2026",
+    "tabs": ["Ikhtisar", "Penjelajah Workflow", "Desain Agen", "Tim & Pembelajaran"]
+  },
+  "techStack": [
+    { "key": "n8n", "label": "n8n" },
+    { "key": "openai", "label": "OpenAI GPT-4o" },
+    { "key": "javascript", "label": "JavaScript (Code node)" },
+    { "label": "Structured Output Parser" },
+    { "label": "CSV / SVG" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Informasi Mata Kuliah",
+      "items": [
+        { "primary": "Mata Kuliah", "secondary": "ISFA614 - Orkestrasi Workflow Penilaian Risiko Agentic AI" },
+        { "primary": "Institusi", "secondary": "Singapore Management University" },
+        { "primary": "Kelompok", "secondary": "Kelompok 7" },
+        { "primary": "Skenario", "secondary": "Lab penilaian risiko DXS Bank" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Skala Workflow",
+      "chip": { "label": "41 node · 4 agen AI", "color": "primary" },
+      "captions": [
+        "8 input CSV: 5 file data + 3 file aturan",
+        "3 agen spesialis + 1 orkestrator",
+        "5 output: 4 laporan CSV + 1 dasbor SVG"
+      ]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Ikhtisar Proyek",
+        "paragraphs": [
+          {
+            "text": "Lab kelompok ini membangun workflow agentic AI di n8n yang menilai risiko nasabah layaknya tim risiko sebuah bank. Alih-alih meminta satu model besar mengerjakan semuanya, pekerjaan dibagi kepada tiga agen AI spesialis dan satu agen orkestrator."
+          },
+          {
+            "text": "Seorang analis mengunggah delapan file CSV: lima dataset nasabah dan transaksi, ditambah satu file aturan untuk setiap spesialis. Setiap spesialis mengevaluasi tiap nasabah berdasarkan aturannya, orkestrator menggabungkan seluruh penilaian tersebut menjadi satu keputusan akhir per nasabah, dan workflow menghasilkan laporan CSV serta dasbor manajemen dalam format SVG."
+          },
+          {
+            "text": "Satu keputusan desain utama: kebijakan risiko berada di file aturan yang diunggah, bukan di dalam prompt, sehingga aturan dapat ditambah atau diubah tanpa menyentuh workflow.",
+            "variant": "body2",
+            "italic": true
+          }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Tim Agen",
+        "items": [
+          { "primary": "Agent-1 · Customer Profile Risk", "secondary": "Mengevaluasi data profil nasabah berdasarkan aturan Agent-1" },
+          { "primary": "Agent-2 · Transaction Pattern Risk", "secondary": "Menguji transfer dan setoran tunai terhadap aturan berbasis field / operator / nilai" },
+          { "primary": "Agent-3 · Regulatory Screening Risk", "secondary": "Memeriksa flag penyaringan seperti watchlist, sanksi, PEP, dan adverse media" },
+          { "primary": "Agent-4 · Agentic AI Orchestrator", "secondary": "Menggabungkan ketiga laporan menjadi keputusan akhir per nasabah dan dasbor portofolio" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Input dan Output",
+        "description": "Satu kali pengiriman formulir sebagai input, lima hasil sebagai output:",
+        "items": [
+          { "primary": "Input (8 CSV)", "secondary": "F1 profil nasabah, F2 transaksi, F3 transfer, F4 setoran tunai, F5 penyaringan regulasi, serta file aturan Agent-1, Agent-2, dan Agent-3" },
+          { "primary": "Laporan spesialis R1 – R3 (CSV)", "secondary": "Satu penilaian risiko per nasabah dari setiap agen spesialis" },
+          { "primary": "Laporan rekomendasi R4 (CSV)", "secondary": "Tingkat risiko akhir, skor, red flag, dan tindakan yang direkomendasikan untuk setiap nasabah" },
+          { "primary": "Dasbor Risiko Manajemen (SVG)", "secondary": "Kartu KPI, distribusi risiko dan tindakan, red flag teratas, serta nasabah prioritas" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Konsep yang Dipraktikkan",
+        "description": "Lab ini mencakup unsur-unsur dasar sistem agentic AI:",
+        "items": [
+          { "primary": "Agen AI, prompt, dan system message" },
+          { "primary": "Structured output dan guardrails" },
+          { "primary": "Halusinasi dan cara membatasinya" },
+          { "primary": "Aturan bisnis dinamis" },
+          { "primary": "Sistem multi-agen dan orkestrasi" },
+          { "primary": "Pengawasan manusia (human-in-the-loop)" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "workflowExplorer",
+        "workflowId": "agentic_risk",
+        "title": "Penjelajah Workflow Interaktif",
+        "description": "Jelajahi seluruh 41 node pada workflow n8n ini. Klik sebuah node untuk melihat logika di baliknya, arahkan kursor untuk menelusuri koneksinya, atau ikuti tur terpandu untuk mengikuti satu proses dari pengunggahan hingga dasbor."
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "Cara Agen Dirancang",
+        "sections": [
+          {
+            "heading": "Spesialis menerapkan aturan, bukan menentukan kebijakan",
+            "body": "Setiap spesialis menerima satu data nasabah beserta daftar aturannya, dan wajib mengevaluasi setiap aturan persis seperti yang tertulis. Prompt secara eksplisit melarang mengarang, melewati, atau menanamkan aturan secara permanen di dalam kode, sehingga menambah satu baris pada CSV aturan sudah mengubah perilaku tanpa perlu mengubah workflow."
+          },
+          {
+            "heading": "Jawaban terstruktur yang seragam",
+            "body": "Ketiga spesialis mengembalikan tujuh field yang sama (Customer_ID, Customer_Name, Risk_Level, Triggered_Rules, Supporting_Evidence, Summary, Recommended_Action), yang dipaksakan oleh sebuah Structured Output Parser, sehingga keluarannya dapat langsung digabungkan dan diubah menjadi CSV."
+          },
+          {
+            "heading": "Orkestrator dengan hierarki tetap",
+            "body": "Agent-4 memperlakukan laporan spesialis sebagai sumber kebenaran. Jika ada satu HIGH maka nasabah menjadi HIGH, jika tidak ada maka satu MEDIUM menjadikannya MEDIUM, selain itu LOW, dengan skor tetap (90 / 60 / 20) dan tindakan tetap (ESCALATE / MANUAL_REVIEW / APPROVE)."
+          },
+          {
+            "heading": "Kode yang mengerjakan aritmetika",
+            "body": "Code node dasbor menghitung ulang total, jumlah, dan persentase dari array R4, sehingga angka utama tidak bergantung pada perhitungan model bahasa. Model hanya menyumbang bagian naratif: ringkasan eksekutif, red flag, dan rekomendasi."
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Perbandingan Agen",
+        "headers": [{ "label": "Agen" }, { "label": "Fokus" }, { "label": "Data input" }, { "label": "Output" }],
+        "rows": [
+          ["Agent-1", "Risiko profil nasabah", "F1 profil nasabah + F2 transaksi, digabungkan berdasarkan Customer_ID", "R1 CSV"],
+          ["Agent-2", "Risiko pola transaksi", "F3 transfer + F4 setoran tunai, digabungkan berdasarkan Customer_ID", "R2 CSV"],
+          ["Agent-3", "Risiko penyaringan regulasi", "File penyaringan regulasi F5", "R3 CSV"],
+          ["Agent-4", "Konsolidasi dan pelaporan manajemen", "Laporan spesialis R1 + R2 + R3", "R4 CSV + dasbor manajemen (SVG)"]
+        ],
+        "stripe": true
+      },
+      {
+        "type": "dataTable",
+        "title": "Pemetaan Tingkat Risiko ke Tindakan",
+        "description": "Para spesialis dan orkestrator memakai pemetaan tingkat-ke-tindakan yang sama. Skor keseluruhan yang tetap ditetapkan oleh Agent-4.",
+        "headers": [{ "label": "Tingkat risiko" }, { "label": "Tindakan yang direkomendasikan", "align": "center" }, { "label": "Skor keseluruhan (Agent-4)", "align": "center" }],
+        "rows": [
+          ["HIGH", "ESCALATE", "90"],
+          ["MEDIUM", "MANUAL_REVIEW", "60"],
+          ["LOW", "APPROVE", "20"]
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "Guardrails terhadap Halusinasi",
+        "items": [
+          { "title": "Temperature 0", "caption": "Keempat model GPT-4o berjalan pada temperature 0 agar keluaran dapat diulang secara konsisten" },
+          { "title": "Structured output parser", "caption": "Setiap agen wajib menjawab dalam skema JSON yang tetap" },
+          { "title": "Tahap validasi mandiri", "caption": "Prompt menginstruksikan agen untuk memeriksa ulang aturan yang terpicu dan menghitung ulang sebelum mengembalikan hasil" },
+          { "title": "Aturan sebagai data", "caption": "Kebijakan berada di CSV yang diunggah; agen tidak boleh mengarang atau melewati aturan" },
+          { "title": "Skor tetap", "caption": "Skor keseluruhan dan tindakan berasal dari pemetaan deterministik, bukan penilaian model" },
+          { "title": "Metrik dihitung oleh kode", "caption": "Angka dasbor dihitung ulang dari R4 oleh sebuah Code node" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Pelajaran Utama: Libatkan Manusia dalam Proses",
+            "color": "warning",
+            "content": [
+              {
+                "type": "paragraph",
+                "text": "Saat melakukan pemecahan masalah, tim menemukan keluaran yang berisi data yang tidak ada di file nasabah. Penyebabnya adalah nama field yang salah eja, sehingga Agent-4 sama sekali tidak menerima data, dan model berhalusinasi menghasilkan keluarannya alih-alih gagal. Ini contoh nyata mengapa peninjauan manusia terhadap keluaran agen itu penting."
+              }
+            ]
+          },
+          {
+            "title": "Spesialisasi Mengalahkan Satu Agen Besar",
+            "color": "info",
+            "content": [
+              {
+                "type": "paragraph",
+                "text": "Membagi pekerjaan ke agen-agen spesialis dengan peran yang terdefinisi jelas membuat sistem lebih efisien dan lebih tangguh daripada mengandalkan satu AI untuk segalanya, dan guardrails menjaga setiap agen tetap berada dalam perannya."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "teamGrid",
+        "title": "Kelompok 7",
+        "members": [
+          { "name": "Jeremiah William Sebastian", "subtitle": "Lab 1 (Tugas 1–4)" },
+          { "name": "Haoming Kuang", "subtitle": "Lab 2 (Tugas 5–6)" },
+          { "name": "Stainley Suryadinata Winoto", "subtitle": "Lab 3 (Tugas 7) dan pemeriksaan kualitas workflow" }
+        ],
+        "footerNote": "ISFA614 · Singapore Management University"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,686 @@
+{
+  "categories": {
+    "trigger": "触发器",
+    "extract": "提取数据",
+    "combine": "合并与门控",
+    "agent": "AI 智能体",
+    "model": "智能体子节点（模型 / 解析器）",
+    "output": "输出"
+  },
+  "lanes": {
+    "input": "输入",
+    "agent1": "Agent-1 · 客户画像风险",
+    "agent2": "Agent-2 · 交易模式风险",
+    "agent3": "Agent-3 · 监管筛查风险",
+    "orchestrator": "Agent-4 · 编排与报告"
+  },
+  "nodes": {
+    "form": {
+      "summary": "入口节点。标题为“File Repository”的 n8n Form Trigger 要求分析师在一次提交中上传全部八个 CSV 输入文件。",
+      "logic": [
+        "八个必填、仅限 .csv 的文件字段：F1（客户画像）、F2（交易报告）、F3（转账）、F4（现金存款）、F5（监管筛查），以及每个智能体各一个规则文件（Agent_1_Rules、Agent_2_Rules、Agent_3_Rules）。",
+        "并行分发给八个 Extract 节点，使三条泳道都从同一次提交开始。",
+        "风险政策以数据形式上传而非硬编码，因此无需编辑工作流即可更改规则。"
+      ],
+      "inputs": [
+        "包含 8 个 CSV 上传文件的表单提交"
+      ],
+      "outputs": [
+        "8 个二进制文件，分别对应每个 Extract 节点"
+      ],
+      "config": [
+        "8 个必填文件字段",
+        "仅限 .csv 文件"
+      ]
+    },
+    "ex_f1": {
+      "summary": "将客户画像 CSV（F1）解析为 JSON。",
+      "logic": [
+        "读取二进制属性 F1。",
+        "每一行 CSV 成为一个以列标题为键的数据项（例如 Customer_ID）。"
+      ],
+      "inputs": [
+        "来自表单的二进制文件 F1"
+      ],
+      "outputs": [
+        "客户画像行 → Merge F1 & F2"
+      ]
+    },
+    "ex_f2": {
+      "summary": "将交易报告 CSV（F2）解析为 JSON。",
+      "logic": [
+        "读取二进制属性 F2。",
+        "每行 CSV 对应一个数据项。"
+      ],
+      "inputs": [
+        "来自表单的二进制文件 F2"
+      ],
+      "outputs": [
+        "交易行 → Merge F1 & F2"
+      ]
+    },
+    "ex_r1": {
+      "summary": "解析 Agent-1 规则 CSV。每一行是一条风险规则。",
+      "logic": [
+        "读取二进制属性 Agent_1_Rules。",
+        "这些行以数据形式保留，因此无论提供多少条规则，智能体都能照单应用。",
+        "Agent-1 的提示词直接从本节点读取这些行，同时一份副本继续流向聚合步骤。"
+      ],
+      "inputs": [
+        "来自表单的二进制文件 Agent_1_Rules"
+      ],
+      "outputs": [
+        "规则行 → Aggregate Agent-1 Rules"
+      ]
+    },
+    "merge_f1f2": {
+      "summary": "在连接步骤运行前，等待两个提取出的文件都就绪。",
+      "logic": [
+        "使用节点的默认设置，在输入 1 接收 F1，在输入 2 接收 F2。",
+        "下一个 Code 节点会按名称重新读取这两个 Extract 节点，因此本节点主要起同步点的作用。"
+      ],
+      "inputs": [
+        "F1 行（输入 1）",
+        "F2 行（输入 2）"
+      ],
+      "outputs": [
+        "合并后的数据流 → Join F1 & F2 by Customer ID"
+      ]
+    },
+    "agg_r1": {
+      "summary": "将所有规则行汇总为单个数据项。",
+      "logic": [
+        "模式：将所有数据项数据聚合到名为 rules 的一个字段中。",
+        "结果是一个包含整套规则的数据项，这正是门控节点需要等待的内容。"
+      ],
+      "inputs": [
+        "来自 Extract Agent-1 Rules 的规则行"
+      ],
+      "outputs": [
+        "单个数据项 { rules: […] } → 门控节点输入 2"
+      ]
+    },
+    "join_f1f2": {
+      "summary": "按 Customer_ID 将每条交易行与其客户画像关联起来。",
+      "logic": [
+        "两侧都对 Customer_ID 做规范化（去除空格并转为大写），使“cust001 ”与“CUST001”能够匹配。",
+        "先用 F1 画像构建查找 Map，再遍历 F2 的行：这是内连接，因此没有匹配画像的行会被丢弃。",
+        "输出行为 {...profile, ...transactionRow, Customer_ID}，因此列名冲突时以 F2 的值为准。"
+      ],
+      "inputs": [
+        "按节点名称读取 Extract F1 和 Extract F2"
+      ],
+      "outputs": [
+        "每个匹配的客户对应一条增强后的行 → 门控节点"
+      ],
+      "excerptTitle": "Code 节点（完整）"
+    },
+    "gate1": {
+      "summary": "暂停运行，直到客户数据和规则都已到达，然后放行客户行。",
+      "logic": [
+        "处于 Choose Branch 模式的 Merge 节点：等待两个输入都到达，然后输出所选分支的数据（即关联后的客户行）。",
+        "下方的智能体对每个客户数据项运行一次，并直接从 Extract Agent-1 Rules 读取规则，因此聚合后的规则主要用于防止智能体过早启动。"
+      ],
+      "inputs": [
+        "关联后的客户行（输入 1）",
+        "聚合后的规则（输入 2）"
+      ],
+      "outputs": [
+        "客户行 → Agent-1"
+      ]
+    },
+    "agent1": {
+      "summary": "专家 #1。依据规则文件中的每一条规则，为每位客户的画像风险打分。",
+      "logic": [
+        "对每位客户运行一次。提示词包含该客户的记录以及完整的 Agent-1 规则列表。",
+        "系统消息：严格按照规则原文应用每一条规则，不得编造、跳过或硬编码规则；规则可能随时新增。",
+        "Triggered_Rules 仅列出条件成立的 Rule_ID；Risk_Level 取其中最高的严重程度，若无任何规则触发则为 LOW。",
+        "Recommended_Action 随 Risk_Level 而定：LOW = APPROVE，MEDIUM = MANUAL_REVIEW，HIGH = ESCALATE。",
+        "输出由所连接的 Structured Output Parser 强制转换为固定的 JSON 结构。"
+      ],
+      "inputs": [
+        "客户行（来自门控节点）",
+        "Agent-1 规则（从 Extract 节点读取）",
+        "OpenAI Chat Model + Structured Output Parser（子节点）"
+      ],
+      "outputs": [
+        "R1 记录 → Generate R1 File 和 Merge（输入 1）"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "结构化输出"
+      ],
+      "excerptTitle": "系统消息（节选）"
+    },
+    "llm1": {
+      "summary": "驱动 Agent-1 的语言模型。",
+      "logic": [
+        "OpenAI gpt-4o，temperature 0，使规则评估尽可能可重复。",
+        "作为子节点挂接在智能体上；自身没有主输入或输出。"
+      ],
+      "inputs": [
+        "来自 Agent-1 的提示词"
+      ],
+      "outputs": [
+        "生成结果 → Agent-1"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    "parser1": {
+      "summary": "将 Agent-1 的答案强制转换为固定的 JSON 结构。",
+      "logic": [
+        "模式示例：Customer_ID、Customer_Name、Risk_Level、Triggered_Rules、Supporting_Evidence、Summary、Recommended_Action。",
+        "保持答案机器可读，无需清理即可成为 CSV 的一行。"
+      ],
+      "inputs": [
+        "来自 Agent-1 的模型输出"
+      ],
+      "outputs": [
+        "解析后的 JSON → Agent-1"
+      ],
+      "config": [
+        "JSON schema example"
+      ]
+    },
+    "r1_file": {
+      "summary": "将 Agent-1 的结果写入 R1_Customer_Profile_Risk.csv。",
+      "logic": [
+        "Convert to File 节点，将智能体的数据项转换为 CSV。",
+        "数据项被展平为行；每评估一位客户对应一行。"
+      ],
+      "inputs": [
+        "Agent-1 记录"
+      ],
+      "outputs": [
+        "R1_Customer_Profile_Risk.csv（交付成果 #1）"
+      ],
+      "config": [
+        "R1_Customer_Profile_Risk.csv"
+      ]
+    },
+    "ex_f3": {
+      "summary": "将转账报告 CSV（F3）解析为 JSON。",
+      "logic": [
+        "读取二进制属性 F3。",
+        "每行 CSV 对应一个数据项。"
+      ],
+      "inputs": [
+        "来自表单的二进制文件 F3"
+      ],
+      "outputs": [
+        "转账行 → Merge F3 & F4"
+      ]
+    },
+    "ex_f4": {
+      "summary": "将现金存款报告 CSV（F4）解析为 JSON。",
+      "logic": [
+        "读取二进制属性 F4。",
+        "每行 CSV 对应一个数据项。"
+      ],
+      "inputs": [
+        "来自表单的二进制文件 F4"
+      ],
+      "outputs": [
+        "现金存款行 → Merge F3 & F4"
+      ]
+    },
+    "ex_r2": {
+      "summary": "解析 Agent-2 规则 CSV。每一行是一条交易模式规则。",
+      "logic": [
+        "读取二进制属性 Agent_2_Rules。",
+        "每条规则都指明一个 Field、一个 Operator、一个 Value 和一个 Severity，智能体据此对照客户的实际数值进行评估。"
+      ],
+      "inputs": [
+        "来自表单的二进制文件 Agent_2_Rules"
+      ],
+      "outputs": [
+        "规则行 → Aggregate Agent-2 Rules"
+      ]
+    },
+    "merge_f3f4": {
+      "summary": "在连接步骤运行前，等待两个提取出的文件都就绪。",
+      "logic": [
+        "使用节点的默认设置，在输入 1 接收 F3，在输入 2 接收 F4。",
+        "与泳道 1 一样，后续的 Code 节点会按名称重新读取这两个 Extract 节点，因此这里主要是一个同步点。"
+      ],
+      "inputs": [
+        "F3 行（输入 1）",
+        "F4 行（输入 2）"
+      ],
+      "outputs": [
+        "合并后的数据流 → Join F3 & F4 by Customer ID"
+      ]
+    },
+    "agg_r2": {
+      "summary": "将所有 Agent-2 规则行汇总为单个数据项。",
+      "logic": [
+        "将所有数据项数据聚合到名为 rules 的字段中。",
+        "与泳道 1 的模式相同。"
+      ],
+      "inputs": [
+        "来自 Extract Agent-2 Rules 的规则行"
+      ],
+      "outputs": [
+        "单个数据项 { rules: […] } → 门控节点输入 2"
+      ]
+    },
+    "join_f3f4": {
+      "summary": "按 Customer_ID 将每位客户的现金存款行与其转账行关联起来。",
+      "logic": [
+        "与泳道 1 相同的内连接 Code 节点，仅改为指向 F3 和 F4。变量名仍沿用原来的 f1/f2。",
+        "匹配前会对 Customer_ID 去除空格并转为大写；未匹配的行会被丢弃。",
+        "输出会合并两行数据，使 Agent-2 能同时看到转账和现金存款。"
+      ],
+      "inputs": [
+        "按节点名称读取 Extract F3 和 Extract F4"
+      ],
+      "outputs": [
+        "每位客户对应一条合并后的行 → 门控节点"
+      ],
+      "excerptTitle": "Code 节点（完整）"
+    },
+    "gate2": {
+      "summary": "暂停运行，直到交易数据和规则都已到达。",
+      "logic": [
+        "Choose Branch 合并：等待两个输入都到达，然后将关联后的交易行向下传递。",
+        "Agent-2 直接从 Extract Agent-2 Rules 读取规则。"
+      ],
+      "inputs": [
+        "关联后的交易行（输入 1）",
+        "聚合后的规则（输入 2）"
+      ],
+      "outputs": [
+        "交易行 → Agent-2"
+      ]
+    },
+    "agent2": {
+      "summary": "专家 #2。依据字段 / 运算符 / 数值阈值规则，检验每位客户的转账与现金存款。",
+      "logic": [
+        "对每条规则，它读取指定的 Field、客户的实际值，以及规则的 Operator 和 Value，然后精确评估条件（> >= < <= = !=）。",
+        "Risk_Level 必须等于已触发规则中最高的 Severity；只有当某条已触发规则为 HIGH 时才允许出现 HIGH。",
+        "最后的验证环节会对照实际值重新检查每条已触发规则，剔除不成立的规则，并重新计算风险等级和证据。",
+        "输出受 Structured Output Parser 约束。"
+      ],
+      "inputs": [
+        "交易行（来自门控节点）",
+        "Agent-2 规则（从 Extract 节点读取）",
+        "OpenAI Chat Model + Structured Output Parser（子节点）"
+      ],
+      "outputs": [
+        "R2 记录 → Generate R2 File 和 Merge（输入 2）"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "结构化输出"
+      ],
+      "excerptTitle": "系统消息（节选）"
+    },
+    "llm2": {
+      "summary": "驱动 Agent-2 的语言模型。",
+      "logic": [
+        "OpenAI gpt-4o，temperature 0。",
+        "挂接在 Agent-2 上的子节点。"
+      ],
+      "inputs": [
+        "来自 Agent-2 的提示词"
+      ],
+      "outputs": [
+        "生成结果 → Agent-2"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    "parser2": {
+      "summary": "将 Agent-2 的答案强制转换为共用的记录结构。",
+      "logic": [
+        "字段与 Agent-1 相同：Customer_ID、Customer_Name、Risk_Level、Triggered_Rules、Supporting_Evidence、Summary、Recommended_Action。"
+      ],
+      "inputs": [
+        "来自 Agent-2 的模型输出"
+      ],
+      "outputs": [
+        "解析后的 JSON → Agent-2"
+      ],
+      "config": [
+        "JSON schema example"
+      ]
+    },
+    "r2_file": {
+      "summary": "将 Agent-2 的结果写入 R2_Transaction_Pattern_Risk.csv。",
+      "logic": [
+        "Convert to File 节点，生成 CSV。",
+        "数据项被展平为行；每评估一位客户对应一行。"
+      ],
+      "inputs": [
+        "Agent-2 记录"
+      ],
+      "outputs": [
+        "R2_Transaction_Pattern_Risk.csv（交付成果 #2）"
+      ],
+      "config": [
+        "R2_Transaction_Pattern_Risk.csv"
+      ]
+    },
+    "ex_f5": {
+      "summary": "解析监管筛查 CSV（F5）。",
+      "logic": [
+        "读取二进制属性 F5。",
+        "与泳道 1 和 2 不同，这里无需关联：筛查数据本来就是一个文件，因此直接进入门控节点。"
+      ],
+      "inputs": [
+        "来自表单的二进制文件 F5"
+      ],
+      "outputs": [
+        "筛查行 → 门控节点（输入 1）"
+      ]
+    },
+    "ex_r3": {
+      "summary": "解析 Agent-3 规则 CSV。每一行是一条监管筛查规则。",
+      "logic": [
+        "读取二进制属性 Agent_3_Rules。",
+        "规则将观察名单、制裁、PEP、执法和负面新闻等筛查标记与要求的值进行比较，并带有 Severity。"
+      ],
+      "inputs": [
+        "来自表单的二进制文件 Agent_3_Rules"
+      ],
+      "outputs": [
+        "规则行 → Aggregate Agent-3 Rules"
+      ]
+    },
+    "agg_r3": {
+      "summary": "将所有 Agent-3 规则行汇总为单个数据项。",
+      "logic": [
+        "将所有数据项数据聚合到名为 rules 的字段中。"
+      ],
+      "inputs": [
+        "来自 Extract Agent-3 Rules 的规则行"
+      ],
+      "outputs": [
+        "单个数据项 { rules: […] } → 门控节点输入 2"
+      ]
+    },
+    "gate3": {
+      "summary": "暂停运行，直到筛查数据和规则都已到达。",
+      "logic": [
+        "Choose Branch 合并：等待 F5（输入 1）和聚合后的规则（输入 2），然后将筛查行向下传递。"
+      ],
+      "inputs": [
+        "筛查行（输入 1）",
+        "聚合后的规则（输入 2）"
+      ],
+      "outputs": [
+        "筛查行 → Agent-3"
+      ]
+    },
+    "agent3": {
+      "summary": "专家 #3。依据监管规则（观察名单、制裁、PEP 等）筛查每条记录。",
+      "logic": [
+        "最详尽的专家提示词：只使用当前这条记录和这些规则，不使用先前的执行结果、记忆中的结果或外部知识。",
+        "文本比较会去除空格且不区分大小写；看起来像数字的值在比较前会先转换为数字。",
+        "如果规则的 Field 缺失、为 null 或为空，该规则不会触发，也不会编造任何值。",
+        "所提供的 Severity 具有权威性：不得上调或下调，总体等级取已触发规则中最高的严重程度。",
+        "以九步自我验证收尾，其中包括检查先前客户的内容没有泄漏到结果中。"
+      ],
+      "inputs": [
+        "筛查行（来自门控节点）",
+        "Agent-3 规则（从 Extract 节点读取）",
+        "OpenAI Chat Model + Structured Output Parser（子节点）"
+      ],
+      "outputs": [
+        "R3 记录 → Generate R3 File 和 Merge（输入 3）"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "结构化输出"
+      ],
+      "excerptTitle": "系统消息（节选）"
+    },
+    "llm3": {
+      "summary": "驱动 Agent-3 的语言模型。",
+      "logic": [
+        "OpenAI gpt-4o，temperature 0，maxRetries 设为 5，这是唯一配置了重试的模型节点。"
+      ],
+      "inputs": [
+        "来自 Agent-3 的提示词"
+      ],
+      "outputs": [
+        "生成结果 → Agent-3"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "maxRetries 5"
+      ]
+    },
+    "parser3": {
+      "summary": "将 Agent-3 的答案强制转换为共用的记录结构。",
+      "logic": [
+        "与其他专家相同的七个字段，示例针对监管筛查做了定制。"
+      ],
+      "inputs": [
+        "来自 Agent-3 的模型输出"
+      ],
+      "outputs": [
+        "解析后的 JSON → Agent-3"
+      ],
+      "config": [
+        "JSON schema example"
+      ]
+    },
+    "r3_file": {
+      "summary": "将 Agent-3 的结果写入 R3_Regulatory_Screening.csv。",
+      "logic": [
+        "Convert to File 节点，生成 CSV。",
+        "数据项被展平为行；每评估一位客户对应一行。"
+      ],
+      "inputs": [
+        "Agent-3 记录"
+      ],
+      "outputs": [
+        "R3_Regulatory_Screening.csv（交付成果 #3）"
+      ],
+      "config": [
+        "R3_Regulatory_Screening.csv"
+      ]
+    },
+    "merge_all": {
+      "summary": "将三份专家报告收集到同一数据流中。",
+      "logic": [
+        "配置了三个输入的 Merge 节点：来自 Agent-1 的 R1、来自 Agent-2 的 R2 和来自 Agent-3 的 R3。",
+        "每份报告都保留其 Customer_ID，Agent-4 随后据此将它们分组。"
+      ],
+      "inputs": [
+        "Agent-1 记录（输入 1）",
+        "Agent-2 记录（输入 2）",
+        "Agent-3 记录（输入 3）"
+      ],
+      "outputs": [
+        "全部专家记录 → Normalize Specialist Report"
+      ]
+    },
+    "normalize": {
+      "summary": "目前是一个直通步骤。",
+      "logic": [
+        "仍保留着 n8n 的初始模板：为每个数据项添加一个名为 myNewField = 1 的字段并原样返回。",
+        "没有任何风险字段被更改，下游也会忽略这个额外字段。"
+      ],
+      "inputs": [
+        "全部专家记录"
+      ],
+      "outputs": [
+        "相同的记录 → Aggregate Specialist Report"
+      ],
+      "excerptTitle": "Code 节点（完整）"
+    },
+    "agg_spec": {
+      "summary": "将所有专家记录打包为一个数据项交给 Agent-4。",
+      "logic": [
+        "将所有数据项数据聚合到名为 reports 的字段中。",
+        "Agent-4 的提示词注入 JSON.stringify($json.reports)，作为它唯一可以使用的数据。"
+      ],
+      "inputs": [
+        "全部专家记录"
+      ],
+      "outputs": [
+        "单个数据项 { reports: […] } → Agent-4"
+      ]
+    },
+    "agent4": {
+      "summary": "编排智能体。将 R1–R3 整合为每位客户的最终决定，并生成组合层面的仪表盘。",
+      "logic": [
+        "将专家报告视为唯一事实来源：不会重新运行规则，也不会更改任何专家的 Risk_Level。",
+        "严格按 Customer_ID 对记录分组，并且每位唯一客户必须恰好输出一条 R4 记录。",
+        "确定性层级：任一 HIGH → HIGH，否则任一 MEDIUM → MEDIUM，否则 LOW。评分固定为 90 / 60 / 20，措施固定为 ESCALATE / MANUAL_REVIEW / APPROVE。",
+        "Contributing_Agents 仅列出返回 MEDIUM 或 HIGH 的专家；全部为 LOW 的客户，其风险信号和证据列表为空。",
+        "撰写执行摘要、主要风险信号和建议，并在作答前对计数和总数进行自我验证。",
+        "只返回两个顶层字段：Dashboard 和 R4。"
+      ],
+      "inputs": [
+        "来自 Aggregate Specialist Report 的 { reports }",
+        "OpenAI Chat Model + Structured Output Parser（子节点）"
+      ],
+      "outputs": [
+        "{ Dashboard, R4[] } → Split Out 和 Build Management Dashboard"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "结构化输出"
+      ],
+      "excerptTitle": "系统消息（节选）"
+    },
+    "llm4": {
+      "summary": "驱动 Agent-4 的语言模型。",
+      "logic": [
+        "OpenAI gpt-4o，temperature 0。"
+      ],
+      "inputs": [
+        "来自 Agent-4 的提示词"
+      ],
+      "outputs": [
+        "生成结果 → Agent-4"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    "parser4": {
+      "summary": "将 Agent-4 的答案强制转换为 Dashboard + R4。",
+      "logic": [
+        "模式示例包含一个 Dashboard 对象（标题、摘要、计数、百分比、主要风险信号、建议）和一个 R4 数组（每位客户的最终决定）。",
+        "每位客户的字段包括 R1/R2/R3_Risk_Level、Overall_Risk_Level、Overall_Risk_Score、Contributing_Agents、Main_Red_Flags、Supporting_Evidence、Recommended_Action 和 Management_Note。"
+      ],
+      "inputs": [
+        "来自 Agent-4 的模型输出"
+      ],
+      "outputs": [
+        "解析后的 JSON → Agent-4"
+      ],
+      "config": [
+        "JSON schema example"
+      ]
+    },
+    "split": {
+      "summary": "将 R4 数组拆分为每位客户一个数据项。",
+      "logic": [
+        "对字段 output.R4 执行 Split Out。",
+        "每位客户的最终决定成为独立的数据项，可直接写成一行 CSV。"
+      ],
+      "inputs": [
+        "来自 Agent-4 的 { Dashboard, R4[] }"
+      ],
+      "outputs": [
+        "每位客户一个数据项 → Generate R4 CSV"
+      ]
+    },
+    "build_dash": {
+      "summary": "以 SVG 绘制管理层仪表盘，其中的数字由代码重新计算。",
+      "logic": [
+        "读取 Agent-4 的 Dashboard 和 R4，但会直接根据 R4 数组重新统计总数、各风险等级计数、各措施计数和百分比，因此数字不依赖模型的算术。",
+        "保留模型生成的定性部分（执行摘要、主要风险信号、建议），若这些内容为空，则回退到默认值或 R4 的 Main_Red_Flags。",
+        "优先处理表格只显示 HIGH 和 MEDIUM 客户，先按风险等级、再按评分排序，最多五行。",
+        "以 SVG 字符串（文本经过 HTML 转义）构建环形图、KPI 卡片和表格，并连同 Calculated_Metrics 对象一并返回。"
+      ],
+      "inputs": [
+        "来自 Agent-4 的 { Dashboard, R4[] }"
+      ],
+      "outputs": [
+        "Management_Report_SVG 文本 → Generate Management SVG"
+      ],
+      "excerptTitle": "Code 节点（指标 + 优先处理客户）"
+    },
+    "r4_csv": {
+      "summary": "将最终建议写入 R4_Agentic_AI_Recommendation.csv。",
+      "logic": [
+        "Convert to File 节点，生成每位客户一行的 CSV。"
+      ],
+      "inputs": [
+        "R4 数据项"
+      ],
+      "outputs": [
+        "R4_Agentic_AI_Recommendation.csv（交付成果 #4）"
+      ],
+      "config": [
+        "R4_Agentic_AI_Recommendation.csv"
+      ]
+    },
+    "svg": {
+      "summary": "将仪表盘保存为 Management_Risk_Dashboard.svg。",
+      "logic": [
+        "文本模式下的 Convert to File，读取 Management_Report_SVG 字段。"
+      ],
+      "inputs": [
+        "Management_Report_SVG 文本"
+      ],
+      "outputs": [
+        "Management_Risk_Dashboard.svg（交付成果 #5）"
+      ],
+      "config": [
+        "Management_Risk_Dashboard.svg"
+      ]
+    }
+  },
+  "tour": [
+    {
+      "title": "1 · 上传输入文件",
+      "body": "分析师提交一份包含八个 CSV 的表单：五个数据文件，以及每位专家智能体各一个规则文件。"
+    },
+    {
+      "title": "2 · 提取 CSV",
+      "body": "八个 Extract From File 节点将每个上传文件转换为 JSON 行。三条泳道并行启动。"
+    },
+    {
+      "title": "3 · 关联数据，聚合规则",
+      "body": "Code 节点基于规范化后的 Customer_ID 对每位客户的文件做内连接，同时 Aggregate 节点将每个规则文件汇总为单个数据项。"
+    },
+    {
+      "title": "4 · 等待数据与规则",
+      "body": "Choose-Branch 合并节点让每个智能体等到客户数据和规则都就绪，然后为每位客户放行一个数据项。"
+    },
+    {
+      "title": "5 · 专家智能体评估",
+      "body": "三个 GPT-4o 智能体（temperature 0）将所有提供的规则应用于每位客户，并返回结构化结论：风险等级、已触发规则、证据和措施。"
+    },
+    {
+      "title": "6 · 保存专家报告",
+      "body": "每个智能体的记录会被写入 CSV（R1、R2、R3），同时并行转发给编排智能体的合并节点。"
+    },
+    {
+      "title": "7 · 编排智能体整合",
+      "body": "报告经过合并、聚合为一个整体数据后交给 Agent-4，由它按客户分组，并应用确定性的 HIGH > MEDIUM > LOW 层级。"
+    },
+    {
+      "title": "8 · 建议与仪表盘",
+      "body": "R4 被拆分为每位客户一行，写入 CSV。与此同时，Code 节点根据 R4 重新计算所有指标，并以 SVG 绘制管理层仪表盘。"
+    }
+  ]
+}

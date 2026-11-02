@@ -145,6 +145,10 @@
       "social-network-analysis": {
         "title": "Analisis Jaringan Sosial",
         "description": "Menganalisis struktur dan dinamika jaringan sosial menggunakan teori graf dan machine learning"
+      },
+      "agentic-risk": {
+        "title": "Workflow Penilaian Risiko Agentic AI",
+        "description": "Workflow n8n multi-agen: tiga agen AI spesialis dan satu orkestrator menilai risiko nasabah bank berdasarkan file aturan yang diunggah, menghasilkan laporan CSV dan dashboard manajemen."
       }
     }
   },
@@ -165,5 +169,36 @@
     "sendAria": "Kirim pesan",
     "genericError": "Terjadi kesalahan. Silakan coba lagi.",
     "networkError": "Tidak dapat terhubung ke asisten. Periksa koneksi Anda dan coba lagi."
+  },
+  "workflow": {
+    "startTour": "Mulai tur terpandu",
+    "exitTour": "Keluar dari tur",
+    "next": "Berikutnya",
+    "back": "Kembali",
+    "step": "Langkah {{current}} dari {{total}}",
+    "hint": "Seret untuk menggeser · Ctrl/⌘ + scroll untuk zoom · Klik node mana pun untuk melihat logikanya",
+    "focus": "Fokus:",
+    "allLanes": "Semua",
+    "showSub": "Tampilkan sub-node model & parser",
+    "zoomIn": "Perbesar",
+    "zoomOut": "Perkecil",
+    "fit": "Sesuaikan layar",
+    "canvasLabel": "Diagram interaktif workflow n8n",
+    "close": "Tutup",
+    "counts": "{{nodes}} node · {{edges}} koneksi",
+    "panel": {
+      "logic": "Cara kerjanya",
+      "config": "Konfigurasi",
+      "dataIn": "Data masuk",
+      "dataOut": "Data keluar",
+      "receivesFrom": "Menerima dari",
+      "sendsTo": "Mengirim ke",
+      "uses": "Menggunakan",
+      "attachedTo": "Terpasang pada",
+      "showExcerpt": "Tampilkan",
+      "hideExcerpt": "Sembunyikan",
+      "emptyTitle": "Pilih sebuah node",
+      "emptyBody": "Klik node mana pun pada diagram untuk melihat fungsinya, logika di baliknya, dan node yang terhubung. Mulai tur terpandu untuk mengikuti satu proses penuh dari unggahan hingga dashboard."
+    }
   }
 }

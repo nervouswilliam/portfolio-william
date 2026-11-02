@@ -1,0 +1,198 @@
+{
+  "id": "agentic_risk",
+  "meta": {
+    "title": "Agentic AI Risk Assessment Workflow",
+    "subtitle": "A Multi-Agent n8n Pipeline for Banking Customer-Risk Screening",
+    "date": "2026",
+    "tabs": ["Overview", "Workflow Explorer", "Agent Design", "Team & Learnings"]
+  },
+  "techStack": [
+    { "key": "n8n", "label": "n8n" },
+    { "key": "openai", "label": "OpenAI GPT-4o" },
+    { "key": "javascript", "label": "JavaScript (Code nodes)" },
+    { "label": "Structured Output Parsers" },
+    { "label": "CSV / SVG" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "Course Information",
+      "items": [
+        { "primary": "Course", "secondary": "ISFA614 - Agentic AI Risk Assessment Workflow Orchestration" },
+        { "primary": "Institution", "secondary": "Singapore Management University" },
+        { "primary": "Group", "secondary": "Group 7" },
+        { "primary": "Scenario", "secondary": "DXS Bank risk assessment lab" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "Workflow Scale",
+      "chip": { "label": "41 nodes · 4 AI agents", "color": "primary" },
+      "captions": [
+        "8 CSV inputs: 5 data files + 3 rule files",
+        "3 specialist agents + 1 orchestrator",
+        "5 outputs: 4 CSV reports + 1 SVG dashboard"
+      ]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "Project Overview",
+        "paragraphs": [
+          {
+            "text": "This group lab builds an agentic AI workflow in n8n that assesses customer risk the way a bank's risk team might. Instead of asking one large model to do everything, the work is split across three specialist AI agents and one orchestrator agent."
+          },
+          {
+            "text": "An analyst uploads eight CSV files: five customer and transaction datasets, plus one rules file for each specialist. Each specialist evaluates every customer against its rules, the orchestrator consolidates their verdicts into one final decision per customer, and the workflow produces CSV reports and a management dashboard as an SVG."
+          },
+          {
+            "text": "A core design choice: risk policy lives in uploaded rule files rather than in the prompts, so rules can be added or changed without touching the workflow.",
+            "variant": "body2",
+            "italic": true
+          }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "The Agent Team",
+        "items": [
+          { "primary": "Agent-1 · Customer Profile Risk", "secondary": "Evaluates customer profile data against the Agent-1 rules" },
+          { "primary": "Agent-2 · Transaction Pattern Risk", "secondary": "Tests transfers and cash deposits against field / operator / value rules" },
+          { "primary": "Agent-3 · Regulatory Screening Risk", "secondary": "Checks screening flags such as watchlist, sanctions, PEP and adverse media" },
+          { "primary": "Agent-4 · Agentic AI Orchestrator", "secondary": "Merges the three reports into a final decision per customer and a portfolio dashboard" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Inputs and Outputs",
+        "description": "One form submission in, five deliverables out:",
+        "items": [
+          { "primary": "Inputs (8 CSVs)", "secondary": "F1 customer profile, F2 transactions, F3 transfers, F4 cash deposits, F5 regulatory screening, and the Agent-1, Agent-2 and Agent-3 rules files" },
+          { "primary": "R1 – R3 specialist reports (CSV)", "secondary": "One risk assessment per customer from each specialist agent" },
+          { "primary": "R4 recommendation report (CSV)", "secondary": "Final risk level, score, red flags and recommended action for every customer" },
+          { "primary": "Management Risk Dashboard (SVG)", "secondary": "KPI cards, risk and action distribution, top red flags and priority customers" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "Concepts Practised",
+        "description": "The lab covers the building blocks of agentic AI systems:",
+        "items": [
+          { "primary": "AI agents, prompts and system messages" },
+          { "primary": "Structured outputs and guardrails" },
+          { "primary": "Hallucination and how to contain it" },
+          { "primary": "Dynamic business rules" },
+          { "primary": "Multi-agent systems and orchestration" },
+          { "primary": "Human oversight (human-in-the-loop)" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "workflowExplorer",
+        "workflowId": "agentic_risk",
+        "title": "Interactive Workflow Explorer",
+        "description": "Explore all 41 nodes of the n8n workflow. Click a node to see the logic behind it, hover to trace its connections, or take the guided tour to follow one run from upload to dashboard."
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "How the Agents Are Designed",
+        "sections": [
+          {
+            "heading": "Specialists apply rules, they don't decide policy",
+            "body": "Each specialist receives one customer record and its rule list, and must evaluate every rule exactly as written. The prompts explicitly forbid inventing, skipping or hard-coding rules, so adding a row to a rules CSV changes behaviour with no workflow edit."
+          },
+          {
+            "heading": "A shared, structured answer",
+            "body": "All three specialists return the same seven fields (Customer_ID, Customer_Name, Risk_Level, Triggered_Rules, Supporting_Evidence, Summary, Recommended_Action), enforced by a Structured Output Parser, so their outputs can be merged and turned into CSV directly."
+          },
+          {
+            "heading": "An orchestrator with a fixed hierarchy",
+            "body": "Agent-4 treats the specialist reports as the source of truth. Any HIGH makes the customer HIGH, otherwise any MEDIUM makes it MEDIUM, otherwise LOW, with fixed scores (90 / 60 / 20) and fixed actions (ESCALATE / MANUAL_REVIEW / APPROVE)."
+          },
+          {
+            "heading": "Code does the arithmetic",
+            "body": "The dashboard Code node recomputes totals, counts and percentages from the R4 array, so the headline numbers don't depend on the language model's calculations. The model contributes the narrative: the executive summary, red flags and recommendations."
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "Agent Comparison",
+        "headers": [{ "label": "Agent" }, { "label": "Focus" }, { "label": "Input data" }, { "label": "Output" }],
+        "rows": [
+          ["Agent-1", "Customer profile risk", "F1 customer profile + F2 transactions, joined by Customer_ID", "R1 CSV"],
+          ["Agent-2", "Transaction pattern risk", "F3 transfers + F4 cash deposits, joined by Customer_ID", "R2 CSV"],
+          ["Agent-3", "Regulatory screening risk", "F5 regulatory screening file", "R3 CSV"],
+          ["Agent-4", "Consolidation and management reporting", "R1 + R2 + R3 specialist reports", "R4 CSV + management dashboard (SVG)"]
+        ],
+        "stripe": true
+      },
+      {
+        "type": "dataTable",
+        "title": "Risk Level to Action Mapping",
+        "description": "Specialists and the orchestrator share the same level-to-action mapping. The fixed overall score is assigned by Agent-4.",
+        "headers": [{ "label": "Risk level" }, { "label": "Recommended action", "align": "center" }, { "label": "Overall score (Agent-4)", "align": "center" }],
+        "rows": [
+          ["HIGH", "ESCALATE", "90"],
+          ["MEDIUM", "MANUAL_REVIEW", "60"],
+          ["LOW", "APPROVE", "20"]
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "Guardrails Against Hallucination",
+        "items": [
+          { "title": "Temperature 0", "caption": "All four GPT-4o models run at temperature 0 for repeatable output" },
+          { "title": "Structured output parsers", "caption": "Every agent must answer in a fixed JSON schema" },
+          { "title": "Self-validation passes", "caption": "Prompts tell agents to re-check triggered rules and recalculate before returning" },
+          { "title": "Rules as data", "caption": "Policy sits in uploaded CSVs; agents may not invent or skip rules" },
+          { "title": "Fixed scoring", "caption": "Overall score and action come from a deterministic mapping, not the model's judgement" },
+          { "title": "Code-computed metrics", "caption": "Dashboard numbers are recounted from R4 by a Code node" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "Key Lesson: Keep a Human in the Loop",
+            "color": "warning",
+            "content": [
+              {
+                "type": "paragraph",
+                "text": "While troubleshooting, the team noticed output containing data that wasn't in the customer file. The cause was a misspelled field name, which meant Agent-4 received no data at all, and the model hallucinated its results instead of failing. It is a concrete example of why human review of agent output matters."
+              }
+            ]
+          },
+          {
+            "title": "Specialisation Beats One Big Agent",
+            "color": "info",
+            "content": [
+              {
+                "type": "paragraph",
+                "text": "Splitting the work into specialised agents with clearly defined roles made the system more efficient and more robust than relying on a single AI for everything, and guardrails kept each agent inside its role."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "teamGrid",
+        "title": "Group 7",
+        "members": [
+          { "name": "Jeremiah William Sebastian", "subtitle": "Lab 1 (Tasks 1–4)" },
+          { "name": "Haoming Kuang", "subtitle": "Lab 2 (Tasks 5–6)" },
+          { "name": "Stainley Suryadinata Winoto", "subtitle": "Lab 3 (Task 7) and workflow quality checks" }
+        ],
+        "footerNote": "ISFA614 · Singapore Management University"
+      }
+    ]
+  ]
+}

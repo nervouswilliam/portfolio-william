@@ -1,0 +1,1491 @@
+{
+  "id": "agentic_risk",
+  "canvas": {
+    "width": 2992,
+    "height": 1160
+  },
+  "categories": [
+    {
+      "id": "trigger",
+      "label": "Trigger"
+    },
+    {
+      "id": "extract",
+      "label": "Extract data"
+    },
+    {
+      "id": "combine",
+      "label": "Combine & gate"
+    },
+    {
+      "id": "agent",
+      "label": "AI agent"
+    },
+    {
+      "id": "model",
+      "label": "Agent sub-node (model / parser)"
+    },
+    {
+      "id": "output",
+      "label": "Output"
+    }
+  ],
+  "lanes": [
+    {
+      "id": "input",
+      "label": "Input",
+      "x": 20,
+      "y": 440,
+      "w": 232,
+      "h": 250
+    },
+    {
+      "id": "agent1",
+      "label": "Agent-1 · Customer Profile Risk",
+      "x": 264,
+      "y": 40,
+      "w": 1336,
+      "h": 360
+    },
+    {
+      "id": "agent2",
+      "label": "Agent-2 · Transaction Pattern Risk",
+      "x": 264,
+      "y": 420,
+      "w": 1336,
+      "h": 360
+    },
+    {
+      "id": "agent3",
+      "label": "Agent-3 · Regulatory Screening Risk",
+      "x": 264,
+      "y": 800,
+      "w": 1336,
+      "h": 340
+    },
+    {
+      "id": "orchestrator",
+      "label": "Agent-4 · Orchestration & Reporting",
+      "x": 1604,
+      "y": 400,
+      "w": 1368,
+      "h": 420
+    }
+  ],
+  "nodes": [
+    {
+      "id": "form",
+      "label": "Customer & Transaction Validation",
+      "lane": "input",
+      "category": "trigger",
+      "typeLabel": "Form Trigger",
+      "x": 60,
+      "y": 520,
+      "w": 176,
+      "h": 64,
+      "summary": "Entry point. An n8n Form Trigger titled “File Repository” asks the analyst to upload all eight CSV inputs in a single submission.",
+      "logic": [
+        "Eight required, .csv-only file fields: F1 (customer profile), F2 (transaction report), F3 (transfers), F4 (cash deposits), F5 (regulatory screening) and one rules file per agent (Agent_1_Rules, Agent_2_Rules, Agent_3_Rules).",
+        "Fans out to eight Extract nodes in parallel, so all three lanes start from the same submission.",
+        "Risk policy is uploaded as data rather than hard-coded, so rules can change without editing the workflow."
+      ],
+      "inputs": [
+        "Form submission with 8 CSV uploads"
+      ],
+      "outputs": [
+        "8 binary files, one for each Extract node"
+      ],
+      "config": [
+        "8 required file fields",
+        ".csv only"
+      ]
+    },
+    {
+      "id": "ex_f1",
+      "label": "Extract F1 - Customer Profile",
+      "lane": "agent1",
+      "category": "extract",
+      "typeLabel": "Extract From File",
+      "x": 284,
+      "y": 90,
+      "w": 176,
+      "h": 64,
+      "summary": "Parses the customer-profile CSV (F1) into JSON.",
+      "logic": [
+        "Reads binary property F1.",
+        "Each CSV row becomes one item keyed by its column headers (for example Customer_ID)."
+      ],
+      "inputs": [
+        "Binary file F1 from the form"
+      ],
+      "outputs": [
+        "Customer profile rows → Merge F1 & F2"
+      ]
+    },
+    {
+      "id": "ex_f2",
+      "label": "Extract F2 - Transaction Report",
+      "lane": "agent1",
+      "category": "extract",
+      "typeLabel": "Extract From File",
+      "x": 284,
+      "y": 170,
+      "w": 176,
+      "h": 64,
+      "summary": "Parses the transaction-report CSV (F2) into JSON.",
+      "logic": [
+        "Reads binary property F2.",
+        "One item per CSV row."
+      ],
+      "inputs": [
+        "Binary file F2 from the form"
+      ],
+      "outputs": [
+        "Transaction rows → Merge F1 & F2"
+      ]
+    },
+    {
+      "id": "ex_r1",
+      "label": "Extract Agent-1 Rules",
+      "lane": "agent1",
+      "category": "extract",
+      "typeLabel": "Extract From File",
+      "x": 284,
+      "y": 270,
+      "w": 176,
+      "h": 64,
+      "summary": "Parses the Agent-1 rules CSV. Each row is one risk rule.",
+      "logic": [
+        "Reads binary property Agent_1_Rules.",
+        "The rows are kept as data so the agent can apply whatever rules are supplied, however many there are.",
+        "Agent-1’s prompt reads these rows straight from this node, and a copy also flows on to the aggregate step."
+      ],
+      "inputs": [
+        "Binary file Agent_1_Rules from the form"
+      ],
+      "outputs": [
+        "Rule rows → Aggregate Agent-1 Rules"
+      ]
+    },
+    {
+      "id": "merge_f1f2",
+      "label": "Merge F1 & F2",
+      "lane": "agent1",
+      "category": "combine",
+      "typeLabel": "Merge",
+      "x": 508,
+      "y": 130,
+      "w": 176,
+      "h": 64,
+      "summary": "Waits for both extracted files before the join step runs.",
+      "logic": [
+        "Takes F1 on input 1 and F2 on input 2 using the node’s default settings.",
+        "The next Code node re-reads both Extract nodes by name, so this node mostly acts as a synchronisation point."
+      ],
+      "inputs": [
+        "F1 rows (input 1)",
+        "F2 rows (input 2)"
+      ],
+      "outputs": [
+        "Combined stream → Join F1 & F2 by Customer ID"
+      ],
+      "ports": [
+        "F1 customer profile",
+        "F2 transactions"
+      ]
+    },
+    {
+      "id": "agg_r1",
+      "label": "Aggregate Agent-1 Rules",
+      "lane": "agent1",
+      "category": "combine",
+      "typeLabel": "Aggregate",
+      "x": 508,
+      "y": 270,
+      "w": 176,
+      "h": 64,
+      "summary": "Collapses all rule rows into a single item.",
+      "logic": [
+        "Mode: aggregate all item data into one field called rules.",
+        "The result is one item holding the whole rule set, which is what the gate node needs to wait for."
+      ],
+      "inputs": [
+        "Rule rows from Extract Agent-1 Rules"
+      ],
+      "outputs": [
+        "One item { rules: […] } → gate input 2"
+      ]
+    },
+    {
+      "id": "join_f1f2",
+      "label": "Join F1 & F2 by Customer ID",
+      "lane": "agent1",
+      "category": "combine",
+      "typeLabel": "Code",
+      "x": 732,
+      "y": 130,
+      "w": 176,
+      "h": 64,
+      "summary": "Joins each transaction row to its customer profile by Customer_ID.",
+      "logic": [
+        "Normalises Customer_ID on both sides (trim + upper-case) so “cust001 ” and “CUST001” match.",
+        "Builds a lookup Map from the F1 profiles, then walks the F2 rows: an inner join, so a row with no matching profile is dropped.",
+        "The output row is {...profile, ...transactionRow, Customer_ID}, so on a column-name clash the F2 value wins."
+      ],
+      "inputs": [
+        "Reads Extract F1 and Extract F2 by node name"
+      ],
+      "outputs": [
+        "One enriched row per matched customer → gate"
+      ],
+      "excerptTitle": "Code node (full)",
+      "excerpt": "// Read all rows from F1 and F2\nconst f1 = $('Extract F1 - Customer Profile').all();\nconst f2 = $('Extract F2 - Transaction Report').all();\n\n// Build a lookup map from F1 using normalized Customer_ID\nconst f1Map = new Map(\n  f1.map(item => [\n    String(item.json.Customer_ID ?? '').trim().toUpperCase(),\n    item.json\n  ])\n);\n\n// INNER JOIN F2 to F1 by Customer_ID\nreturn f2\n  .map(item => {\n    const id = String(item.json.Customer_ID ?? '').trim().toUpperCase();\n    const profile = f1Map.get(id);\n\n    if (!profile) return null;\n\n    return {\n      json: {\n        ...profile,\n        ...item.json,\n        Customer_ID: id\n      }\n    };\n  })\n  .filter(Boolean);",
+      "excerptLang": "js"
+    },
+    {
+      "id": "gate1",
+      "label": "Wait for Customer Data + Rules",
+      "lane": "agent1",
+      "category": "combine",
+      "typeLabel": "Merge · Choose Branch",
+      "x": 956,
+      "y": 200,
+      "w": 176,
+      "h": 64,
+      "summary": "Holds the run until customer data and rules have both arrived, then releases the customer rows.",
+      "logic": [
+        "Merge node in Choose Branch mode: waits for both inputs, then outputs the data from the chosen branch (the joined customer rows).",
+        "The agent below runs once per customer item and reads the rules from Extract Agent-1 Rules directly, so the aggregated rules mainly keep the agent from starting early."
+      ],
+      "inputs": [
+        "Joined customer rows (input 1)",
+        "Aggregated rules (input 2)"
+      ],
+      "outputs": [
+        "Customer rows → Agent-1"
+      ],
+      "ports": [
+        "customer rows",
+        "rules"
+      ]
+    },
+    {
+      "id": "agent1",
+      "label": "Agent-1 - Customer Profile Risk",
+      "lane": "agent1",
+      "category": "agent",
+      "typeLabel": "AI Agent",
+      "x": 1180,
+      "y": 200,
+      "w": 176,
+      "h": 64,
+      "summary": "Specialist #1. Scores each customer’s profile risk against every rule in the rules file.",
+      "logic": [
+        "Runs once per customer. The prompt contains that customer’s record plus the full Agent-1 rule list.",
+        "System message: apply every rule exactly as written, don’t invent, skip or hard-code rules; new rules may be added at any time.",
+        "Triggered_Rules lists only the Rule_IDs whose conditions are true; Risk_Level is the highest severity among them, or LOW if none trigger.",
+        "Recommended_Action follows Risk_Level: LOW = APPROVE, MEDIUM = MANUAL_REVIEW, HIGH = ESCALATE.",
+        "Output is forced into a fixed JSON shape by the connected Structured Output Parser."
+      ],
+      "inputs": [
+        "Customer row (gate)",
+        "Agent-1 rules (read from the Extract node)",
+        "OpenAI Chat Model + Structured Output Parser (sub-nodes)"
+      ],
+      "outputs": [
+        "R1 record → Generate R1 File and Merge (input 1)"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "Structured output"
+      ],
+      "excerptTitle": "System message (excerpt)",
+      "excerpt": "Evaluate the current customer against ALL supplied Agent-1 rules.\n\nInstructions:\n- Read every rule supplied in the Agent-1 rules list.\n- Apply each rule independently and exactly as defined.\n- Do not assume a fixed number of rules.\n- Do not assume specific Rule_ID values.\n- New rules may be added to the rules file at any time.\n- Evaluate all supplied rules dynamically.\n- Use only the supplied customer data and supplied rules.\n- Do not create, modify, skip, or invent rules.\n- Triggered_Rules must contain only the Rule_ID values of rules whose conditions are true.\n- Determine the overall Risk_Level from the severity of the triggered rules.\n- If multiple rules are triggered, use the highest severity.\n- If no rule is triggered, set Risk_Level to LOW."
+    },
+    {
+      "id": "llm1",
+      "label": "OpenAI Chat Model",
+      "lane": "agent1",
+      "category": "model",
+      "typeLabel": "OpenAI Chat Model",
+      "x": 1080,
+      "y": 310,
+      "w": 176,
+      "h": 64,
+      "summary": "The language model that powers Agent-1.",
+      "logic": [
+        "OpenAI gpt-4o with temperature 0 for the most repeatable rule evaluation.",
+        "Attached to the agent as a sub-node; it has no main input or output of its own."
+      ],
+      "inputs": [
+        "Prompt from Agent-1"
+      ],
+      "outputs": [
+        "Completion → Agent-1"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    {
+      "id": "parser1",
+      "label": "Structured Output Parser",
+      "lane": "agent1",
+      "category": "model",
+      "typeLabel": "Structured Output Parser",
+      "x": 1280,
+      "y": 310,
+      "w": 176,
+      "h": 64,
+      "summary": "Forces Agent-1’s answer into a fixed JSON shape.",
+      "logic": [
+        "Schema example: Customer_ID, Customer_Name, Risk_Level, Triggered_Rules, Supporting_Evidence, Summary, Recommended_Action.",
+        "Keeps the answer machine-readable so it can become a CSV row without cleanup."
+      ],
+      "inputs": [
+        "Model output from Agent-1"
+      ],
+      "outputs": [
+        "Parsed JSON → Agent-1"
+      ],
+      "config": [
+        "JSON schema example"
+      ]
+    },
+    {
+      "id": "r1_file",
+      "label": "Generate R1 File",
+      "lane": "agent1",
+      "category": "output",
+      "typeLabel": "Convert to File",
+      "x": 1404,
+      "y": 200,
+      "w": 176,
+      "h": 64,
+      "summary": "Writes the Agent-1 results to R1_Customer_Profile_Risk.csv.",
+      "logic": [
+        "Convert to File node that turns the agent’s items into a CSV.",
+        "Items are flattened to rows; one row per customer assessed."
+      ],
+      "inputs": [
+        "Agent-1 records"
+      ],
+      "outputs": [
+        "R1_Customer_Profile_Risk.csv (deliverable #1)"
+      ],
+      "config": [
+        "R1_Customer_Profile_Risk.csv"
+      ]
+    },
+    {
+      "id": "ex_f3",
+      "label": "Extract F3 - Transfer",
+      "lane": "agent2",
+      "category": "extract",
+      "typeLabel": "Extract From File",
+      "x": 284,
+      "y": 470,
+      "w": 176,
+      "h": 64,
+      "summary": "Parses the transfer report CSV (F3) into JSON.",
+      "logic": [
+        "Reads binary property F3.",
+        "One item per CSV row."
+      ],
+      "inputs": [
+        "Binary file F3 from the form"
+      ],
+      "outputs": [
+        "Transfer rows → Merge F3 & F4"
+      ]
+    },
+    {
+      "id": "ex_f4",
+      "label": "Extract F4 - Cash Deposit",
+      "lane": "agent2",
+      "category": "extract",
+      "typeLabel": "Extract From File",
+      "x": 284,
+      "y": 550,
+      "w": 176,
+      "h": 64,
+      "summary": "Parses the cash-deposit report CSV (F4) into JSON.",
+      "logic": [
+        "Reads binary property F4.",
+        "One item per CSV row."
+      ],
+      "inputs": [
+        "Binary file F4 from the form"
+      ],
+      "outputs": [
+        "Cash deposit rows → Merge F3 & F4"
+      ]
+    },
+    {
+      "id": "ex_r2",
+      "label": "Extract Agent-2 Rules",
+      "lane": "agent2",
+      "category": "extract",
+      "typeLabel": "Extract From File",
+      "x": 284,
+      "y": 650,
+      "w": 176,
+      "h": 64,
+      "summary": "Parses the Agent-2 rules CSV. Each row is one transaction-pattern rule.",
+      "logic": [
+        "Reads binary property Agent_2_Rules.",
+        "Each rule names a Field, an Operator, a Value and a Severity, which the agent evaluates against the customer’s actual numbers."
+      ],
+      "inputs": [
+        "Binary file Agent_2_Rules from the form"
+      ],
+      "outputs": [
+        "Rule rows → Aggregate Agent-2 Rules"
+      ]
+    },
+    {
+      "id": "merge_f3f4",
+      "label": "Merge F3 & F4",
+      "lane": "agent2",
+      "category": "combine",
+      "typeLabel": "Merge",
+      "x": 508,
+      "y": 510,
+      "w": 176,
+      "h": 64,
+      "summary": "Waits for both extracted files before the join step runs.",
+      "logic": [
+        "Takes F3 on input 1 and F4 on input 2 using the node’s default settings.",
+        "As in lane 1, the following Code node re-reads both Extract nodes by name, so this is mostly a synchronisation point."
+      ],
+      "inputs": [
+        "F3 rows (input 1)",
+        "F4 rows (input 2)"
+      ],
+      "outputs": [
+        "Combined stream → Join F3 & F4 by Customer ID"
+      ],
+      "ports": [
+        "F3 transfers",
+        "F4 cash deposits"
+      ]
+    },
+    {
+      "id": "agg_r2",
+      "label": "Aggregate Agent-2 Rules",
+      "lane": "agent2",
+      "category": "combine",
+      "typeLabel": "Aggregate",
+      "x": 508,
+      "y": 650,
+      "w": 176,
+      "h": 64,
+      "summary": "Collapses all Agent-2 rule rows into a single item.",
+      "logic": [
+        "Aggregate all item data into a field called rules.",
+        "Same pattern as lane 1."
+      ],
+      "inputs": [
+        "Rule rows from Extract Agent-2 Rules"
+      ],
+      "outputs": [
+        "One item { rules: […] } → gate input 2"
+      ]
+    },
+    {
+      "id": "join_f3f4",
+      "label": "Join F3 & F4 by Customer ID",
+      "lane": "agent2",
+      "category": "combine",
+      "typeLabel": "Code",
+      "x": 732,
+      "y": 510,
+      "w": 176,
+      "h": 64,
+      "summary": "Joins each customer’s cash-deposit row to their transfer row by Customer_ID.",
+      "logic": [
+        "The same inner-join Code node as lane 1, re-pointed at F3 and F4. The variables are still named f1/f2 from the original.",
+        "Customer_ID is trimmed and upper-cased before matching; unmatched rows are dropped.",
+        "Output merges both rows so Agent-2 sees transfers and cash deposits together."
+      ],
+      "inputs": [
+        "Reads Extract F3 and Extract F4 by node name"
+      ],
+      "outputs": [
+        "One combined row per customer → gate"
+      ],
+      "excerptTitle": "Code node (full)",
+      "excerpt": "// Read all rows from F1 and F2\nconst f1 = $('Extract F3 - Transfer').all();\nconst f2 = $('Extract F4 - Cash Deposit').all();\n\n// Build a lookup map from F1 using normalized Customer_ID\nconst f1Map = new Map(\n  f1.map(item => [\n    String(item.json.Customer_ID ?? '').trim().toUpperCase(),\n    item.json\n  ])\n);\n\n// INNER JOIN F2 to F1 by Customer_ID\nreturn f2\n  .map(item => {\n    const id = String(item.json.Customer_ID ?? '').trim().toUpperCase();\n    const profile = f1Map.get(id);\n\n    if (!profile) return null;\n\n    return {\n      json: {\n        ...profile,\n        ...item.json,\n        Customer_ID: id\n      }\n    };\n  })\n  .filter(Boolean);",
+      "excerptLang": "js"
+    },
+    {
+      "id": "gate2",
+      "label": "Wait for Transaction Data + Rules",
+      "lane": "agent2",
+      "category": "combine",
+      "typeLabel": "Merge · Choose Branch",
+      "x": 956,
+      "y": 580,
+      "w": 176,
+      "h": 64,
+      "summary": "Holds the run until transaction data and rules have both arrived.",
+      "logic": [
+        "Choose Branch merge: waits for both inputs, then passes the joined transaction rows on.",
+        "Agent-2 reads the rules straight from Extract Agent-2 Rules."
+      ],
+      "inputs": [
+        "Joined transaction rows (input 1)",
+        "Aggregated rules (input 2)"
+      ],
+      "outputs": [
+        "Transaction rows → Agent-2"
+      ],
+      "ports": [
+        "transaction rows",
+        "rules"
+      ]
+    },
+    {
+      "id": "agent2",
+      "label": "Agent-2 - Transaction Pattern Risk",
+      "lane": "agent2",
+      "category": "agent",
+      "typeLabel": "AI Agent",
+      "x": 1180,
+      "y": 580,
+      "w": 176,
+      "h": 64,
+      "summary": "Specialist #2. Tests each customer’s transfers and cash deposits against field / operator / value threshold rules.",
+      "logic": [
+        "For every rule it reads the named Field, the customer’s actual value, and the rule’s Operator and Value, then evaluates the condition exactly (> >= < <= = !=).",
+        "Risk_Level must equal the highest Severity among triggered rules; HIGH is only allowed if a triggered rule is HIGH.",
+        "A final validation pass re-checks each triggered rule against the real value, removes any that fail, and recalculates the risk level and evidence.",
+        "Output is constrained by the Structured Output Parser."
+      ],
+      "inputs": [
+        "Transaction row (gate)",
+        "Agent-2 rules (read from the Extract node)",
+        "OpenAI Chat Model + Structured Output Parser (sub-nodes)"
+      ],
+      "outputs": [
+        "R2 record → Generate R2 File and Merge (input 2)"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "Structured output"
+      ],
+      "excerptTitle": "System message (excerpt)",
+      "excerpt": "Interpret operators exactly:\n- > means strictly greater than\n- >= means greater than or equal to\n- < means strictly less than\n- <= means less than or equal to\n- = means equal to\n- != means not equal to\n\n[...]\n\nFinal validation before returning:\n- Re-evaluate every Triggered_Rules entry one last time using the actual customer value, operator, and rule threshold.\n- If any triggered rule condition is false, remove that rule from Triggered_Rules.\n- Supporting_Evidence must correspond only to rules that remain triggered after final validation.\n- Recalculate Risk_Level after final validation using only the remaining triggered rules.\n- If no rules remain after validation, set:\n  Risk_Level = LOW\n  Triggered_Rules = []\n  Supporting_Evidence = []\n  Recommended_Action = APPROVE"
+    },
+    {
+      "id": "llm2",
+      "label": "OpenAI Chat Model1",
+      "lane": "agent2",
+      "category": "model",
+      "typeLabel": "OpenAI Chat Model",
+      "x": 1080,
+      "y": 690,
+      "w": 176,
+      "h": 64,
+      "summary": "The language model that powers Agent-2.",
+      "logic": [
+        "OpenAI gpt-4o, temperature 0.",
+        "Sub-node attached to Agent-2."
+      ],
+      "inputs": [
+        "Prompt from Agent-2"
+      ],
+      "outputs": [
+        "Completion → Agent-2"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    {
+      "id": "parser2",
+      "label": "Structured Output Parser1",
+      "lane": "agent2",
+      "category": "model",
+      "typeLabel": "Structured Output Parser",
+      "x": 1280,
+      "y": 690,
+      "w": 176,
+      "h": 64,
+      "summary": "Forces Agent-2’s answer into the shared record shape.",
+      "logic": [
+        "Same fields as Agent-1: Customer_ID, Customer_Name, Risk_Level, Triggered_Rules, Supporting_Evidence, Summary, Recommended_Action."
+      ],
+      "inputs": [
+        "Model output from Agent-2"
+      ],
+      "outputs": [
+        "Parsed JSON → Agent-2"
+      ],
+      "config": [
+        "JSON schema example"
+      ]
+    },
+    {
+      "id": "r2_file",
+      "label": "Generate R2 File",
+      "lane": "agent2",
+      "category": "output",
+      "typeLabel": "Convert to File",
+      "x": 1404,
+      "y": 580,
+      "w": 176,
+      "h": 64,
+      "summary": "Writes the Agent-2 results to R2_Transaction_Pattern_Risk.csv.",
+      "logic": [
+        "Convert to File node producing a CSV.",
+        "Items are flattened to rows; one row per customer assessed."
+      ],
+      "inputs": [
+        "Agent-2 records"
+      ],
+      "outputs": [
+        "R2_Transaction_Pattern_Risk.csv (deliverable #2)"
+      ],
+      "config": [
+        "R2_Transaction_Pattern_Risk.csv"
+      ]
+    },
+    {
+      "id": "ex_f5",
+      "label": "Regulatory & Transaction File F5",
+      "lane": "agent3",
+      "category": "extract",
+      "typeLabel": "Extract From File",
+      "x": 284,
+      "y": 850,
+      "w": 176,
+      "h": 64,
+      "summary": "Parses the regulatory-screening CSV (F5).",
+      "logic": [
+        "Reads binary property F5.",
+        "Unlike lanes 1 and 2, no join is needed: the screening data is already one file, so this goes straight to the gate."
+      ],
+      "inputs": [
+        "Binary file F5 from the form"
+      ],
+      "outputs": [
+        "Screening rows → gate (input 1)"
+      ]
+    },
+    {
+      "id": "ex_r3",
+      "label": "Extract Agent-3 Rules",
+      "lane": "agent3",
+      "category": "extract",
+      "typeLabel": "Extract From File",
+      "x": 284,
+      "y": 960,
+      "w": 176,
+      "h": 64,
+      "summary": "Parses the Agent-3 rules CSV. Each row is one regulatory-screening rule.",
+      "logic": [
+        "Reads binary property Agent_3_Rules.",
+        "Rules compare screening flags such as watchlist, sanctions, PEP, enforcement and adverse-media against a required value and carry a Severity."
+      ],
+      "inputs": [
+        "Binary file Agent_3_Rules from the form"
+      ],
+      "outputs": [
+        "Rule rows → Aggregate Agent-3 Rules"
+      ]
+    },
+    {
+      "id": "agg_r3",
+      "label": "Aggregate Agent-3 Rules",
+      "lane": "agent3",
+      "category": "combine",
+      "typeLabel": "Aggregate",
+      "x": 508,
+      "y": 960,
+      "w": 176,
+      "h": 64,
+      "summary": "Collapses all Agent-3 rule rows into a single item.",
+      "logic": [
+        "Aggregate all item data into a field called rules."
+      ],
+      "inputs": [
+        "Rule rows from Extract Agent-3 Rules"
+      ],
+      "outputs": [
+        "One item { rules: […] } → gate input 2"
+      ]
+    },
+    {
+      "id": "gate3",
+      "label": "Wait for Customer Data + Rules2",
+      "lane": "agent3",
+      "category": "combine",
+      "typeLabel": "Merge · Choose Branch",
+      "x": 956,
+      "y": 910,
+      "w": 176,
+      "h": 64,
+      "summary": "Holds the run until screening data and rules have both arrived.",
+      "logic": [
+        "Choose Branch merge: waits for F5 (input 1) and the aggregated rules (input 2), then passes the screening rows on."
+      ],
+      "inputs": [
+        "Screening rows (input 1)",
+        "Aggregated rules (input 2)"
+      ],
+      "outputs": [
+        "Screening rows → Agent-3"
+      ],
+      "ports": [
+        "screening rows",
+        "rules"
+      ]
+    },
+    {
+      "id": "agent3",
+      "label": "Agent-3 - Regulatory Screening Risk",
+      "lane": "agent3",
+      "category": "agent",
+      "typeLabel": "AI Agent",
+      "x": 1180,
+      "y": 910,
+      "w": 176,
+      "h": 64,
+      "summary": "Specialist #3. Screens each record against regulatory rules (watchlist, sanctions, PEP and more).",
+      "logic": [
+        "The most detailed specialist prompt: uses only this record and these rules, with no prior executions, remembered results or external knowledge.",
+        "Text comparisons are trimmed and case-insensitive; numeric-looking values are converted to numbers before comparing.",
+        "If a rule’s Field is missing, null or empty, that rule does not trigger and no value is invented.",
+        "The supplied Severity is authoritative: it can’t be upgraded or downgraded, and the overall level is the highest triggered severity.",
+        "Ends with a nine-step self-validation, including a check that nothing from a previous customer leaks into the result."
+      ],
+      "inputs": [
+        "Screening row (gate)",
+        "Agent-3 rules (read from the Extract node)",
+        "OpenAI Chat Model + Structured Output Parser (sub-nodes)"
+      ],
+      "outputs": [
+        "R3 record → Generate R3 File and Merge (input 3)"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "Structured output"
+      ],
+      "excerptTitle": "System message (excerpt)",
+      "excerpt": "MISSING VALUES\n\nIf the Field required by a rule is missing, null, undefined, or empty:\n\n- Do not trigger that rule.\n- Do not invent a value.\n- Do not infer a value.\n\n[...]\n\nSeverity ranking:\n\nHIGH > MEDIUM > LOW\n\nApply these rules exactly:\n\n- If at least one valid triggered rule has Severity = HIGH:\n  Risk_Level = HIGH\n\n- Else if at least one valid triggered rule has Severity = MEDIUM:\n  Risk_Level = MEDIUM\n\n- Else if valid triggered rules exist only with Severity = LOW:\n  Risk_Level = LOW"
+    },
+    {
+      "id": "llm3",
+      "label": "OpenAI Chat Model2",
+      "lane": "agent3",
+      "category": "model",
+      "typeLabel": "OpenAI Chat Model",
+      "x": 1080,
+      "y": 1020,
+      "w": 176,
+      "h": 64,
+      "summary": "The language model that powers Agent-3.",
+      "logic": [
+        "OpenAI gpt-4o, temperature 0, with maxRetries set to 5, the only model node with retries configured."
+      ],
+      "inputs": [
+        "Prompt from Agent-3"
+      ],
+      "outputs": [
+        "Completion → Agent-3"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "maxRetries 5"
+      ]
+    },
+    {
+      "id": "parser3",
+      "label": "Structured Output Parser2",
+      "lane": "agent3",
+      "category": "model",
+      "typeLabel": "Structured Output Parser",
+      "x": 1280,
+      "y": 1020,
+      "w": 176,
+      "h": 64,
+      "summary": "Forces Agent-3’s answer into the shared record shape.",
+      "logic": [
+        "Same seven fields as the other specialists, with an example tailored to regulatory screening."
+      ],
+      "inputs": [
+        "Model output from Agent-3"
+      ],
+      "outputs": [
+        "Parsed JSON → Agent-3"
+      ],
+      "config": [
+        "JSON schema example"
+      ]
+    },
+    {
+      "id": "r3_file",
+      "label": "Generate R3 File",
+      "lane": "agent3",
+      "category": "output",
+      "typeLabel": "Convert to File",
+      "x": 1404,
+      "y": 910,
+      "w": 176,
+      "h": 64,
+      "summary": "Writes the Agent-3 results to R3_Regulatory_Screening.csv.",
+      "logic": [
+        "Convert to File node producing a CSV.",
+        "Items are flattened to rows; one row per customer assessed."
+      ],
+      "inputs": [
+        "Agent-3 records"
+      ],
+      "outputs": [
+        "R3_Regulatory_Screening.csv (deliverable #3)"
+      ],
+      "config": [
+        "R3_Regulatory_Screening.csv"
+      ]
+    },
+    {
+      "id": "merge_all",
+      "label": "Merge",
+      "lane": "orchestrator",
+      "category": "combine",
+      "typeLabel": "Merge · 3 inputs",
+      "x": 1628,
+      "y": 580,
+      "w": 176,
+      "h": 64,
+      "summary": "Collects the three specialist reports into one stream.",
+      "logic": [
+        "A Merge node configured with three inputs: R1 from Agent-1, R2 from Agent-2 and R3 from Agent-3.",
+        "Each report keeps its Customer_ID, which Agent-4 later uses to group them."
+      ],
+      "inputs": [
+        "Agent-1 records (input 1)",
+        "Agent-2 records (input 2)",
+        "Agent-3 records (input 3)"
+      ],
+      "outputs": [
+        "All specialist records → Normalize Specialist Report"
+      ],
+      "ports": [
+        "R1 profile",
+        "R2 transactions",
+        "R3 regulatory"
+      ]
+    },
+    {
+      "id": "normalize",
+      "label": "Normalize Specialist Report",
+      "lane": "orchestrator",
+      "category": "combine",
+      "typeLabel": "Code",
+      "x": 1852,
+      "y": 580,
+      "w": 176,
+      "h": 64,
+      "summary": "Currently a pass-through step.",
+      "logic": [
+        "Still contains n8n’s starter template: it adds a field called myNewField = 1 to every item and returns them.",
+        "No risk field is changed, and the extra field is ignored downstream."
+      ],
+      "inputs": [
+        "All specialist records"
+      ],
+      "outputs": [
+        "Same records → Aggregate Specialist Report"
+      ],
+      "excerptTitle": "Code node (full)",
+      "excerpt": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();",
+      "excerptLang": "js"
+    },
+    {
+      "id": "agg_spec",
+      "label": "Aggregate Specialist Report",
+      "lane": "orchestrator",
+      "category": "combine",
+      "typeLabel": "Aggregate",
+      "x": 2076,
+      "y": 580,
+      "w": 176,
+      "h": 64,
+      "summary": "Packs every specialist record into one item for Agent-4.",
+      "logic": [
+        "Aggregate all item data into a field called reports.",
+        "Agent-4’s prompt injects JSON.stringify($json.reports) as the only data it may use."
+      ],
+      "inputs": [
+        "All specialist records"
+      ],
+      "outputs": [
+        "One item { reports: […] } → Agent-4"
+      ]
+    },
+    {
+      "id": "agent4",
+      "label": "Agent-4 - Agentic AI Orchestrator",
+      "lane": "orchestrator",
+      "category": "agent",
+      "typeLabel": "AI Agent",
+      "x": 2300,
+      "y": 580,
+      "w": 176,
+      "h": 64,
+      "summary": "The orchestrator. Consolidates R1–R3 into one final decision per customer plus a portfolio dashboard.",
+      "logic": [
+        "Treats the specialist reports as the single source of truth: it does not re-run rules or change any specialist Risk_Level.",
+        "Groups records strictly by Customer_ID and must output exactly one R4 record per unique customer.",
+        "Deterministic hierarchy: any HIGH → HIGH, else any MEDIUM → MEDIUM, else LOW. Scores are fixed at 90 / 60 / 20 and actions at ESCALATE / MANUAL_REVIEW / APPROVE.",
+        "Contributing_Agents lists only the specialists that returned MEDIUM or HIGH; all-LOW customers get empty red-flag and evidence lists.",
+        "Writes the executive summary, top red flags and recommendations, then self-validates counts and totals before answering.",
+        "Returns exactly two top-level fields: Dashboard and R4."
+      ],
+      "inputs": [
+        "{ reports } from Aggregate Specialist Report",
+        "OpenAI Chat Model + Structured Output Parser (sub-nodes)"
+      ],
+      "outputs": [
+        "{ Dashboard, R4[] } → Split Out and Build Management Dashboard"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "Structured output"
+      ],
+      "excerptTitle": "System message (excerpt)",
+      "excerpt": "Determine Overall_Risk_Level using this deterministic hierarchy:\n\nIF any of:\n\nR1_Risk_Level = HIGH\nOR\nR2_Risk_Level = HIGH\nOR\nR3_Risk_Level = HIGH\n\nTHEN:\n\nOverall_Risk_Level = HIGH\n\nELSE IF any of:\n\nR1_Risk_Level = MEDIUM\nOR\nR2_Risk_Level = MEDIUM\nOR\nR3_Risk_Level = MEDIUM\n\nTHEN:\n\nOverall_Risk_Level = MEDIUM\n\nELSE:\n\nOverall_Risk_Level = LOW\n\nThis hierarchy is mandatory.\n\nA HIGH specialist assessment can NEVER result in MEDIUM or LOW overall risk.\n\nA MEDIUM specialist assessment can NEVER result in LOW overall risk unless another specialist is HIGH, in which case overall risk is HIGH.\n\n[...]\n\nHIGH -> 90\nMEDIUM -> 60\nLOW -> 20"
+    },
+    {
+      "id": "llm4",
+      "label": "OpenAI Chat Model3",
+      "lane": "orchestrator",
+      "category": "model",
+      "typeLabel": "OpenAI Chat Model",
+      "x": 2200,
+      "y": 690,
+      "w": 176,
+      "h": 64,
+      "summary": "The language model that powers Agent-4.",
+      "logic": [
+        "OpenAI gpt-4o, temperature 0."
+      ],
+      "inputs": [
+        "Prompt from Agent-4"
+      ],
+      "outputs": [
+        "Completion → Agent-4"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    {
+      "id": "parser4",
+      "label": "Structured Output Parser3",
+      "lane": "orchestrator",
+      "category": "model",
+      "typeLabel": "Structured Output Parser",
+      "x": 2400,
+      "y": 690,
+      "w": 176,
+      "h": 64,
+      "summary": "Forces Agent-4’s answer into Dashboard + R4.",
+      "logic": [
+        "The schema example holds a Dashboard object (title, summary, counts, percentages, top red flags, recommendations) and an R4 array (per-customer final decision).",
+        "Per-customer fields include R1/R2/R3_Risk_Level, Overall_Risk_Level, Overall_Risk_Score, Contributing_Agents, Main_Red_Flags, Supporting_Evidence, Recommended_Action and Management_Note."
+      ],
+      "inputs": [
+        "Model output from Agent-4"
+      ],
+      "outputs": [
+        "Parsed JSON → Agent-4"
+      ],
+      "config": [
+        "JSON schema example"
+      ]
+    },
+    {
+      "id": "split",
+      "label": "Split Out",
+      "lane": "orchestrator",
+      "category": "output",
+      "typeLabel": "Split Out",
+      "x": 2524,
+      "y": 470,
+      "w": 176,
+      "h": 64,
+      "summary": "Turns the R4 array into one item per customer.",
+      "logic": [
+        "Split Out on the field output.R4.",
+        "Each customer’s final decision becomes its own item, ready to be written as a CSV row."
+      ],
+      "inputs": [
+        "{ Dashboard, R4[] } from Agent-4"
+      ],
+      "outputs": [
+        "One item per customer → Generate R4 CSV"
+      ]
+    },
+    {
+      "id": "build_dash",
+      "label": "Build Management Dashboard",
+      "lane": "orchestrator",
+      "category": "output",
+      "typeLabel": "Code",
+      "x": 2524,
+      "y": 610,
+      "w": 176,
+      "h": 64,
+      "summary": "Draws the management dashboard as SVG, with the numbers recomputed in code.",
+      "logic": [
+        "Reads Agent-4’s Dashboard and R4, but recounts totals, risk-level counts, action counts and percentages from the R4 array itself, so the figures don’t depend on the model’s arithmetic.",
+        "Keeps the model’s qualitative parts (executive summary, top red flags, recommendations) and falls back to defaults or to R4’s Main_Red_Flags if they’re empty.",
+        "The priority table shows only HIGH and MEDIUM customers, ranked by risk level then score, capped at five rows.",
+        "Builds donut charts, KPI tiles and tables as an SVG string (with HTML-escaped text) and returns it with a Calculated_Metrics object."
+      ],
+      "inputs": [
+        "{ Dashboard, R4[] } from Agent-4"
+      ],
+      "outputs": [
+        "Management_Report_SVG text → Generate Management SVG"
+      ],
+      "excerptTitle": "Code node (metrics + priority customers)",
+      "excerpt": "// Calculate ALL portfolio metrics from the complete R4 array.\n// LOW-risk customers remain part of these calculations.\nconst totalCustomers=r4.length;\nconst highRiskCount=r4.filter(r=>normalizeRisk(r.Overall_Risk_Level)==='HIGH').length;\nconst mediumRiskCount=r4.filter(r=>normalizeRisk(r.Overall_Risk_Level)==='MEDIUM').length;\nconst lowRiskCount=r4.filter(r=>normalizeRisk(r.Overall_Risk_Level)==='LOW').length;\n\nconst escalateCount=r4.filter(r=>normalizeAction(r.Recommended_Action)==='ESCALATE').length;\nconst manualReviewCount=r4.filter(r=>normalizeAction(r.Recommended_Action)==='MANUAL_REVIEW').length;\nconst approveCount=r4.filter(r=>normalizeAction(r.Recommended_Action)==='APPROVE').length;\n\nconst highRiskPct=pct(highRiskCount,totalCustomers);\nconst mediumRiskPct=pct(mediumRiskCount,totalCustomers);\nconst lowRiskPct=pct(lowRiskCount,totalCustomers);\nconst escalatePct=pct(escalateCount,totalCustomers);\nconst manualReviewPct=pct(manualReviewCount,totalCustomers);\nconst approvePct=pct(approveCount,totalCustomers);\n\n// …\n\n// Management table:\n// Show ONLY HIGH and MEDIUM customers.\n// R4 itself is NOT changed.\nconst priorityCustomers=[...r4]\n  .filter(customer=>{\n    const risk=normalizeRisk(customer.Overall_Risk_Level);\n    return risk==='HIGH'||risk==='MEDIUM';\n  })\n  .sort((a,b)=>{\n    const aRank=riskRank[normalizeRisk(a.Overall_Risk_Level)]??0;\n    const bRank=riskRank[normalizeRisk(b.Overall_Risk_Level)]??0;\n    if(bRank!==aRank)return bRank-aRank;\n    return toNum(b.Overall_Risk_Score)-toNum(a.Overall_Risk_Score);\n  })\n  .slice(0,5);",
+      "excerptLang": "js"
+    },
+    {
+      "id": "r4_csv",
+      "label": "Generate R4 CSV",
+      "lane": "orchestrator",
+      "category": "output",
+      "typeLabel": "Convert to File",
+      "x": 2748,
+      "y": 470,
+      "w": 176,
+      "h": 64,
+      "summary": "Writes the final recommendations to R4_Agentic_AI_Recommendation.csv.",
+      "logic": [
+        "Convert to File node producing a CSV with one row per customer."
+      ],
+      "inputs": [
+        "R4 items"
+      ],
+      "outputs": [
+        "R4_Agentic_AI_Recommendation.csv (deliverable #4)"
+      ],
+      "config": [
+        "R4_Agentic_AI_Recommendation.csv"
+      ]
+    },
+    {
+      "id": "svg",
+      "label": "Generate Management SVG1",
+      "lane": "orchestrator",
+      "category": "output",
+      "typeLabel": "Convert to File",
+      "x": 2748,
+      "y": 610,
+      "w": 176,
+      "h": 64,
+      "summary": "Saves the dashboard as Management_Risk_Dashboard.svg.",
+      "logic": [
+        "Convert to File in text mode, reading the Management_Report_SVG field."
+      ],
+      "inputs": [
+        "Management_Report_SVG text"
+      ],
+      "outputs": [
+        "Management_Risk_Dashboard.svg (deliverable #5)"
+      ],
+      "config": [
+        "Management_Risk_Dashboard.svg"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "form",
+      "to": "ex_f2",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "form",
+      "to": "ex_f1",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "form",
+      "to": "ex_r1",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "form",
+      "to": "ex_f3",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "form",
+      "to": "ex_f4",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "form",
+      "to": "ex_r2",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "form",
+      "to": "ex_f5",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "form",
+      "to": "ex_r3",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "ex_f2",
+      "to": "merge_f1f2",
+      "kind": "main",
+      "toPort": 1
+    },
+    {
+      "from": "ex_f1",
+      "to": "merge_f1f2",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "merge_f1f2",
+      "to": "join_f1f2",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "join_f1f2",
+      "to": "gate1",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agg_r1",
+      "to": "gate1",
+      "kind": "main",
+      "toPort": 1
+    },
+    {
+      "from": "gate1",
+      "to": "agent1",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "llm1",
+      "to": "agent1",
+      "kind": "ai",
+      "toPort": 0
+    },
+    {
+      "from": "parser1",
+      "to": "agent1",
+      "kind": "ai",
+      "toPort": 0
+    },
+    {
+      "from": "agent1",
+      "to": "r1_file",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agent1",
+      "to": "merge_all",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "ex_r1",
+      "to": "agg_r1",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "llm2",
+      "to": "agent2",
+      "kind": "ai",
+      "toPort": 0
+    },
+    {
+      "from": "parser2",
+      "to": "agent2",
+      "kind": "ai",
+      "toPort": 0
+    },
+    {
+      "from": "ex_f3",
+      "to": "merge_f3f4",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "ex_f4",
+      "to": "merge_f3f4",
+      "kind": "main",
+      "toPort": 1
+    },
+    {
+      "from": "ex_r2",
+      "to": "agg_r2",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "merge_f3f4",
+      "to": "join_f3f4",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "join_f3f4",
+      "to": "gate2",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agg_r2",
+      "to": "gate2",
+      "kind": "main",
+      "toPort": 1
+    },
+    {
+      "from": "gate2",
+      "to": "agent2",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agent2",
+      "to": "r2_file",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agent2",
+      "to": "merge_all",
+      "kind": "main",
+      "toPort": 1
+    },
+    {
+      "from": "llm3",
+      "to": "agent3",
+      "kind": "ai",
+      "toPort": 0
+    },
+    {
+      "from": "parser3",
+      "to": "agent3",
+      "kind": "ai",
+      "toPort": 0
+    },
+    {
+      "from": "ex_r3",
+      "to": "agg_r3",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "ex_f5",
+      "to": "gate3",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agg_r3",
+      "to": "gate3",
+      "kind": "main",
+      "toPort": 1
+    },
+    {
+      "from": "agent3",
+      "to": "r3_file",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agent3",
+      "to": "merge_all",
+      "kind": "main",
+      "toPort": 2
+    },
+    {
+      "from": "gate3",
+      "to": "agent3",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "merge_all",
+      "to": "normalize",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "normalize",
+      "to": "agg_spec",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agg_spec",
+      "to": "agent4",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "llm4",
+      "to": "agent4",
+      "kind": "ai",
+      "toPort": 0
+    },
+    {
+      "from": "parser4",
+      "to": "agent4",
+      "kind": "ai",
+      "toPort": 0
+    },
+    {
+      "from": "agent4",
+      "to": "split",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "agent4",
+      "to": "build_dash",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "split",
+      "to": "r4_csv",
+      "kind": "main",
+      "toPort": 0
+    },
+    {
+      "from": "build_dash",
+      "to": "svg",
+      "kind": "main",
+      "toPort": 0
+    }
+  ],
+  "tour": [
+    {
+      "title": "1 · Upload the inputs",
+      "body": "An analyst submits one form containing eight CSVs: five data files and one rules file for each specialist agent.",
+      "nodes": [
+        "form"
+      ]
+    },
+    {
+      "title": "2 · Extract the CSVs",
+      "body": "Eight Extract From File nodes turn every upload into JSON rows. All three lanes start in parallel.",
+      "nodes": [
+        "ex_f1",
+        "ex_f2",
+        "ex_r1",
+        "ex_f3",
+        "ex_f4",
+        "ex_r2",
+        "ex_f5",
+        "ex_r3"
+      ]
+    },
+    {
+      "title": "3 · Join data, aggregate rules",
+      "body": "Code nodes inner-join each customer’s files on a normalised Customer_ID, while Aggregate nodes collapse each rules file into a single item.",
+      "nodes": [
+        "merge_f1f2",
+        "join_f1f2",
+        "agg_r1",
+        "merge_f3f4",
+        "join_f3f4",
+        "agg_r2",
+        "agg_r3"
+      ]
+    },
+    {
+      "title": "4 · Wait for data and rules",
+      "body": "Choose-Branch merge nodes make each agent wait until both its customer data and its rules exist, then release one item per customer.",
+      "nodes": [
+        "gate1",
+        "gate2",
+        "gate3"
+      ]
+    },
+    {
+      "title": "5 · Specialist agents evaluate",
+      "body": "Three GPT-4o agents (temperature 0) apply every supplied rule to each customer and return a structured verdict: risk level, triggered rules, evidence and action.",
+      "nodes": [
+        "agent1",
+        "llm1",
+        "parser1",
+        "agent2",
+        "llm2",
+        "parser2",
+        "agent3",
+        "llm3",
+        "parser3"
+      ]
+    },
+    {
+      "title": "6 · Save the specialist reports",
+      "body": "Each agent’s records are written to a CSV (R1, R2, R3) and, in parallel, forwarded to the orchestrator’s merge node.",
+      "nodes": [
+        "r1_file",
+        "r2_file",
+        "r3_file"
+      ]
+    },
+    {
+      "title": "7 · The orchestrator consolidates",
+      "body": "Reports are merged, aggregated into one payload and handed to Agent-4, which groups them by customer and applies a deterministic HIGH > MEDIUM > LOW hierarchy.",
+      "nodes": [
+        "merge_all",
+        "normalize",
+        "agg_spec",
+        "agent4",
+        "llm4",
+        "parser4"
+      ]
+    },
+    {
+      "title": "8 · Recommendations and dashboard",
+      "body": "R4 is split into one row per customer for the CSV. In parallel, a Code node recomputes every metric from R4 and draws the management dashboard as an SVG.",
+      "nodes": [
+        "split",
+        "r4_csv",
+        "build_dash",
+        "svg"
+      ]
+    }
+  ]
+}

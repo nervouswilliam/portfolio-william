@@ -1,0 +1,198 @@
+{
+  "id": "agentic_risk",
+  "meta": {
+    "title": "Agentic AI 风险评估工作流",
+    "subtitle": "面向银行客户风险筛查的多智能体 n8n 流水线",
+    "date": "2026",
+    "tabs": ["概览", "工作流浏览器", "智能体设计", "团队与收获"]
+  },
+  "techStack": [
+    { "key": "n8n", "label": "n8n" },
+    { "key": "openai", "label": "OpenAI GPT-4o" },
+    { "key": "javascript", "label": "JavaScript (Code nodes)" },
+    { "label": "Structured Output Parsers" },
+    { "label": "CSV / SVG" }
+  ],
+  "sidebar": [
+    { "type": "techStack" },
+    {
+      "type": "infoList",
+      "title": "课程信息",
+      "items": [
+        { "primary": "课程", "secondary": "ISFA614 - Agentic AI 风险评估工作流编排" },
+        { "primary": "院校", "secondary": "新加坡管理大学" },
+        { "primary": "小组", "secondary": "第7组" },
+        { "primary": "场景", "secondary": "DXS Bank 风险评估实验" }
+      ]
+    },
+    {
+      "type": "statCard",
+      "title": "工作流规模",
+      "chip": { "label": "41 个节点 · 4 个 AI 智能体", "color": "primary" },
+      "captions": [
+        "8 个 CSV 输入：5 个数据文件 + 3 个规则文件",
+        "3 个专家智能体 + 1 个编排智能体",
+        "5 个输出：4 份 CSV 报告 + 1 个 SVG 仪表盘"
+      ]
+    }
+  ],
+  "tabsContent": [
+    [
+      {
+        "type": "textCard",
+        "title": "项目概述",
+        "paragraphs": [
+          {
+            "text": "本小组实验在 n8n 中构建了一个 agentic AI 工作流，以银行风险团队的方式评估客户风险。我们没有让一个大模型包办所有工作，而是将任务拆分给三个专家 AI 智能体和一个编排智能体。"
+          },
+          {
+            "text": "分析师上传八个 CSV 文件：五个客户与交易数据集，以及每位专家对应的一个规则文件。每位专家依据各自的规则评估每一位客户，编排智能体再将它们的结论整合为每位客户的最终决定，工作流随后生成 CSV 报告以及 SVG 格式的管理层仪表盘。"
+          },
+          {
+            "text": "一项核心设计选择：风险政策存放在上传的规则文件中，而不是写在提示词里，因此无需改动工作流即可新增或修改规则。",
+            "variant": "body2",
+            "italic": true
+          }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "智能体团队",
+        "items": [
+          { "primary": "Agent-1 · 客户画像风险", "secondary": "依据 Agent-1 规则评估客户画像数据" },
+          { "primary": "Agent-2 · 交易模式风险", "secondary": "依据字段 / 运算符 / 数值规则检验转账与现金存款" },
+          { "primary": "Agent-3 · 监管筛查风险", "secondary": "检查观察名单、制裁、PEP 与负面新闻等筛查标记" },
+          { "primary": "Agent-4 · Agentic AI 编排智能体", "secondary": "将三份报告整合为每位客户的最终决定，并生成组合层面的仪表盘" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "输入与输出",
+        "description": "一次表单提交，产出五项交付成果：",
+        "items": [
+          { "primary": "输入（8 个 CSV）", "secondary": "F1 客户画像、F2 交易、F3 转账、F4 现金存款、F5 监管筛查，以及 Agent-1、Agent-2 和 Agent-3 的规则文件" },
+          { "primary": "R1 – R3 专家报告（CSV）", "secondary": "每位专家智能体对每位客户给出的风险评估" },
+          { "primary": "R4 建议报告（CSV）", "secondary": "每位客户的最终风险等级、评分、风险信号和建议措施" },
+          { "primary": "管理层风险仪表盘（SVG）", "secondary": "KPI 卡片、风险与措施分布、主要风险信号及优先处理客户" }
+        ]
+      },
+      {
+        "type": "listCard",
+        "title": "实践的概念",
+        "description": "本实验涵盖了 agentic AI 系统的基本构件：",
+        "items": [
+          { "primary": "AI 智能体、提示词与系统消息" },
+          { "primary": "结构化输出与护栏" },
+          { "primary": "幻觉及其控制方法" },
+          { "primary": "动态业务规则" },
+          { "primary": "多智能体系统与编排" },
+          { "primary": "人工监督（人在回路）" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "workflowExplorer",
+        "workflowId": "agentic_risk",
+        "title": "交互式工作流浏览器",
+        "description": "浏览 n8n 工作流的全部 41 个节点。点击节点可查看其背后的逻辑，悬停可追踪其连接关系，也可以参加导览，跟随一次运行从上传一直走到仪表盘。"
+      }
+    ],
+    [
+      {
+        "type": "sectionsCard",
+        "title": "智能体是如何设计的",
+        "sections": [
+          {
+            "heading": "专家只负责执行规则，不制定政策",
+            "body": "每位专家接收一条客户记录及其规则列表，并且必须严格按照规则原文评估每一条规则。提示词明确禁止自行编造、跳过或硬编码规则，因此只需在规则 CSV 中增加一行，即可改变行为，无需修改工作流。"
+          },
+          {
+            "heading": "统一的结构化答案",
+            "body": "三位专家都返回相同的七个字段（Customer_ID、Customer_Name、Risk_Level、Triggered_Rules、Supporting_Evidence、Summary、Recommended_Action），由 Structured Output Parser 强制执行，因此它们的输出可以直接合并并转换为 CSV。"
+          },
+          {
+            "heading": "遵循固定层级的编排智能体",
+            "body": "Agent-4 将专家报告视为唯一事实来源。只要有任一 HIGH，客户即为 HIGH；否则只要有任一 MEDIUM，即为 MEDIUM；否则为 LOW，并采用固定评分（90 / 60 / 20）和固定措施（ESCALATE / MANUAL_REVIEW / APPROVE）。"
+          },
+          {
+            "heading": "由代码负责计算",
+            "body": "仪表盘的 Code node 会根据 R4 数组重新计算总数、计数和百分比，因此核心数字不依赖语言模型的计算。模型负责的是叙述部分：执行摘要、风险信号和建议。"
+          }
+        ]
+      },
+      {
+        "type": "dataTable",
+        "title": "智能体对比",
+        "headers": [{ "label": "智能体" }, { "label": "关注点" }, { "label": "输入数据" }, { "label": "输出" }],
+        "rows": [
+          ["Agent-1", "客户画像风险", "F1 客户画像 + F2 交易，通过 Customer_ID 关联", "R1 CSV"],
+          ["Agent-2", "交易模式风险", "F3 转账 + F4 现金存款，通过 Customer_ID 关联", "R2 CSV"],
+          ["Agent-3", "监管筛查风险", "F5 监管筛查文件", "R3 CSV"],
+          ["Agent-4", "整合与管理层报告", "R1 + R2 + R3 专家报告", "R4 CSV + 管理层仪表盘（SVG）"]
+        ],
+        "stripe": true
+      },
+      {
+        "type": "dataTable",
+        "title": "风险等级与措施对应关系",
+        "description": "专家与编排智能体共用同一套等级到措施的映射。固定的总体评分由 Agent-4 赋予。",
+        "headers": [{ "label": "风险等级" }, { "label": "建议措施", "align": "center" }, { "label": "总体评分（Agent-4）", "align": "center" }],
+        "rows": [
+          ["HIGH", "ESCALATE", "90"],
+          ["MEDIUM", "MANUAL_REVIEW", "60"],
+          ["LOW", "APPROVE", "20"]
+        ]
+      },
+      {
+        "type": "gridCards",
+        "title": "防范幻觉的护栏",
+        "items": [
+          { "title": "Temperature 0", "caption": "四个 GPT-4o 模型均以 temperature 0 运行，确保输出可重复" },
+          { "title": "结构化输出解析器", "caption": "每个智能体都必须以固定的 JSON 模式作答" },
+          { "title": "自我验证环节", "caption": "提示词要求智能体在返回结果前重新检查已触发的规则并重新计算" },
+          { "title": "规则即数据", "caption": "政策存放在上传的 CSV 中；智能体不得编造或跳过规则" },
+          { "title": "固定评分", "caption": "总体评分和措施来自确定性映射，而非模型的主观判断" },
+          { "title": "代码计算指标", "caption": "仪表盘数字由 Code node 根据 R4 重新统计" }
+        ]
+      }
+    ],
+    [
+      {
+        "type": "highlightBoxes",
+        "items": [
+          {
+            "title": "关键教训：让人保持在回路中",
+            "color": "warning",
+            "content": [
+              {
+                "type": "paragraph",
+                "text": "在排查问题时，团队发现输出中包含客户文件里并不存在的数据。原因是一个字段名拼写错误，导致 Agent-4 完全没有收到任何数据，而模型没有报错，反而凭空编造了结果。这是一个具体的例子，说明了为什么需要对智能体的输出进行人工审核。"
+              }
+            ]
+          },
+          {
+            "title": "专业分工胜过单一的大智能体",
+            "color": "info",
+            "content": [
+              {
+                "type": "paragraph",
+                "text": "将工作拆分给职责明确的专业化智能体，使系统比依赖单个 AI 包办一切更高效、更稳健，而护栏则让每个智能体各守其职。"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "teamGrid",
+        "title": "第7组",
+        "members": [
+          { "name": "Jeremiah William Sebastian", "subtitle": "实验 1（任务 1–4）" },
+          { "name": "Haoming Kuang", "subtitle": "实验 2（任务 5–6）" },
+          { "name": "Stainley Suryadinata Winoto", "subtitle": "实验 3（任务 7）及工作流质量检查" }
+        ],
+        "footerNote": "ISFA614 · Singapore Management University"
+      }
+    ]
+  ]
+}

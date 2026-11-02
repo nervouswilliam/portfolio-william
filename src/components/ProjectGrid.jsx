@@ -206,7 +206,9 @@ import {
   SiPlotly,
   SiKnime,
   SiMysql,
-  SiScikitlearn
+  SiScikitlearn,
+  SiN8N,
+  SiOpenai
 } from "react-icons/si";
 import { DiJava } from "react-icons/di";
 import { RiFileExcel2Fill } from "react-icons/ri";
@@ -222,6 +224,7 @@ import queryProcessingImage from "/projects/query_processing.jpg";
 import evInfrastructure from "/projects/ev_infrastructure.jpg";
 import machineLearning from "/projects/machine_learning.jpg";
 import socialNetwork from "/projects/social_network.png";
+import agenticRisk from "/projects/agentic_risk.png";
 
 
 import { Link as RouterLink } from "react-router-dom";
@@ -272,6 +275,8 @@ export default function ProjectGrid() {
     mysql: { icon: <SiMysql size={22} />, label: "MySQL" },
     excel: { icon: <RiFileExcel2Fill size={22} />, label: "Excel" },
     scikit: { icon: <SiScikitlearn size={22} />, label: "Scikit-learn" },
+    n8n: { icon: <SiN8N size={22} />, label: "n8n" },
+    openai: { icon: <SiOpenai size={22} />, label: "OpenAI" },
   };
 
   const projects = [
@@ -376,6 +381,15 @@ export default function ProjectGrid() {
       image: socialNetwork,
       tech: ["python"],
       details: "social_network_analysis_project",
+    },
+    {
+      id: "agentic-risk",
+      title: t("projects.items.agentic-risk.title"),
+      date: "2026",
+      description: t("projects.items.agentic-risk.description"),
+      image: agenticRisk,
+      tech: ["n8n", "openai"],
+      details: "agentic_risk_project",
     },
   ];
 

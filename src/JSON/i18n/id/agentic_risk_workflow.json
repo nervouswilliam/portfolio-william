@@ -1,0 +1,686 @@
+{
+  "categories": {
+    "trigger": "Pemicu",
+    "extract": "Ekstraksi data",
+    "combine": "Gabung & gerbang",
+    "agent": "Agen AI",
+    "model": "Sub-node agen (model / parser)",
+    "output": "Output"
+  },
+  "lanes": {
+    "input": "Input",
+    "agent1": "Agent-1 · Risiko Profil Nasabah",
+    "agent2": "Agent-2 · Risiko Pola Transaksi",
+    "agent3": "Agent-3 · Risiko Penyaringan Regulasi",
+    "orchestrator": "Agent-4 · Orkestrasi & Pelaporan"
+  },
+  "nodes": {
+    "form": {
+      "summary": "Titik masuk. Sebuah n8n Form Trigger berjudul “File Repository” meminta analis mengunggah kedelapan input CSV dalam satu kali pengiriman.",
+      "logic": [
+        "Delapan field file wajib yang hanya menerima .csv: F1 (profil nasabah), F2 (laporan transaksi), F3 (transfer), F4 (setoran tunai), F5 (penyaringan regulasi), dan satu file aturan per agen (Agent_1_Rules, Agent_2_Rules, Agent_3_Rules).",
+        "Menyebar ke delapan node Extract secara paralel, sehingga ketiga lane mulai dari pengiriman yang sama.",
+        "Kebijakan risiko diunggah sebagai data, bukan ditanam di dalam kode, sehingga aturan dapat berubah tanpa mengedit workflow."
+      ],
+      "inputs": [
+        "Pengiriman formulir dengan 8 unggahan CSV"
+      ],
+      "outputs": [
+        "8 file biner, satu untuk setiap node Extract"
+      ],
+      "config": [
+        "8 field file wajib",
+        "hanya .csv"
+      ]
+    },
+    "ex_f1": {
+      "summary": "Mengurai CSV profil nasabah (F1) menjadi JSON.",
+      "logic": [
+        "Membaca properti biner F1.",
+        "Setiap baris CSV menjadi satu item dengan kunci berupa header kolomnya (misalnya Customer_ID)."
+      ],
+      "inputs": [
+        "File biner F1 dari formulir"
+      ],
+      "outputs": [
+        "Baris profil nasabah → Merge F1 & F2"
+      ]
+    },
+    "ex_f2": {
+      "summary": "Mengurai CSV laporan transaksi (F2) menjadi JSON.",
+      "logic": [
+        "Membaca properti biner F2.",
+        "Satu item per baris CSV."
+      ],
+      "inputs": [
+        "File biner F2 dari formulir"
+      ],
+      "outputs": [
+        "Baris transaksi → Merge F1 & F2"
+      ]
+    },
+    "ex_r1": {
+      "summary": "Mengurai CSV aturan Agent-1. Setiap baris adalah satu aturan risiko.",
+      "logic": [
+        "Membaca properti biner Agent_1_Rules.",
+        "Baris-barisnya disimpan sebagai data agar agen dapat menerapkan aturan apa pun yang diberikan, berapa pun jumlahnya.",
+        "Prompt Agent-1 membaca baris-baris ini langsung dari node ini, dan satu salinannya juga diteruskan ke langkah agregasi."
+      ],
+      "inputs": [
+        "File biner Agent_1_Rules dari formulir"
+      ],
+      "outputs": [
+        "Baris aturan → Aggregate Agent-1 Rules"
+      ]
+    },
+    "merge_f1f2": {
+      "summary": "Menunggu kedua file hasil ekstraksi sebelum langkah join dijalankan.",
+      "logic": [
+        "Menerima F1 pada input 1 dan F2 pada input 2 dengan pengaturan bawaan node.",
+        "Code node berikutnya membaca ulang kedua node Extract berdasarkan nama, sehingga node ini sebagian besar berfungsi sebagai titik sinkronisasi."
+      ],
+      "inputs": [
+        "Baris F1 (input 1)",
+        "Baris F2 (input 2)"
+      ],
+      "outputs": [
+        "Aliran gabungan → Join F1 & F2 by Customer ID"
+      ]
+    },
+    "agg_r1": {
+      "summary": "Meringkas seluruh baris aturan menjadi satu item.",
+      "logic": [
+        "Mode: mengagregasi semua data item ke dalam satu field bernama rules.",
+        "Hasilnya adalah satu item yang memuat seluruh kumpulan aturan, yang perlu ditunggu oleh node gerbang."
+      ],
+      "inputs": [
+        "Baris aturan dari Extract Agent-1 Rules"
+      ],
+      "outputs": [
+        "Satu item { rules: […] } → input 2 gerbang"
+      ]
+    },
+    "join_f1f2": {
+      "summary": "Menggabungkan setiap baris transaksi dengan profil nasabahnya berdasarkan Customer_ID.",
+      "logic": [
+        "Menormalkan Customer_ID di kedua sisi (trim + huruf besar) sehingga “cust001 ” dan “CUST001” cocok.",
+        "Membangun Map pencarian dari profil F1, lalu menelusuri baris F2: ini adalah inner join, sehingga baris tanpa profil yang cocok dibuang.",
+        "Baris output berbentuk {...profile, ...transactionRow, Customer_ID}, sehingga jika nama kolom bentrok, nilai F2 yang dipakai."
+      ],
+      "inputs": [
+        "Membaca Extract F1 dan Extract F2 berdasarkan nama node"
+      ],
+      "outputs": [
+        "Satu baris yang diperkaya per nasabah yang cocok → gerbang"
+      ],
+      "excerptTitle": "Code node (lengkap)"
+    },
+    "gate1": {
+      "summary": "Menahan proses hingga data nasabah dan aturan sama-sama tiba, lalu merilis baris nasabah.",
+      "logic": [
+        "Node Merge dalam mode Choose Branch: menunggu kedua input, lalu mengeluarkan data dari cabang yang dipilih (baris nasabah hasil join).",
+        "Agen di bawahnya berjalan sekali per item nasabah dan membaca aturan langsung dari Extract Agent-1 Rules, sehingga aturan hasil agregasi terutama berfungsi mencegah agen mulai terlalu dini."
+      ],
+      "inputs": [
+        "Baris nasabah hasil join (input 1)",
+        "Aturan hasil agregasi (input 2)"
+      ],
+      "outputs": [
+        "Baris nasabah → Agent-1"
+      ]
+    },
+    "agent1": {
+      "summary": "Spesialis #1. Menilai risiko profil setiap nasabah terhadap setiap aturan dalam file aturan.",
+      "logic": [
+        "Berjalan sekali per nasabah. Prompt berisi data nasabah tersebut beserta daftar lengkap aturan Agent-1.",
+        "System message: terapkan setiap aturan persis seperti yang tertulis, jangan mengarang, melewati, atau menanamkan aturan secara permanen; aturan baru dapat ditambahkan kapan saja.",
+        "Triggered_Rules hanya memuat Rule_ID yang kondisinya terpenuhi; Risk_Level adalah tingkat keparahan tertinggi di antaranya, atau LOW jika tidak ada yang terpicu.",
+        "Recommended_Action mengikuti Risk_Level: LOW = APPROVE, MEDIUM = MANUAL_REVIEW, HIGH = ESCALATE.",
+        "Output dipaksa ke bentuk JSON yang tetap oleh Structured Output Parser yang terhubung."
+      ],
+      "inputs": [
+        "Baris nasabah (gerbang)",
+        "Aturan Agent-1 (dibaca dari node Extract)",
+        "OpenAI Chat Model + Structured Output Parser (sub-node)"
+      ],
+      "outputs": [
+        "Record R1 → Generate R1 File dan Merge (input 1)"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "Structured output"
+      ],
+      "excerptTitle": "System message (kutipan)"
+    },
+    "llm1": {
+      "summary": "Model bahasa yang menjalankan Agent-1.",
+      "logic": [
+        "OpenAI gpt-4o dengan temperature 0 agar evaluasi aturan paling dapat diulang.",
+        "Terpasang pada agen sebagai sub-node; tidak memiliki input atau output utama sendiri."
+      ],
+      "inputs": [
+        "Prompt dari Agent-1"
+      ],
+      "outputs": [
+        "Completion → Agent-1"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    "parser1": {
+      "summary": "Memaksa jawaban Agent-1 ke dalam bentuk JSON yang tetap.",
+      "logic": [
+        "Contoh skema: Customer_ID, Customer_Name, Risk_Level, Triggered_Rules, Supporting_Evidence, Summary, Recommended_Action.",
+        "Menjaga jawaban tetap dapat dibaca mesin sehingga bisa menjadi baris CSV tanpa pembersihan."
+      ],
+      "inputs": [
+        "Keluaran model dari Agent-1"
+      ],
+      "outputs": [
+        "JSON hasil parsing → Agent-1"
+      ],
+      "config": [
+        "contoh skema JSON"
+      ]
+    },
+    "r1_file": {
+      "summary": "Menulis hasil Agent-1 ke R1_Customer_Profile_Risk.csv.",
+      "logic": [
+        "Node Convert to File yang mengubah item agen menjadi CSV.",
+        "Item diratakan menjadi baris; satu baris per nasabah yang dinilai."
+      ],
+      "inputs": [
+        "Record Agent-1"
+      ],
+      "outputs": [
+        "R1_Customer_Profile_Risk.csv (hasil #1)"
+      ],
+      "config": [
+        "R1_Customer_Profile_Risk.csv"
+      ]
+    },
+    "ex_f3": {
+      "summary": "Mengurai CSV laporan transfer (F3) menjadi JSON.",
+      "logic": [
+        "Membaca properti biner F3.",
+        "Satu item per baris CSV."
+      ],
+      "inputs": [
+        "File biner F3 dari formulir"
+      ],
+      "outputs": [
+        "Baris transfer → Merge F3 & F4"
+      ]
+    },
+    "ex_f4": {
+      "summary": "Mengurai CSV laporan setoran tunai (F4) menjadi JSON.",
+      "logic": [
+        "Membaca properti biner F4.",
+        "Satu item per baris CSV."
+      ],
+      "inputs": [
+        "File biner F4 dari formulir"
+      ],
+      "outputs": [
+        "Baris setoran tunai → Merge F3 & F4"
+      ]
+    },
+    "ex_r2": {
+      "summary": "Mengurai CSV aturan Agent-2. Setiap baris adalah satu aturan pola transaksi.",
+      "logic": [
+        "Membaca properti biner Agent_2_Rules.",
+        "Setiap aturan menyebutkan Field, Operator, Value, dan Severity, yang dievaluasi agen terhadap angka aktual nasabah."
+      ],
+      "inputs": [
+        "File biner Agent_2_Rules dari formulir"
+      ],
+      "outputs": [
+        "Baris aturan → Aggregate Agent-2 Rules"
+      ]
+    },
+    "merge_f3f4": {
+      "summary": "Menunggu kedua file hasil ekstraksi sebelum langkah join dijalankan.",
+      "logic": [
+        "Menerima F3 pada input 1 dan F4 pada input 2 dengan pengaturan bawaan node.",
+        "Seperti pada lane 1, Code node berikutnya membaca ulang kedua node Extract berdasarkan nama, sehingga ini sebagian besar merupakan titik sinkronisasi."
+      ],
+      "inputs": [
+        "Baris F3 (input 1)",
+        "Baris F4 (input 2)"
+      ],
+      "outputs": [
+        "Aliran gabungan → Join F3 & F4 by Customer ID"
+      ]
+    },
+    "agg_r2": {
+      "summary": "Meringkas seluruh baris aturan Agent-2 menjadi satu item.",
+      "logic": [
+        "Mengagregasi semua data item ke dalam field bernama rules.",
+        "Pola yang sama seperti lane 1."
+      ],
+      "inputs": [
+        "Baris aturan dari Extract Agent-2 Rules"
+      ],
+      "outputs": [
+        "Satu item { rules: […] } → input 2 gerbang"
+      ]
+    },
+    "join_f3f4": {
+      "summary": "Menggabungkan baris setoran tunai setiap nasabah dengan baris transfernya berdasarkan Customer_ID.",
+      "logic": [
+        "Code node inner-join yang sama seperti lane 1, diarahkan ulang ke F3 dan F4. Nama variabelnya masih f1/f2 dari versi asli.",
+        "Customer_ID di-trim dan diubah ke huruf besar sebelum pencocokan; baris yang tidak cocok dibuang.",
+        "Output menggabungkan kedua baris sehingga Agent-2 melihat transfer dan setoran tunai bersamaan."
+      ],
+      "inputs": [
+        "Membaca Extract F3 dan Extract F4 berdasarkan nama node"
+      ],
+      "outputs": [
+        "Satu baris gabungan per nasabah → gerbang"
+      ],
+      "excerptTitle": "Code node (lengkap)"
+    },
+    "gate2": {
+      "summary": "Menahan proses hingga data transaksi dan aturan sama-sama tiba.",
+      "logic": [
+        "Merge Choose Branch: menunggu kedua input, lalu meneruskan baris transaksi hasil join.",
+        "Agent-2 membaca aturan langsung dari Extract Agent-2 Rules."
+      ],
+      "inputs": [
+        "Baris transaksi hasil join (input 1)",
+        "Aturan hasil agregasi (input 2)"
+      ],
+      "outputs": [
+        "Baris transaksi → Agent-2"
+      ]
+    },
+    "agent2": {
+      "summary": "Spesialis #2. Menguji transfer dan setoran tunai setiap nasabah terhadap aturan ambang batas berbasis field / operator / nilai.",
+      "logic": [
+        "Untuk setiap aturan, agen membaca Field yang disebutkan, nilai aktual nasabah, serta Operator dan Value aturan, lalu mengevaluasi kondisinya secara tepat (> >= < <= = !=).",
+        "Risk_Level harus sama dengan Severity tertinggi di antara aturan yang terpicu; HIGH hanya diperbolehkan jika ada aturan terpicu yang HIGH.",
+        "Tahap validasi akhir memeriksa ulang setiap aturan terpicu terhadap nilai sebenarnya, menghapus yang gagal, dan menghitung ulang tingkat risiko serta bukti.",
+        "Output dibatasi oleh Structured Output Parser."
+      ],
+      "inputs": [
+        "Baris transaksi (gerbang)",
+        "Aturan Agent-2 (dibaca dari node Extract)",
+        "OpenAI Chat Model + Structured Output Parser (sub-node)"
+      ],
+      "outputs": [
+        "Record R2 → Generate R2 File dan Merge (input 2)"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "Structured output"
+      ],
+      "excerptTitle": "System message (kutipan)"
+    },
+    "llm2": {
+      "summary": "Model bahasa yang menjalankan Agent-2.",
+      "logic": [
+        "OpenAI gpt-4o, temperature 0.",
+        "Sub-node yang terpasang pada Agent-2."
+      ],
+      "inputs": [
+        "Prompt dari Agent-2"
+      ],
+      "outputs": [
+        "Completion → Agent-2"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    "parser2": {
+      "summary": "Memaksa jawaban Agent-2 ke dalam bentuk record bersama.",
+      "logic": [
+        "Field yang sama dengan Agent-1: Customer_ID, Customer_Name, Risk_Level, Triggered_Rules, Supporting_Evidence, Summary, Recommended_Action."
+      ],
+      "inputs": [
+        "Keluaran model dari Agent-2"
+      ],
+      "outputs": [
+        "JSON hasil parsing → Agent-2"
+      ],
+      "config": [
+        "contoh skema JSON"
+      ]
+    },
+    "r2_file": {
+      "summary": "Menulis hasil Agent-2 ke R2_Transaction_Pattern_Risk.csv.",
+      "logic": [
+        "Node Convert to File yang menghasilkan CSV.",
+        "Item diratakan menjadi baris; satu baris per nasabah yang dinilai."
+      ],
+      "inputs": [
+        "Record Agent-2"
+      ],
+      "outputs": [
+        "R2_Transaction_Pattern_Risk.csv (hasil #2)"
+      ],
+      "config": [
+        "R2_Transaction_Pattern_Risk.csv"
+      ]
+    },
+    "ex_f5": {
+      "summary": "Mengurai CSV penyaringan regulasi (F5).",
+      "logic": [
+        "Membaca properti biner F5.",
+        "Berbeda dengan lane 1 dan 2, tidak perlu join: data penyaringan sudah berupa satu file, sehingga langsung menuju gerbang."
+      ],
+      "inputs": [
+        "File biner F5 dari formulir"
+      ],
+      "outputs": [
+        "Baris penyaringan → gerbang (input 1)"
+      ]
+    },
+    "ex_r3": {
+      "summary": "Mengurai CSV aturan Agent-3. Setiap baris adalah satu aturan penyaringan regulasi.",
+      "logic": [
+        "Membaca properti biner Agent_3_Rules.",
+        "Aturan membandingkan flag penyaringan seperti watchlist, sanksi, PEP, penegakan hukum, dan adverse media terhadap nilai yang disyaratkan, serta memiliki Severity."
+      ],
+      "inputs": [
+        "File biner Agent_3_Rules dari formulir"
+      ],
+      "outputs": [
+        "Baris aturan → Aggregate Agent-3 Rules"
+      ]
+    },
+    "agg_r3": {
+      "summary": "Meringkas seluruh baris aturan Agent-3 menjadi satu item.",
+      "logic": [
+        "Mengagregasi semua data item ke dalam field bernama rules."
+      ],
+      "inputs": [
+        "Baris aturan dari Extract Agent-3 Rules"
+      ],
+      "outputs": [
+        "Satu item { rules: […] } → input 2 gerbang"
+      ]
+    },
+    "gate3": {
+      "summary": "Menahan proses hingga data penyaringan dan aturan sama-sama tiba.",
+      "logic": [
+        "Merge Choose Branch: menunggu F5 (input 1) dan aturan hasil agregasi (input 2), lalu meneruskan baris penyaringan."
+      ],
+      "inputs": [
+        "Baris penyaringan (input 1)",
+        "Aturan hasil agregasi (input 2)"
+      ],
+      "outputs": [
+        "Baris penyaringan → Agent-3"
+      ]
+    },
+    "agent3": {
+      "summary": "Spesialis #3. Menyaring setiap record terhadap aturan regulasi (watchlist, sanksi, PEP, dan lainnya).",
+      "logic": [
+        "Prompt spesialis yang paling rinci: hanya memakai record dan aturan ini, tanpa eksekusi sebelumnya, hasil yang diingat, atau pengetahuan eksternal.",
+        "Perbandingan teks di-trim dan tidak peka huruf besar-kecil; nilai yang tampak seperti angka dikonversi menjadi angka sebelum dibandingkan.",
+        "Jika Field aturan hilang, null, atau kosong, aturan tersebut tidak terpicu dan tidak ada nilai yang dikarang.",
+        "Severity yang diberikan bersifat otoritatif: tidak boleh dinaikkan atau diturunkan, dan tingkat keseluruhan adalah severity terpicu tertinggi.",
+        "Diakhiri dengan validasi mandiri sembilan langkah, termasuk pemeriksaan bahwa tidak ada data dari nasabah sebelumnya yang bocor ke hasil."
+      ],
+      "inputs": [
+        "Baris penyaringan (gerbang)",
+        "Aturan Agent-3 (dibaca dari node Extract)",
+        "OpenAI Chat Model + Structured Output Parser (sub-node)"
+      ],
+      "outputs": [
+        "Record R3 → Generate R3 File dan Merge (input 3)"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "Structured output"
+      ],
+      "excerptTitle": "System message (kutipan)"
+    },
+    "llm3": {
+      "summary": "Model bahasa yang menjalankan Agent-3.",
+      "logic": [
+        "OpenAI gpt-4o, temperature 0, dengan maxRetries diatur ke 5, satu-satunya node model yang memiliki konfigurasi retry."
+      ],
+      "inputs": [
+        "Prompt dari Agent-3"
+      ],
+      "outputs": [
+        "Completion → Agent-3"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "maxRetries 5"
+      ]
+    },
+    "parser3": {
+      "summary": "Memaksa jawaban Agent-3 ke dalam bentuk record bersama.",
+      "logic": [
+        "Tujuh field yang sama seperti spesialis lainnya, dengan contoh yang disesuaikan untuk penyaringan regulasi."
+      ],
+      "inputs": [
+        "Keluaran model dari Agent-3"
+      ],
+      "outputs": [
+        "JSON hasil parsing → Agent-3"
+      ],
+      "config": [
+        "contoh skema JSON"
+      ]
+    },
+    "r3_file": {
+      "summary": "Menulis hasil Agent-3 ke R3_Regulatory_Screening.csv.",
+      "logic": [
+        "Node Convert to File yang menghasilkan CSV.",
+        "Item diratakan menjadi baris; satu baris per nasabah yang dinilai."
+      ],
+      "inputs": [
+        "Record Agent-3"
+      ],
+      "outputs": [
+        "R3_Regulatory_Screening.csv (hasil #3)"
+      ],
+      "config": [
+        "R3_Regulatory_Screening.csv"
+      ]
+    },
+    "merge_all": {
+      "summary": "Mengumpulkan ketiga laporan spesialis menjadi satu aliran.",
+      "logic": [
+        "Node Merge yang dikonfigurasi dengan tiga input: R1 dari Agent-1, R2 dari Agent-2, dan R3 dari Agent-3.",
+        "Setiap laporan mempertahankan Customer_ID-nya, yang kemudian dipakai Agent-4 untuk mengelompokkannya."
+      ],
+      "inputs": [
+        "Record Agent-1 (input 1)",
+        "Record Agent-2 (input 2)",
+        "Record Agent-3 (input 3)"
+      ],
+      "outputs": [
+        "Semua record spesialis → Normalize Specialist Report"
+      ]
+    },
+    "normalize": {
+      "summary": "Saat ini hanya berfungsi sebagai langkah pass-through.",
+      "logic": [
+        "Masih berisi template awal n8n: menambahkan field bernama myNewField = 1 ke setiap item lalu mengembalikannya.",
+        "Tidak ada field risiko yang diubah, dan field tambahan tersebut diabaikan di tahap selanjutnya."
+      ],
+      "inputs": [
+        "Semua record spesialis"
+      ],
+      "outputs": [
+        "Record yang sama → Aggregate Specialist Report"
+      ],
+      "excerptTitle": "Code node (lengkap)"
+    },
+    "agg_spec": {
+      "summary": "Mengemas seluruh record spesialis menjadi satu item untuk Agent-4.",
+      "logic": [
+        "Mengagregasi semua data item ke dalam field bernama reports.",
+        "Prompt Agent-4 menyisipkan JSON.stringify($json.reports) sebagai satu-satunya data yang boleh dipakainya."
+      ],
+      "inputs": [
+        "Semua record spesialis"
+      ],
+      "outputs": [
+        "Satu item { reports: […] } → Agent-4"
+      ]
+    },
+    "agent4": {
+      "summary": "Orkestrator. Mengonsolidasikan R1–R3 menjadi satu keputusan akhir per nasabah plus dasbor portofolio.",
+      "logic": [
+        "Memperlakukan laporan spesialis sebagai satu-satunya sumber kebenaran: tidak menjalankan ulang aturan atau mengubah Risk_Level spesialis mana pun.",
+        "Mengelompokkan record secara ketat berdasarkan Customer_ID dan harus menghasilkan tepat satu record R4 per nasabah unik.",
+        "Hierarki deterministik: ada HIGH → HIGH, jika tidak ada MEDIUM → MEDIUM, selain itu LOW. Skor ditetapkan 90 / 60 / 20 dan tindakan ESCALATE / MANUAL_REVIEW / APPROVE.",
+        "Contributing_Agents hanya mencantumkan spesialis yang mengembalikan MEDIUM atau HIGH; nasabah yang seluruhnya LOW mendapat daftar red flag dan bukti yang kosong.",
+        "Menulis ringkasan eksekutif, red flag teratas, dan rekomendasi, lalu memvalidasi sendiri jumlah dan total sebelum menjawab.",
+        "Mengembalikan tepat dua field tingkat atas: Dashboard dan R4."
+      ],
+      "inputs": [
+        "{ reports } dari Aggregate Specialist Report",
+        "OpenAI Chat Model + Structured Output Parser (sub-node)"
+      ],
+      "outputs": [
+        "{ Dashboard, R4[] } → Split Out dan Build Management Dashboard"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0",
+        "Structured output"
+      ],
+      "excerptTitle": "System message (kutipan)"
+    },
+    "llm4": {
+      "summary": "Model bahasa yang menjalankan Agent-4.",
+      "logic": [
+        "OpenAI gpt-4o, temperature 0."
+      ],
+      "inputs": [
+        "Prompt dari Agent-4"
+      ],
+      "outputs": [
+        "Completion → Agent-4"
+      ],
+      "config": [
+        "gpt-4o",
+        "temperature 0"
+      ]
+    },
+    "parser4": {
+      "summary": "Memaksa jawaban Agent-4 ke dalam Dashboard + R4.",
+      "logic": [
+        "Contoh skema memuat objek Dashboard (judul, ringkasan, jumlah, persentase, red flag teratas, rekomendasi) dan array R4 (keputusan akhir per nasabah).",
+        "Field per nasabah mencakup R1/R2/R3_Risk_Level, Overall_Risk_Level, Overall_Risk_Score, Contributing_Agents, Main_Red_Flags, Supporting_Evidence, Recommended_Action, dan Management_Note."
+      ],
+      "inputs": [
+        "Keluaran model dari Agent-4"
+      ],
+      "outputs": [
+        "JSON hasil parsing → Agent-4"
+      ],
+      "config": [
+        "contoh skema JSON"
+      ]
+    },
+    "split": {
+      "summary": "Mengubah array R4 menjadi satu item per nasabah.",
+      "logic": [
+        "Split Out pada field output.R4.",
+        "Keputusan akhir setiap nasabah menjadi item tersendiri, siap ditulis sebagai baris CSV."
+      ],
+      "inputs": [
+        "{ Dashboard, R4[] } dari Agent-4"
+      ],
+      "outputs": [
+        "Satu item per nasabah → Generate R4 CSV"
+      ]
+    },
+    "build_dash": {
+      "summary": "Menggambar dasbor manajemen sebagai SVG, dengan angka yang dihitung ulang di dalam kode.",
+      "logic": [
+        "Membaca Dashboard dan R4 dari Agent-4, tetapi menghitung ulang total, jumlah tingkat risiko, jumlah tindakan, dan persentase dari array R4 itu sendiri, sehingga angkanya tidak bergantung pada aritmetika model.",
+        "Mempertahankan bagian kualitatif dari model (ringkasan eksekutif, red flag teratas, rekomendasi) dan memakai nilai bawaan atau Main_Red_Flags dari R4 jika bagian tersebut kosong.",
+        "Tabel prioritas hanya menampilkan nasabah HIGH dan MEDIUM, diurutkan berdasarkan tingkat risiko lalu skor, dibatasi lima baris.",
+        "Membangun donut chart, kartu KPI, dan tabel sebagai string SVG (dengan teks yang di-escape HTML) dan mengembalikannya bersama objek Calculated_Metrics."
+      ],
+      "inputs": [
+        "{ Dashboard, R4[] } dari Agent-4"
+      ],
+      "outputs": [
+        "Teks Management_Report_SVG → Generate Management SVG"
+      ],
+      "excerptTitle": "Code node (metrik + nasabah prioritas)"
+    },
+    "r4_csv": {
+      "summary": "Menulis rekomendasi akhir ke R4_Agentic_AI_Recommendation.csv.",
+      "logic": [
+        "Node Convert to File yang menghasilkan CSV dengan satu baris per nasabah."
+      ],
+      "inputs": [
+        "Item R4"
+      ],
+      "outputs": [
+        "R4_Agentic_AI_Recommendation.csv (hasil #4)"
+      ],
+      "config": [
+        "R4_Agentic_AI_Recommendation.csv"
+      ]
+    },
+    "svg": {
+      "summary": "Menyimpan dasbor sebagai Management_Risk_Dashboard.svg.",
+      "logic": [
+        "Convert to File dalam mode teks, membaca field Management_Report_SVG."
+      ],
+      "inputs": [
+        "Teks Management_Report_SVG"
+      ],
+      "outputs": [
+        "Management_Risk_Dashboard.svg (hasil #5)"
+      ],
+      "config": [
+        "Management_Risk_Dashboard.svg"
+      ]
+    }
+  },
+  "tour": [
+    {
+      "title": "1 · Unggah input",
+      "body": "Seorang analis mengirim satu formulir berisi delapan CSV: lima file data dan satu file aturan untuk setiap agen spesialis."
+    },
+    {
+      "title": "2 · Ekstrak CSV",
+      "body": "Delapan node Extract From File mengubah setiap unggahan menjadi baris JSON. Ketiga lane mulai secara paralel."
+    },
+    {
+      "title": "3 · Gabungkan data, agregasi aturan",
+      "body": "Code node meng-inner-join file setiap nasabah berdasarkan Customer_ID yang dinormalkan, sementara node Aggregate meringkas setiap file aturan menjadi satu item."
+    },
+    {
+      "title": "4 · Tunggu data dan aturan",
+      "body": "Node Merge Choose-Branch membuat setiap agen menunggu hingga data nasabah dan aturannya sama-sama tersedia, lalu merilis satu item per nasabah."
+    },
+    {
+      "title": "5 · Agen spesialis mengevaluasi",
+      "body": "Tiga agen GPT-4o (temperature 0) menerapkan setiap aturan yang diberikan pada setiap nasabah dan mengembalikan penilaian terstruktur: tingkat risiko, aturan terpicu, bukti, dan tindakan."
+    },
+    {
+      "title": "6 · Simpan laporan spesialis",
+      "body": "Record setiap agen ditulis ke CSV (R1, R2, R3) dan, secara paralel, diteruskan ke node merge milik orkestrator."
+    },
+    {
+      "title": "7 · Orkestrator mengonsolidasikan",
+      "body": "Laporan digabungkan, diagregasi menjadi satu payload, dan diserahkan ke Agent-4, yang mengelompokkannya per nasabah dan menerapkan hierarki deterministik HIGH > MEDIUM > LOW."
+    },
+    {
+      "title": "8 · Rekomendasi dan dasbor",
+      "body": "R4 dipecah menjadi satu baris per nasabah untuk CSV. Secara paralel, sebuah Code node menghitung ulang setiap metrik dari R4 dan menggambar dasbor manajemen sebagai SVG."
+    }
+  ]
+}
