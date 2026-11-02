@@ -200,5 +200,10 @@
       "emptyTitle": "Select a node",
       "emptyBody": "Click any node in the diagram to see what it does, the logic behind it, and the nodes it connects to. Start the guided tour to follow a full run from upload to dashboard."
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page does not exist or is no longer published.",
+    "back": "Back to home"
   }
 }

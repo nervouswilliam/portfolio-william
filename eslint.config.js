@@ -26,4 +26,8 @@ export default defineConfig([
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
   },
+  {
+    files: ['api/**/*.{js,mjs}', 'supabase/**/*.mjs'],
+    languageOptions: { globals: globals.node },
+  },
 ])

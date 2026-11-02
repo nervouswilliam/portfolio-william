@@ -1,22 +1,12 @@
 import React from "react";
 import { Box, Grid, Paper, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
-
-// school/period/gpa are locale-invariant; degree & description come from the
-// active translation resource, matched by array index.
-const educationMeta = [
-  { school: "Singapore Management University (SMU)", period: "2026-2027", gpa: "3.58 / 4.00" },
-  { school: "Bina Nusantara University (BINUS)", period: "2021-2025", gpa: "3.67 / 4.00" },
-];
+import { useLocalizedItems } from "../content/useContent";
 
 export default function EducationSection() {
   const { t } = useTranslation();
-  const translatedItems = t("education.items", { returnObjects: true });
-  const educationData = educationMeta.map((meta, i) => ({
-    ...meta,
-    degree: translatedItems[i]?.degree,
-    description: translatedItems[i]?.description || [],
-  }));
+  const { items } = useLocalizedItems("education");
+  const educationData = items.map((it) => ({ ...it.fields, description: it.fields.description || [] }));
 
   return (
     <Box
@@ -78,13 +68,18 @@ export default function EducationSection() {
                 ))}
               </Box>
 
-              <Typography
-                variant="body2"
-                color="text.secondary"
-                sx={{ mt: 2, fontStyle: "italic" }}
-              >
-                {t("education.gpaLabel")}: {edu.gpa}
-              </Typography>
+              {edu.gpa && (
+  
+                <Typography
+                  variant="body2"
+                  color="text.secondary"
+                  sx={{ mt: 2, fontStyle: "italic" }}
+                >
+                  {t("education.gpaLabel")}: {edu.gpa}
+                </Typography>
+
+
+              )}
             </Paper>
           </Grid>
         ))}

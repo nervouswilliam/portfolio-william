@@ -35,19 +35,8 @@ import {
   SiJavascript,
 } from "react-icons/si";
 import { useTranslation } from "react-i18next";
-import { getProjectData } from "../JSON/i18n/registry";
 import SEO from "./SEO";
 import WorkflowExplorer from "./WorkflowExplorer";
-
-const OG_IMAGES = {
-  agentic_risk: "/projects/agentic_risk.png",
-  hdb: "/projects/hdb.jpg",
-  fraud_detection: "/projects/fraud_detection.jpg",
-  query_optimization: "/projects/query_processing.jpg",
-  ev_infrastructure: "/projects/ev_infrastructure.jpg",
-  social_network_analysis: "/projects/social_network.png",
-  machine_learning: "/projects/machine_learning.jpg",
-};
 
 // ---------------------------------------------------------------------------
 // Icon registry — add new icons here and reference them by key in the JSON
@@ -501,49 +490,68 @@ const BLOCK_COMPONENTS = {
 // ---------------------------------------------------------------------------
 // Main component — pass in a `data` object matching the JSON schema
 // ---------------------------------------------------------------------------
-const ProjectDetailComponent = ({ data, projectKey }) => {
+// Content is editable, so one malformed block must never take the whole page down.
+class BlockBoundary extends React.Component {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  componentDidCatch(error) {
+    console.error("A content block could not be displayed:", error);
+  }
+  render() {
+    if (!this.state.failed) return this.props.children;
+    return this.props.showError ? (
+      <Typography variant="caption" color="error" sx={{ display: "block", mb: 2 }}>
+        This block could not be displayed. Check its JSON.
+      </Typography>
+    ) : null;
+  }
+}
+
+// `data` is the already-localized detail page. `preview` renders it inside the admin
+// without touching the page title or navigation.
+const ProjectDetailComponent = ({ data, ogImage, canonicalPath, preview = false }) => {
   const [activeTab, setActiveTab] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
-  // Prefer locale-aware content resolved from projectKey; fall back to a
-  // directly-passed `data` prop (kept for backwards compatibility).
-  const resolvedData = projectKey
-    ? getProjectData(projectKey, i18n.resolvedLanguage) || data
-    : data;
+  if (!data) return null;
 
-  if (!resolvedData) return null;
-
-  const { meta, techStack = [], sidebar = [], tabsContent = [] } = resolvedData;
+  const { meta, techStack = [], sidebar = [], tabsContent = [] } = data;
   const activeBlocks = tabsContent[activeTab] || [];
   const showSidebar = activeTab === 0 && sidebar.length > 0;
 
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "background.default", py: 4 }}>
-      <SEO
-        title={meta.title}
-        description={meta.subtitle}
-        path={location.pathname}
-        image={OG_IMAGES[projectKey]}
-      />
+      {!preview && (
+        <SEO
+          title={meta.title}
+          description={meta.subtitle}
+          path={canonicalPath ?? location.pathname}
+          image={ogImage}
+        />
+      )}
       <Container maxWidth="lg">
-        <Button
-          startIcon={<ArrowBack />}
-          onClick={() => navigate(-1)}
-          variant="contained"
-          sx={{
-            mt: 6,
-            mb: 4,
-            position: "relative",
-            zIndex: 10,
-            color: "#fff",
-            backgroundColor: "primary.main",
-            "&:hover": { backgroundColor: "primary.dark" },
-          }}
-        >
-          {t("projectDetail.backToProjects")}
-        </Button>
+        {!preview && (
+          <Button
+            startIcon={<ArrowBack />}
+            onClick={() => navigate(-1)}
+            variant="contained"
+            sx={{
+              mt: 6,
+              mb: 4,
+              position: "relative",
+              zIndex: 10,
+              color: "#fff",
+              backgroundColor: "primary.main",
+              "&:hover": { backgroundColor: "primary.dark" },
+            }}
+          >
+            {t("projectDetail.backToProjects")}
+          </Button>
+        )}
 
         {/* Header */}
         <Box sx={{ mb: 4 }}>
@@ -575,7 +583,11 @@ const ProjectDetailComponent = ({ data, projectKey }) => {
             {activeBlocks.map((block, i) => {
               const Component = BLOCK_COMPONENTS[block.type];
               if (!Component) return null;
-              return <Component key={i} {...block} />;
+              return (
+                <BlockBoundary key={i} showError={preview}>
+                  <Component {...block} />
+                </BlockBoundary>
+              );
             })}
           </Grid>
 
@@ -585,7 +597,11 @@ const ProjectDetailComponent = ({ data, projectKey }) => {
                 const Component = SIDEBAR_COMPONENTS[block.type];
                 if (!Component) return null;
                 const props = block.type === "techStack" ? { items: techStack } : block;
-                return <Component key={i} {...props} />;
+                return (
+                  <BlockBoundary key={i} showError={preview}>
+                    <Component {...props} />
+                  </BlockBoundary>
+                );
               })}
             </Grid>
           )}

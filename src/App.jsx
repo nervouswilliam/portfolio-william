@@ -1,49 +1,54 @@
-// import React from "react";
-// import { CssBaseline } from "@mui/material";
-// import Navbar from "./components/Navbar";
-// import Home from "./pages/home";
-
-// export default function App() {
-//   return (
-//     <>
-//       {/* Resets CSS defaults for consistency */}
-//       <CssBaseline />
-
-//       {/* Fixed navigation bar */}
-//       <Navbar />
-
-//       {/* Main content */}
-//       <Home />
-//     </>
-//   );  
-// }
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom"; // 1. Import these
+import React, { Suspense, lazy } from "react";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { CssBaseline } from "@mui/material";
 import ChatWidget from "./components/ChatWidget";
 import Navbar from "./components/Navbar";
 import Home from "./pages/home";
-import ScrollToTop from "./components/ScrollToTop"; // 3. Import ScrollToTop component
-import ProjectDetailComponent from "./components/ProjectDetailComponent";
+import ScrollToTop from "./components/ScrollToTop";
+import ProjectDetailRoute from "./pages/ProjectDetailRoute";
+
+// The editor is only downloaded by the owner, never by regular visitors.
+const AdminPage = lazy(() => import("./pages/admin/AdminPage"));
+
+// The original project URLs keep working; each one maps to a project slug.
+const LEGACY_PROJECT_ROUTES = {
+  hdb_project: "hdb-resale",
+  fraud_detection_project: "fraud-detection",
+  query_optimization_project: "query-optimization",
+  ev_infrastructure_project: "ev-infrastructure",
+  social_network_analysis_project: "social-network-analysis",
+  machine_learning_project: "machine-learning",
+  agentic_risk_project: "agentic-risk",
+};
+
+function Shell() {
+  const isAdmin = useLocation().pathname.startsWith("/admin");
+  return (
+    <>
+      <ScrollToTop />
+      <CssBaseline />
+      {!isAdmin && <Navbar />}
+
+      <Suspense fallback={null}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          {Object.entries(LEGACY_PROJECT_ROUTES).map(([path, slug]) => (
+            <Route key={path} path={`/${path}`} element={<ProjectDetailRoute slug={slug} />} />
+          ))}
+          <Route path="/projects/:slug" element={<ProjectDetailRoute />} />
+          <Route path="/admin" element={<AdminPage />} />
+        </Routes>
+      </Suspense>
+
+      {!isAdmin && <ChatWidget />}
+    </>
+  );
+}
 
 export default function App() {
   return (
-    <BrowserRouter> {/* 3. Wrap everything in BrowserRouter */}
-      <ScrollToTop />
-      <CssBaseline />
-      <Navbar />
-
-      <Routes> {/* 4. Define your paths here */}
-        <Route path="/" element={<Home />} />
-        <Route path="/hdb_project" element={<ProjectDetailComponent projectKey="hdb" />} />
-        <Route path="/fraud_detection_project" element={<ProjectDetailComponent projectKey="fraud_detection" />} />
-        <Route path="/query_optimization_project" element={<ProjectDetailComponent projectKey="query_optimization" />} />
-        <Route path="/ev_infrastructure_project" element={<ProjectDetailComponent projectKey="ev_infrastructure" />} />
-        <Route path="/social_network_analysis_project" element={<ProjectDetailComponent projectKey="social_network_analysis" />} />
-        <Route path="/machine_learning_project" element={<ProjectDetailComponent projectKey="machine_learning" />} />
-        <Route path="/agentic_risk_project" element={<ProjectDetailComponent projectKey="agentic_risk" />} />
-      </Routes>
-      <ChatWidget />
+    <BrowserRouter>
+      <Shell />
     </BrowserRouter>
   );
 }

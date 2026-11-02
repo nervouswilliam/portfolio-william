@@ -40,7 +40,8 @@ export default function SEO({ title, description, path = "/", image }) {
     const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} — Portfolio`;
     const desc = description || DEFAULT_DESCRIPTION;
     const url = `${SITE_URL}${path}`;
-    const img = image ? `${SITE_URL}${image}` : DEFAULT_IMAGE;
+    const isAbsolute = /^https?:\/\//i.test(image ?? "");
+    const img = image ? (isAbsolute ? image : `${SITE_URL}${image}`) : DEFAULT_IMAGE;
 
     document.title = fullTitle;
     upsertMeta("name", "description", desc);

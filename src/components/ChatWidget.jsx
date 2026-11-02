@@ -71,7 +71,7 @@ export default function ChatWidget() {
       }
 
       setMessages((prev) => [...prev, { role: "assistant", content: data.reply }]);
-    } catch (err) {
+    } catch {
       setError(t("chat.networkError"));
     } finally {
       setLoading(false);

@@ -11,25 +11,12 @@ import {
 import { Box, Typography, Paper } from "@mui/material";
 import WorkIcon from "@mui/icons-material/Work";
 import { useTranslation } from "react-i18next";
-
-// company/period are locale-invariant (proper nouns / dates); title & description
-// come from the active translation resource, matched by array index.
-const experienceMeta = [
-  { company: "Essilor Luxottica", period: "July 2026 - Present" },
-  { company: "Wisely", period: "February 2025 - November 2025" },
-  { company: "Bank Central Asia (BCA)", period: "April 2024 - February 2025" },
-  { company: "Bank Central Asia (BCA)", period: "February 2024 – April 2024" },
-  { company: "Dev4You Nonprofit Platform (Final Year Thesis)", period: "2024 – 2025" },
-];
+import { useLocalizedItems } from "../content/useContent";
 
 export default function ExperienceTimeline() {
   const { t } = useTranslation();
-  const translatedItems = t("experience.items", { returnObjects: true });
-  const experiences = experienceMeta.map((meta, i) => ({
-    ...meta,
-    title: translatedItems[i]?.title,
-    description: translatedItems[i]?.description || [],
-  }));
+  const { items } = useLocalizedItems("experience");
+  const experiences = items.map((it) => ({ ...it.fields, description: it.fields.description || [] }));
 
   return (
     <Box

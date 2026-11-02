@@ -1,0 +1,167 @@
+// Request handler for the owner-only content assistant.
+// Dependencies are injected so the whole flow can be tested without network access.
+//
+//   deps.getOwnerClient(jwt) -> Supabase client acting as the caller
+//   deps.runStructured({ system, content, schema, maxTokens }) -> { json, usage, model }
+
+import {
+  SECTIONS,
+  TARGET_LOCALES,
+  buildGenerateSchema,
+  buildTranslateSchema,
+  fieldsOf,
+  normalizeFields,
+  slugify,
+  validateProjectDetail,
+  sameDetailShape,
+} from "./sections.js";
+import { toContentBlocks, UserError } from "./documents.js";
+import { systemPrompt, userTask } from "./prompts.js";
+
+const MODES = new Set(["generate", "refine", "translate"]);
+const SCOPES = new Set(["fields", "detail"]);
+const UPLOAD_BUCKET = "admin-uploads";
+const PATH_RE = /^[A-Za-z0-9-]{8,64}\/[A-Za-z0-9._-]{1,150}$/;
+const MAX_INSTRUCTIONS = 4000;
+const MAX_FIELDS_BYTES = 300_000;
+
+function fail(status, message) {
+  throw new UserError(message, status);
+}
+
+function parseBody(body) {
+  const b = body && typeof body === "object" ? body : {};
+  const mode = String(b.mode || "generate");
+  const scope = String(b.scope || "fields");
+  const section = String(b.section || "");
+  const instructions = typeof b.instructions === "string" ? b.instructions.trim() : "";
+  const files = Array.isArray(b.files) ? b.files : [];
+  const fields = b.fields && typeof b.fields === "object" && !Array.isArray(b.fields) ? b.fields : null;
+  const locale = String(b.locale || "");
+
+  if (!MODES.has(mode)) fail(400, "Unknown mode.");
+  if (!SCOPES.has(scope)) fail(400, "Unknown scope.");
+  if (!SECTIONS[section]) fail(400, "Unknown section.");
+  if (instructions.length > MAX_INSTRUCTIONS) fail(400, `Instructions are too long (max ${MAX_INSTRUCTIONS} characters).`);
+  if (scope === "detail" && !fieldsOf(section, { json: true }).length) fail(400, "This section has no details page.");
+  if (mode === "translate" && !TARGET_LOCALES.includes(locale)) fail(400, "Unknown language.");
+  if (mode !== "generate" && !fields) fail(400, "Current fields are required for this action.");
+  if (fields && JSON.stringify(fields).length > MAX_FIELDS_BYTES) fail(413, "The content is too large to send.");
+  if (mode === "generate" && scope === "fields" && !instructions && files.length === 0) {
+    fail(400, "Attach at least one document or describe what you want.");
+  }
+  for (const f of files) {
+    if (!f || typeof f.path !== "string" || !PATH_RE.test(f.path) || f.path.includes("..")) fail(400, "Invalid file reference.");
+  }
+  return { mode, scope, section, instructions, files, fields, locale };
+}
+
+async function downloadFiles(client, files) {
+  const out = [];
+  for (const f of files) {
+    const { data, error } = await client.storage.from(UPLOAD_BUCKET).download(f.path);
+    if (error || !data) fail(400, `Could not read the uploaded file "${f.name || f.path}". Please upload it again.`);
+    out.push({ name: String(f.name || f.path.split("/").pop()), buffer: Buffer.from(await data.arrayBuffer()) });
+  }
+  return out;
+}
+
+// One call, plus a single retry that tells Claude exactly what was wrong.
+async function runChecked(deps, build, check) {
+  const usage = { input_tokens: 0, output_tokens: 0 };
+  const add = (u) => {
+    usage.input_tokens += u?.input_tokens ?? 0;
+    usage.output_tokens += u?.output_tokens ?? 0;
+  };
+  let problems = null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const req = build(problems);
+    const res = await deps.runStructured(req);
+    add(res.usage);
+    const result = check(res.json);
+    if (!result.problems.length) return { ...result, usage, model: res.model };
+    problems = result.problems;
+  }
+  throw new UserError(`Claude's draft did not pass validation: ${problems.slice(0, 3).join(" ")}`, 422);
+}
+
+export async function handleGenerate(req, res, deps) {
+  try {
+    if (req.method !== "POST") fail(405, "Method not allowed.");
+
+    // --- 1. Only the owner may call this (decided by the database, not by us) ---
+    const jwt = String(req.headers?.authorization || "").replace(/^Bearer\s+/i, "");
+    if (!jwt) fail(401, "Please sign in.");
+    const client = deps.getOwnerClient(jwt);
+    const { data: isOwner, error: authError } = await client.rpc("is_owner");
+    if (authError) fail(401, "Your session is not valid. Please sign in again.");
+    if (isOwner !== true) fail(403, "This account is not allowed to use the content assistant.");
+
+    // --- 2. Validate the request ---
+    const { mode, scope, section, instructions, files, fields, locale } = parseBody(req.body);
+    const sectionDef = SECTIONS[section];
+
+    // --- 3. Read the documents (as the owner; storage rules apply) ---
+    const downloaded = files.length ? await downloadFiles(client, files) : [];
+    const { blocks, notes: readNotes } = downloaded.length ? await toContentBlocks(downloaded) : { blocks: [], notes: [] };
+
+    // --- 4. Build the request ---
+    const schema = mode === "translate" ? buildTranslateSchema(section, scope) : buildGenerateSchema(section, scope);
+    const system = systemPrompt({ section, mode, scope, locale });
+    const maxTokens = scope === "detail" ? 28000 : 8000;
+    const build = (retryProblems) => ({
+      system,
+      schema,
+      maxTokens,
+      content: [...blocks, { type: "text", text: userTask({ mode, scope, instructions, fields: fields ?? undefined, locale, retryProblems }) }],
+    });
+
+    // --- 5. Run, validate, and shape the answer ---
+    let body;
+    if (mode === "translate") {
+      const sourceDetail = fields?.detail;
+      const r = await runChecked(deps, build, (json) => {
+        const { data, problems } = normalizeFields(section, json.fields, { translatableOnly: true, json: scope === "detail" });
+        if (scope === "detail") {
+          if (!data.detail) problems.push("The translated details page is missing.");
+          else {
+            problems.push(...validateProjectDetail(data.detail));
+            if (sourceDetail && !sameDetailShape(sourceDetail, data.detail)) problems.push("The translated JSON must keep exactly the same structure (keys, tabs, blocks, list lengths) as the English source.");
+          }
+        } else {
+          for (const f of fieldsOf(section, { translatableOnly: true, json: false })) {
+            if (f.type === "list" && Array.isArray(fields?.[f.key]) && data[f.key] && data[f.key].length !== fields[f.key].length) {
+              problems.push(`"${f.key}" must have the same number of items as the source (${fields[f.key].length}).`);
+            }
+          }
+        }
+        return { data, problems, notes: json.notes };
+      });
+      body = { translation: r.data, notes: r.notes, usage: r.usage, model: r.model };
+    } else {
+      const r = await runChecked(deps, build, (json) => {
+        const { data, problems } = normalizeFields(section, json.fields, { json: scope === "detail" });
+        if (scope === "detail") {
+          if (!data.detail) problems.push("The details page is missing.");
+          else problems.push(...validateProjectDetail(data.detail));
+        }
+        return { data, problems, notes: json.notes, slug: json.slug };
+      });
+      const data = { ...r.data };
+      if (mode === "refine") {
+        // Claude can't produce images: always keep whatever is currently set.
+        for (const f of fieldsOf(section, { json: false })) if (f.type === "image" && fields?.[f.key]) data[f.key] = fields[f.key];
+      }
+      body = { data, notes: r.notes, usage: r.usage, model: r.model };
+      if (mode === "generate" && scope === "fields") {
+        body.slug = slugify(r.slug) || slugify(data[sectionDef.titleField]) || "";
+      }
+    }
+    if (readNotes.length) body.readNotes = readNotes;
+    return res.status(200).json({ ok: true, ...body });
+  } catch (err) {
+    if (err instanceof UserError) return res.status(err.status).json({ error: err.message });
+    console.error("generate failed:", err);
+    return res.status(500).json({ error: "Something went wrong. Please try again." });
+  }
+}

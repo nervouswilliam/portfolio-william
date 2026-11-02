@@ -200,5 +200,10 @@
       "emptyTitle": "Pilih sebuah node",
       "emptyBody": "Klik node mana pun pada diagram untuk melihat fungsinya, logika di baliknya, dan node yang terhubung. Mulai tur terpandu untuk mengikuti satu proses penuh dari unggahan hingga dashboard."
     }
+  },
+  "notFound": {
+    "title": "Halaman tidak ditemukan",
+    "body": "Halaman ini tidak ada atau sudah tidak dipublikasikan.",
+    "back": "Kembali ke beranda"
   }
 }

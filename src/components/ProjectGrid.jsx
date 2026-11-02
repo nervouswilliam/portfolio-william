@@ -175,7 +175,7 @@
 //   );
 // }
 
-import React, { useState } from "react";
+import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
 import {
   Grid,
   Card,
@@ -187,11 +187,12 @@ import {
   Box,
   Tooltip,
   IconButton,
-  ToggleButton,
-  ToggleButtonGroup,
+  ButtonBase,
 } from "@mui/material";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import SortByAlphaIcon from "@mui/icons-material/SortByAlpha";
 
 import {
   SiReact,
@@ -213,30 +214,148 @@ import {
 import { DiJava } from "react-icons/di";
 import { RiFileExcel2Fill } from "react-icons/ri";
 
-import wisely from "/projects/wisely.png";
-import dev4you from "/projects/Dev4You.png";
-import cs2skin from "/projects/CesTwoSkin.png";
-import needworkapp from "/projects/needworkapp.png";
-import tictactoe from "/projects/tictactoe.png";
-import hdb from "/projects/hdb.jpg";
-import fraud from "/projects/fraud_detection.jpg";
-import queryProcessingImage from "/projects/query_processing.jpg";
-import evInfrastructure from "/projects/ev_infrastructure.jpg";
-import machineLearning from "/projects/machine_learning.jpg";
-import socialNetwork from "/projects/social_network.png";
-import agenticRisk from "/projects/agentic_risk.png";
 
 
 import { Link as RouterLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useLocalizedItems } from "../content/useContent";
+import { LEGACY_PROJECT_IDS } from "../content/static";
 
 const PINNED_STORAGE_KEY = "portfolio_pinned_projects";
+
+function SortSwitch({ value, onChange, options, ariaLabel }) {
+  const containerRef = useRef(null);
+  const buttonRefs = useRef([]);
+  const [thumb, setThumb] = useState({ left: 0, width: 0 });
+  const [animate, setAnimate] = useState(false);
+  const index = Math.max(0, options.findIndex((o) => o.value === value));
+  const labelsKey = options.map((o) => o.label).join("|");
+
+  const measure = useCallback(() => {
+    const el = buttonRefs.current[index];
+    if (el) setThumb({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [index]);
+
+  useLayoutEffect(() => {
+    measure();
+    const frame = requestAnimationFrame(() => setAnimate(true));
+    const ro = new ResizeObserver(measure);
+    if (containerRef.current) ro.observe(containerRef.current);
+    return () => {
+      cancelAnimationFrame(frame);
+      ro.disconnect();
+    };
+  }, [measure, labelsKey]);
+
+  const onKeyDown = (e, i) => {
+    const last = options.length - 1;
+    const next =
+      e.key === "ArrowRight" || e.key === "ArrowDown" ? (i === last ? 0 : i + 1)
+      : e.key === "ArrowLeft" || e.key === "ArrowUp" ? (i === 0 ? last : i - 1)
+      : e.key === "Home" ? 0
+      : e.key === "End" ? last
+      : null;
+    if (next === null) return;
+    e.preventDefault();
+    onChange(options[next].value);
+    buttonRefs.current[next]?.focus();
+  };
+
+  return (
+    <Box
+      ref={containerRef}
+      role="radiogroup"
+      aria-label={ariaLabel}
+      sx={{
+        position: "relative",
+        display: "inline-flex",
+        maxWidth: "100%",
+        p: "4px",
+        borderRadius: 999,
+        bgcolor: "rgba(10, 25, 47, 0.06)",
+        border: "1px solid rgba(10, 25, 47, 0.08)",
+      }}
+    >
+      <Box
+        aria-hidden
+        sx={{
+          position: "absolute",
+          top: 4,
+          bottom: 4,
+          left: thumb.left,
+          width: thumb.width,
+          borderRadius: 999,
+          bgcolor: "#0a192f",
+          boxShadow: "0 4px 14px rgba(10, 25, 47, 0.28)",
+          transition: animate
+            ? "left 300ms cubic-bezier(0.4, 0, 0.2, 1), width 300ms cubic-bezier(0.4, 0, 0.2, 1)"
+            : "none",
+          "@media (prefers-reduced-motion: reduce)": { transition: "none" },
+        }}
+      />
+      {options.map((option, i) => {
+        const selected = option.value === value;
+        const Icon = option.icon;
+        return (
+          <ButtonBase
+            key={option.value}
+            ref={(el) => (buttonRefs.current[i] = el)}
+            role="radio"
+            aria-checked={selected}
+            tabIndex={selected ? 0 : -1}
+            onClick={() => onChange(option.value)}
+            onKeyDown={(e) => onKeyDown(e, i)}
+            sx={{
+              position: "relative",
+              zIndex: 1,
+              gap: 0.75,
+              px: { xs: 1.5, sm: 2.25 },
+              py: 0.9,
+              borderRadius: 999,
+              fontFamily: "inherit",
+              fontSize: { xs: 13, sm: 14 },
+              fontWeight: 600,
+              whiteSpace: "nowrap",
+              color: selected ? "#64ffda" : "text.secondary",
+              transition: "color 200ms ease",
+              "&:hover": { color: selected ? "#64ffda" : "text.primary" },
+              "&.Mui-focusVisible": { outline: "2px solid #64ffda", outlineOffset: 2 },
+            }}
+          >
+            <Icon sx={{ fontSize: 18 }} />
+            {option.label}
+            {option.count > 0 && (
+              <Box
+                component="span"
+                sx={{
+                  minWidth: 18,
+                  height: 18,
+                  px: 0.5,
+                  borderRadius: 9,
+                  fontSize: 11,
+                  fontWeight: 700,
+                  lineHeight: "18px",
+                  textAlign: "center",
+                  bgcolor: selected ? "#64ffda" : "rgba(10, 25, 47, 0.12)",
+                  color: selected ? "#0a192f" : "text.secondary",
+                  transition: "background-color 200ms ease, color 200ms ease",
+                }}
+              >
+                {option.count}
+              </Box>
+            )}
+          </ButtonBase>
+        );
+      })}
+    </Box>
+  );
+}
 
 function loadPinned() {
   try {
     const raw = localStorage.getItem(PINNED_STORAGE_KEY);
     const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
+    return Array.isArray(parsed) ? parsed.map((id) => LEGACY_PROJECT_IDS[id] ?? id) : [];
   } catch {
     return [];
   }
@@ -279,119 +398,21 @@ export default function ProjectGrid() {
     openai: { icon: <SiOpenai size={22} />, label: "OpenAI" },
   };
 
-  const projects = [
-    {
-      id: "wisely",
-      title: t("projects.items.wisely.title"),
-      date: "2025",
-      description: t("projects.items.wisely.description"),
-      image: wisely,
-      liveLink: "https://www.wisely.id",
-      github: "https://github.com/nervouswilliam/WISE/tree/master/frontend",
-      tech: ["react", "mui", "supabase"],
-    },
-    {
-      id: "dev4you",
-      title: t("projects.items.dev4you.title"),
-      date: "2024",
-      description: t("projects.items.dev4you.description"),
-      image: dev4you,
-      github: "https://github.com/nervouswilliam/skripsi",
-      tech: ["react", "mui", "nodejs", "postgres"],
-    },
-    {
-      id: "needwork",
-      title: t("projects.items.needwork.title"),
-      date: "2025",
-      description: t("projects.items.needwork.description"),
-      image: needworkapp,
-      liveLink: "https://www.needworkapp.com",
-      github: "https://github.com/nervouswilliam/needworkapp.com",
-      tech: ["react", "mui"],
-    },
-    {
-      id: "cestwosin",
-      title: t("projects.items.cestwosin.title"),
-      date: "2023",
-      description: t("projects.items.cestwosin.description"),
-      image: cs2skin,
-      github: "https://github.com/nervouswilliam/cestwo_skin",
-      tech: ["android", "java", "sqlite"],
-    },
-    {
-      id: "tictactoe",
-      title: t("projects.items.tictactoe.title"),
-      date: "2025",
-      description: t("projects.items.tictactoe.description"),
-      image: tictactoe,
-      liveLink: "https://www.tictacshift.com",
-      github: "https://github.com/nervouswilliam/TicTacToe",
-      tech: ["react"],
-    },
-    {
-      id: "HDB resale Value Drivers",
-      title: t("projects.items.HDB resale Value Drivers.title"),
-      date: "2026",
-      description: t("projects.items.HDB resale Value Drivers.description"),
-      image: hdb,
-      details: "hdb_project",
-      tech: ["python", "pandas", "matplotlib"],
-    },
-    {
-      id: "fraud-detection",
-      title: t("projects.items.fraud-detection.title"),
-      date: "2026",
-      description: t("projects.items.fraud-detection.description"),
-      image: fraud,
-      tech: ["knime"],
-      details: "fraud_detection_project",
-    },
-    {
-      id: "query-optimization",
-      title: t("projects.items.query-optimization.title"),
-      date: "2026",
-      description: t("projects.items.query-optimization.description"),
-      image: queryProcessingImage,
-      tech: ["mysql"],
-      details: "query_optimization_project",
-    },
-    {
-      id: "ev-infrastructure",
-      title: t("projects.items.ev-infrastructure.title"),
-      date: "2026",
-      description: t("projects.items.ev-infrastructure.description"),
-      image: evInfrastructure,
-      tech: ["excel"],
-      details: "ev_infrastructure_project",
-    },
-    {
-      id: "machine-learning",
-      title: t("projects.items.machine-learning.title"),
-      date: "2026",
-      description: t("projects.items.machine-learning.description"),
-      image: machineLearning,
-      tech: ["python", "scikit"],
-      details: "machine_learning_project",
-    },
-    {
-      id: "social-network-analysis",
-      title: t("projects.items.social-network-analysis.title"),
-      date: "2026",
-      description: t("projects.items.social-network-analysis.description"),
-      image: socialNetwork,
-      tech: ["python"],
-      details: "social_network_analysis_project",
-    },
-    {
-      id: "agentic-risk",
-      title: t("projects.items.agentic-risk.title"),
-      date: "2026",
-      description: t("projects.items.agentic-risk.description"),
-      image: agenticRisk,
-      tech: ["n8n", "openai"],
-      details: "agentic_risk_project",
-    },
-  ];
+  const { items } = useLocalizedItems("project");
+  const projects = items.map((it) => {
+    const f = it.fields;
+    return {
+      id: it.slug,
+      title: f.title,
+      description: f.description,
+      date: f.date,
+      image: f.image,
+      liveLink: f.liveLink,
+      github: f.github,
+      tech: (f.tech || []).filter((k) => techIcons[k]),
+      details: f.route ? `/${f.route}` : f.detail ? `/projects/${it.slug}` : null,
+    };
+  });
 
   const byDateDesc = (a, b) => Number(b.date) - Number(a.date);
   const sortedProjects = [...projects].sort((a, b) => {
@@ -415,17 +436,16 @@ export default function ProjectGrid() {
       </Typography>
 
       <Box sx={{ display: "flex", justifyContent: "center", mb: 5 }}>
-        <ToggleButtonGroup
-          exclusive
-          size="small"
+        <SortSwitch
           value={sortBy}
-          onChange={(_, value) => value && setSortBy(value)}
-          aria-label={t("projects.sortLabel")}
-        >
-          <ToggleButton value="date">{t("projects.sortDate")}</ToggleButton>
-          <ToggleButton value="alphabetical">{t("projects.sortAlphabetical")}</ToggleButton>
-          <ToggleButton value="pinned">{t("projects.sortPinned")}</ToggleButton>
-        </ToggleButtonGroup>
+          onChange={setSortBy}
+          ariaLabel={t("projects.sortLabel")}
+          options={[
+            { value: "date", label: t("projects.sortDate"), icon: AccessTimeIcon },
+            { value: "alphabetical", label: t("projects.sortAlphabetical"), icon: SortByAlphaIcon },
+            { value: "pinned", label: t("projects.sortPinned"), icon: StarBorderIcon, count: pinnedIds.length },
+          ]}
+        />
       </Box>
 
       <Grid container spacing={4} justifyContent="center">
@@ -467,12 +487,30 @@ export default function ProjectGrid() {
                 </IconButton>
               </Tooltip>
 
-              <CardMedia
-                component="img"
-                height="200"
-                image={project.image}
-                alt={project.title}
-              />
+              {project.image ? (
+                <CardMedia
+                  component="img"
+                  height="200"
+                  image={project.image}
+                  alt={project.title}
+                />
+              ) : (
+                <Box
+                  aria-hidden
+                  sx={{
+                    height: 200,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: "linear-gradient(135deg, #0a192f, #112240)",
+                    color: "#64ffda",
+                    fontSize: 64,
+                    fontWeight: 700,
+                  }}
+                >
+                  {(project.title || "?").charAt(0).toUpperCase()}
+                </Box>
+              )}
 
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography
@@ -520,7 +558,7 @@ export default function ProjectGrid() {
                   <Button
                     size="small"
                     component={RouterLink}
-                    to={`/${project.details}`}
+                    to={project.details}
                   >
                     {t("projects.detailsBtn")}
                   </Button>
