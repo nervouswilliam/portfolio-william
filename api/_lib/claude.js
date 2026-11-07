@@ -17,7 +17,7 @@ export const DEFAULT_MODEL = "claude-opus-5-5";
 export function createRunner(env = process.env, options = {}) {
   return async function runStructured({ system, content, schema, maxTokens = 16000 }) {
     if (!env.ANTHROPIC_API_KEY) {
-      throw new UserError("The Claude API key is not configured on the server (ANTHROPIC_API_KEY).", 500);
+      throw new UserError("The Claude API key is not configured on the server (ANTHROPIC_API_KEY). You can also create drafts on your own computer with `npm run draft` and use Import draft.", 500);
     }
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY, ...options });
     const useFallbacks = env.CLAUDE_FALLBACKS !== "off";

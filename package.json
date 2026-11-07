@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "test:rls": "node --test \"supabase/tests/*.test.mjs\"",
     "test:api": "node --test \"api/_lib/tests/*.test.mjs\"",
-    "test": "npm run test:api && npm run test:rls"
+    "test": "npm run test:api && npm run test:scripts && npm run test:rls",
+    "draft": "node scripts/draft.mjs",
+    "test:scripts": "node --test \"scripts/tests/*.test.mjs\""
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.3.0",

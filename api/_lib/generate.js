@@ -4,19 +4,9 @@
 //   deps.getOwnerClient(jwt) -> Supabase client acting as the caller
 //   deps.runStructured({ system, content, schema, maxTokens }) -> { json, usage, model }
 
-import {
-  SECTIONS,
-  TARGET_LOCALES,
-  buildGenerateSchema,
-  buildTranslateSchema,
-  fieldsOf,
-  normalizeFields,
-  slugify,
-  validateProjectDetail,
-  sameDetailShape,
-} from "./sections.js";
+import { SECTIONS, TARGET_LOCALES, fieldsOf } from "./sections.js";
 import { toContentBlocks, UserError } from "./documents.js";
-import { systemPrompt, userTask } from "./prompts.js";
+import { runPipeline } from "./pipeline.js";
 
 const MODES = new Set(["generate", "refine", "translate"]);
 const SCOPES = new Set(["fields", "detail"]);
@@ -66,25 +56,6 @@ async function downloadFiles(client, files) {
   return out;
 }
 
-// One call, plus a single retry that tells Claude exactly what was wrong.
-async function runChecked(deps, build, check) {
-  const usage = { input_tokens: 0, output_tokens: 0 };
-  const add = (u) => {
-    usage.input_tokens += u?.input_tokens ?? 0;
-    usage.output_tokens += u?.output_tokens ?? 0;
-  };
-  let problems = null;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const req = build(problems);
-    const res = await deps.runStructured(req);
-    add(res.usage);
-    const result = check(res.json);
-    if (!result.problems.length) return { ...result, usage, model: res.model };
-    problems = result.problems;
-  }
-  throw new UserError(`Claude's draft did not pass validation: ${problems.slice(0, 3).join(" ")}`, 422);
-}
-
 export async function handleGenerate(req, res, deps) {
   try {
     if (req.method !== "POST") fail(405, "Method not allowed.");
@@ -99,64 +70,13 @@ export async function handleGenerate(req, res, deps) {
 
     // --- 2. Validate the request ---
     const { mode, scope, section, instructions, files, fields, locale } = parseBody(req.body);
-    const sectionDef = SECTIONS[section];
 
     // --- 3. Read the documents (as the owner; storage rules apply) ---
     const downloaded = files.length ? await downloadFiles(client, files) : [];
     const { blocks, notes: readNotes } = downloaded.length ? await toContentBlocks(downloaded) : { blocks: [], notes: [] };
 
-    // --- 4. Build the request ---
-    const schema = mode === "translate" ? buildTranslateSchema(section, scope) : buildGenerateSchema(section, scope);
-    const system = systemPrompt({ section, mode, scope, locale });
-    const maxTokens = scope === "detail" ? 28000 : 8000;
-    const build = (retryProblems) => ({
-      system,
-      schema,
-      maxTokens,
-      content: [...blocks, { type: "text", text: userTask({ mode, scope, instructions, fields: fields ?? undefined, locale, retryProblems }) }],
-    });
-
-    // --- 5. Run, validate, and shape the answer ---
-    let body;
-    if (mode === "translate") {
-      const sourceDetail = fields?.detail;
-      const r = await runChecked(deps, build, (json) => {
-        const { data, problems } = normalizeFields(section, json.fields, { translatableOnly: true, json: scope === "detail" });
-        if (scope === "detail") {
-          if (!data.detail) problems.push("The translated details page is missing.");
-          else {
-            problems.push(...validateProjectDetail(data.detail));
-            if (sourceDetail && !sameDetailShape(sourceDetail, data.detail)) problems.push("The translated JSON must keep exactly the same structure (keys, tabs, blocks, list lengths) as the English source.");
-          }
-        } else {
-          for (const f of fieldsOf(section, { translatableOnly: true, json: false })) {
-            if (f.type === "list" && Array.isArray(fields?.[f.key]) && data[f.key] && data[f.key].length !== fields[f.key].length) {
-              problems.push(`"${f.key}" must have the same number of items as the source (${fields[f.key].length}).`);
-            }
-          }
-        }
-        return { data, problems, notes: json.notes };
-      });
-      body = { translation: r.data, notes: r.notes, usage: r.usage, model: r.model };
-    } else {
-      const r = await runChecked(deps, build, (json) => {
-        const { data, problems } = normalizeFields(section, json.fields, { json: scope === "detail" });
-        if (scope === "detail") {
-          if (!data.detail) problems.push("The details page is missing.");
-          else problems.push(...validateProjectDetail(data.detail));
-        }
-        return { data, problems, notes: json.notes, slug: json.slug };
-      });
-      const data = { ...r.data };
-      if (mode === "refine") {
-        // Claude can't produce images: always keep whatever is currently set.
-        for (const f of fieldsOf(section, { json: false })) if (f.type === "image" && fields?.[f.key]) data[f.key] = fields[f.key];
-      }
-      body = { data, notes: r.notes, usage: r.usage, model: r.model };
-      if (mode === "generate" && scope === "fields") {
-        body.slug = slugify(r.slug) || slugify(data[sectionDef.titleField]) || "";
-      }
-    }
+    // --- 4. Run the shared pipeline (prompts, schema, validation, one retry) ---
+    const body = await runPipeline({ deps, mode, scope, section, instructions, blocks, fields, locale });
     if (readNotes.length) body.readNotes = readNotes;
     return res.status(200).json({ ok: true, ...body });
   } catch (err) {

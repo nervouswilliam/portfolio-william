@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Alert, Box, Button, Chip, CircularProgress, IconButton, Link, Paper, Stack, Switch, Tooltip, Typography } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -8,7 +8,9 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import EditIcon from "@mui/icons-material/Edit";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import SystemUpdateAltIcon from "@mui/icons-material/SystemUpdateAlt";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import { SECTIONS } from "../../api/_lib/sections.js";
+import { MAX_DRAFT_BYTES, parseDraftFile } from "../../api/_lib/draftFile.js";
 import { STATIC_ITEMS } from "../content/static";
 import ClaudeCreateDialog from "./ClaudeCreateDialog";
 import ItemEditor from "./ItemEditor";
@@ -24,6 +26,7 @@ export default function SectionManager({ section }) {
   const [working, setWorking] = useState("");
   const [editor, setEditor] = useState(null); // { initial, docs, notes }
   const [claudeOpen, setClaudeOpen] = useState(false);
+  const importInput = useRef(null);
 
   const load = useCallback(async () => {
     try {
@@ -71,6 +74,27 @@ export default function SectionManager({ section }) {
     act("Deleting…", () => deleteItem(section, row.id));
   };
 
+  // A draft made on your computer by `npm run draft`. It opens in the normal editor; nothing is saved until you do.
+  const importDraft = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    if (file.size > MAX_DRAFT_BYTES) return setError("That file is too large to be a draft (2 MB max).");
+    const result = parseDraftFile(await file.text(), { section });
+    if (!result.ok) return setError(result.error);
+    setError("");
+    const { data, translations, notes } = result.draft;
+    const taken = new Set((rows ?? []).map((r) => r.slug));
+    const base = result.draft.slug || "imported-draft";
+    let slug = base;
+    for (let n = 2; taken.has(slug); n++) slug = `${base}-${n}`;
+    setEditor({
+      initial: { slug, data, translations, published: false, position: nextPosition },
+      docs: [],
+      notes: ["Imported from a draft file. Review everything before publishing.", notes].filter(Boolean).join(" "),
+    });
+  };
+
   const openNew = () =>
     setEditor({ initial: { slug: "", data: {}, translations: {}, published: false, position: nextPosition }, docs: [], notes: "" });
 
@@ -78,6 +102,8 @@ export default function SectionManager({ section }) {
     <Box>
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center", mb: 2 }}>
         <Typography variant="h6" sx={{ flexGrow: 1 }}>{def.label}</Typography>
+        <Button variant="outlined" startIcon={<UploadFileIcon />} onClick={() => importInput.current?.click()} disabled={!rows}>Import draft</Button>
+        <input ref={importInput} type="file" hidden accept=".json,application/json" onChange={importDraft} />
         <Button variant="outlined" startIcon={<AddIcon />} onClick={openNew} disabled={!rows}>New {def.singular.toLowerCase()}</Button>
         <Button variant="contained" startIcon={<AutoAwesomeIcon />} onClick={() => setClaudeOpen(true)} disabled={!rows}>Create with Claude</Button>
       </Box>
